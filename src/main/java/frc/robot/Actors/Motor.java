@@ -5,8 +5,10 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -177,6 +179,24 @@ public class Motor {
     // }
 
     /**
+     * Sets the voltage of the motor
+     * 
+     * @param voltage from -32.0 to 32.0
+     */
+    public void volt(double voltage) {
+        switch (this.type) {
+            case SPX:
+                this.motorSPX.setVoltage(voltage);
+                break;
+            case TFX:
+                this.motorTFX.setVoltage(voltage);
+                break;
+            case None:
+                System.err.println("tried to set voltage on None motor with CanID " + this.CanID);
+        }
+    }
+
+    /**
      * Sets the duty cycle of the motor
      * 
      * @param dutyCycle from -1.0 to 1.0
@@ -224,7 +244,7 @@ public class Motor {
             case TFX:
                 // this.motorTFX.set(motor_rPs);
                 if (Math.abs(motor_rPs) > 0.1) {
-                    VelocityDutyCycle controlRequest = new VelocityDutyCycle(motor_rPs);
+                    VelocityVoltage controlRequest = new VelocityVoltage(motor_rPs);
                     desiredSpeed_rPs = motor_rPs;
                     actualSpeed_rPs = motorTFX.getVelocity().getValueAsDouble();
                     motorTFX.setControl(controlRequest);
@@ -250,7 +270,7 @@ public class Motor {
                 motorSPX.getClosedLoopController().setSetpoint(pos, ControlType.kPosition, ClosedLoopSlot.kSlot0, 0);
                 break;
             case TFX:
-                PositionDutyCycle controlRequest = new PositionDutyCycle(pos);
+                PositionVoltage controlRequest = new PositionVoltage(pos);
                 controlRequest.FeedForward = 0;
                 motorTFX.setControl(controlRequest);
                 break;
@@ -272,7 +292,7 @@ public class Motor {
                 motorSPX.getClosedLoopController().setSetpoint(pos, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff);
                 break;
             case TFX:
-                PositionDutyCycle controlRequest = new PositionDutyCycle(pos);
+                PositionVoltage controlRequest = new PositionVoltage(pos);
                 controlRequest.FeedForward = ff;
                 motorTFX.setControl(controlRequest);
                 break;

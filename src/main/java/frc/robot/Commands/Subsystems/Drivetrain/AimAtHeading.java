@@ -23,7 +23,7 @@ public class AimAtHeading extends SequentialCommandGroup {
         this.target = target;
         addRequirements(drivetrain);
 
-        this.pid = new PIDController(0.1, 0, 0);
+        this.pid = new PIDController(0.15, 0, 0);
         this.pid.enableContinuousInput(0, 360);
 
         addCommands(this.drivetrain.applyRequest(

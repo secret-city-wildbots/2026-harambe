@@ -9,6 +9,14 @@ public class ShotPredictor {
     public static Translation2d hubPosition = new Translation2d(hubX, 4.035);
 
     public static double getShotVel(Translation2d pose) {
-        return pose.getDistance(hubPosition)*1.3 + 3.5;
+        double dist = pose.getDistance(hubPosition);
+        System.out.println(dist);
+
+        //return SmartDashboard.getNumber("pow", 0.0);
+        return 6.6+(dist-1.68)*(0.392) + ((dist > 2.4) ? (dist-2.4)*0.35:0);
+    }
+
+    public static double getShotRPS(Translation2d pose) {
+        return getShotVel(pose);
     }
 }

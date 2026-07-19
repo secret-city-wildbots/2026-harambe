@@ -29,5 +29,10 @@ public final class Constants {
   public static class ShooterConstants {
     // Intake motor CANBus IDs
     public static final int leadMotorID = 42;
+    public static final int followerMotorID = 43;
+  }
+
+  public static class TransferConstants {
+    public static final int motorID = 44;
   }
 }
