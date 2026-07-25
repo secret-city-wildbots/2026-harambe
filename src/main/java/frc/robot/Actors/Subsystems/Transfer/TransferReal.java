@@ -18,6 +18,6 @@ public class TransferReal implements Transfer {
     }
 
     public void stop() {
-        this.motor.dc(0);
+        this.motor.volt(0);
     }
 }

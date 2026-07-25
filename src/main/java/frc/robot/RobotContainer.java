@@ -23,12 +23,22 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.Actors.Subsystems.CommandSwerveDrivetrain;
+import frc.robot.Actors.Subsystems.Indexer.Indexer;
+import frc.robot.Actors.Subsystems.Indexer.IndexerDummy;
+import frc.robot.Actors.Subsystems.Indexer.IndexerReal;
+import frc.robot.Actors.Subsystems.Indexer.IndexerSim;
 import frc.robot.Actors.Subsystems.Intake.Intake;
+import frc.robot.Actors.Subsystems.Intake.IntakeDummy;
 import frc.robot.Actors.Subsystems.Intake.IntakeReal;
 import frc.robot.Actors.Subsystems.Intake.IntakeSim;
 import frc.robot.Actors.Subsystems.Shooter.Shooter;
+import frc.robot.Actors.Subsystems.Shooter.ShooterDummy;
 import frc.robot.Actors.Subsystems.Shooter.ShooterReal;
 import frc.robot.Actors.Subsystems.Shooter.ShooterSim;
+import frc.robot.Actors.Subsystems.Transfer.Transfer;
+import frc.robot.Actors.Subsystems.Transfer.TransferDummy;
+import frc.robot.Actors.Subsystems.Transfer.TransferReal;
+import frc.robot.Actors.Subsystems.Transfer.TransferSim;
 import frc.robot.Commands.Subsystems.Drivetrain.AimAtHeading;
 import frc.robot.Commands.Subsystems.Drivetrain.AimAtHeadingAssist;
 import frc.robot.Utils.ShotPredictor;
@@ -56,6 +66,10 @@ public class RobotContainer {
 
     public final Shooter shooter;
 
+    public final Transfer transfer;
+
+    public final Indexer indexer;
+
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     //public final Intake intake;
@@ -67,12 +81,21 @@ public class RobotContainer {
         } else {
             intake = new IntakeReal();
         }*/
-        if (RobotBase.isReal()) {
+        if (Robot.dummyMode) {
+                intake = new IntakeDummy();
+                shooter = new ShooterDummy();
+                transfer = new TransferDummy();
+                indexer = new IndexerDummy();
+        } else if (RobotBase.isReal()) {
                 intake = new IntakeReal();
-                shooter = new ShooterReal();
+                shooter = new ShooterReal(drivetrain);
+                transfer = new TransferReal();
+                indexer = new IndexerReal();
         } else {
                 intake = new IntakeSim(drivetrain.getDriveSimulation());
                 shooter = new ShooterSim(drivetrain.getDriveSimulation());
+                transfer = new TransferSim();
+                indexer = new IndexerSim();
         }
 
         configureBindings();
@@ -83,7 +106,10 @@ public class RobotContainer {
     private void configureBindings() {
 
         joystick.leftBumper().toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
-        joystick.rightTrigger(0.4).whileTrue(Commands.runEnd(shooter::startShooting, shooter::stop, shooter));
+        joystick.rightTrigger(0.4).whileTrue(Commands.runEnd(
+                () -> {shooter.startShooting(); indexer.startIndexer(); transfer.startShooting();},
+                () -> {shooter.stop(); indexer.stop(); transfer.stop();}, 
+                shooter, indexer, transfer));
 
         joystick.a().whileTrue(new AimAtHeadingAssist(drivetrain, () -> {
                 return ShotPredictor.hubPosition.minus(drivetrain.getPose().getTranslation()).getAngle().plus(new Rotation2d(Math.PI/2));
@@ -123,6 +149,7 @@ public class RobotContainer {
                 .whileTrue(drivetrain.applyRequest(
                         () -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));*/
 
+        
         joystick.pov(0)
                 .whileTrue(drivetrain.applyRequest(
                         () -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));

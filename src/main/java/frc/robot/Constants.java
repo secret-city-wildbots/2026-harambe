@@ -35,4 +35,9 @@ public final class Constants {
   public static class TransferConstants {
     public static final int motorID = 44;
   }
+
+  public static class IndexerConstants {
+    // Intake motor CANBus IDs
+    public static final int indexerMotorID = 40;
+  }
 }
