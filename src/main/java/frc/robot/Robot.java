@@ -27,6 +27,8 @@ public class Robot extends TimedRobot {
 
     public static boolean test = true;
 
+    public static boolean dummyMode = false;
+
     public Robot() {
         SimulatedArena.overrideInstance(new FixedArena2026Rebuilt(false));
         SimulatedArena.getInstance().resetFieldForAuto();
