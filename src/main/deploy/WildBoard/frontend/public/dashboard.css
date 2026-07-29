@@ -1,0 +1,623 @@
+@import url("./fonts/Kanit.css");
+
+/* chromium/firefox rendering normalization */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body {
+    background-color: #202022;
+    font-family: "Kanit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    height: calc(100vh - 1px);
+    overflow-y: hidden;
+    line-height: 1.2;
+    padding-right: 1rem;
+    --edge-glow: rgba(68, 142, 205, 0.4);
+    --edge-glow-d: 6px;
+
+    transition: ease-in-out box-shadow 0.5s;
+
+    box-shadow:
+        inset 0 var(--edge-glow-d) var(--edge-glow-d) calc(var(--edge-glow-d) * -1) var(--edge-glow),
+        inset var(--edge-glow-d) 0 var(--edge-glow-d) calc(var(--edge-glow-d) * -1) var(--edge-glow),
+        inset calc(var(--edge-glow-d) * -1) 0 var(--edge-glow-d) calc(var(--edge-glow-d) * -1) var(--edge-glow);
+}
+
+body:has(.grid-square.highlighted) {
+    --edge-glow: rgba(255, 1, 152, 0.8);
+    --edge-glow-d: 12px;
+}
+
+/* chromium form controls don't inherit fonts unless forced */
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+*,
+.list-group-item {
+    color: #eed;
+}
+
+.row>* {
+    padding: 0;
+}
+
+/* Random bits */
+
+.column-item {
+    /*padding: 0.25rem 0;*/
+    display: flex;
+    justify-content: center;
+    /* Center horizontally */
+    align-items: center;
+    /* Center vertically (optional) */
+    width: 100%;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    text-align: center;
+}
+
+.column {
+    padding: 0.5rem;
+    padding-left: 0;
+    position: relative;
+}
+
+.column:not(:first-child) {
+    padding-left: 0;
+}
+
+.sidepanel.column {
+    padding: 0.25rem;
+    padding-right: 0;
+}
+
+.sidepanel.column:not(:first-child)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -1px;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom,
+            rgba(116, 255, 6, 0.8));
+}
+
+.row {
+    width: 100%;
+}
+
+.row.bubble {
+    border-color: rgba(116, 255, 6, 0.8);
+}
+
+.tab-selector {
+    padding: 0.15em 1em;
+    cursor: pointer;
+    border: none !important;
+    background: none !important;
+}
+
+.tab-selector.bubble {
+    border-radius: 0px;
+    border-bottom: 3px solid rgb(68, 142, 205) !important;
+}
+
+.tab-bar {
+    padding-top: 0.3rem;
+    display: flex;
+    border-bottom: 2px solid rgba(116, 255, 6, 0.8) !important;
+}
+
+.bubble {
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 1, 152, 0.8);
+}
+
+label:not(.form-check-label) {
+    font-weight: 500;
+    font-size: 1.5rem;
+}
+
+label.label-small {
+    font-weight: 400;
+    font-size: 1.2rem;
+    padding-right: 0.75rem;
+}
+
+table>tr>td>label {
+    float: right;
+}
+
+.flex-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+hr {
+    width: 75%;
+    margin-left: 12.5%;
+    color: rgb(116, 255, 6);
+}
+
+.checklist-item {
+    list-style-type: none;
+    padding: 0.3rem 0.5rem;
+    margin-bottom: 0.2rem;
+    border: none;
+}
+
+.sidepanel.column .column-item {
+    margin-bottom: 0;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+/*
+after this is all styles for specific components. I may break all
+this into seperate files that compile into this one at some point,
+but it works for now.
+*/
+
+/* container */
+
+.container-fluid {
+    width: 100%;
+}
+
+/* switch */
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 62px;
+    height: 33px;
+    border-radius: 16.5px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.switch.vertical {
+    width: 33px;
+    height: 62px;
+}
+
+.switch.disabled,
+.switch:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.switch .knob {
+    position: absolute;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all 0.25s ease, border 0s, outline 0s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: #202022;
+    border: none;
+}
+
+.switch.on:not(.vertical) .knob {
+    left: 31px;
+}
+
+.switch.on.vertical .knob {
+    top: 2px;
+}
+
+.switch.off.vertical .knob {
+    top: 31px;
+}
+
+.switch:not(.disabled):hover {
+    outline: 1px solid rgba(255, 1, 152, 1);
+}
+
+.switch:not(.disabled):hover:not(:active) .knob {
+    border: 1px solid rgb(255, 1, 152);
+    outline: 1px solid rgb(255, 1, 152);
+}
+
+/* button */
+
+.button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: box-shadow 0.1s;
+    outline: 0;
+}
+
+.button:hover:not(.disabled):not(:active) {
+    outline: 2px solid rgb(255, 1, 152);
+}
+
+.button:active:not(.disabled) {
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.3);
+}
+
+.button.disabled,
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* dropdown */
+
+.dropdown-toggle {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    background-color: rgb(68, 142, 205);
+    color: #eed;
+    transition: box-shadow 0.1s;
+    outline: 0;
+}
+
+.dropdown-toggle:hover:not(.disabled):not(:active) {
+    background-color: rgb(68, 142, 205);
+    color: #eed;
+    outline: 2px solid rgb(255, 1, 152);
+}
+
+.dropdown-toggle:active:not(.disabled) {
+    background-color: rgb(68, 142, 205);
+    color: #eed;
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-toggle.disabled,
+.dropdown-toggle:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.dropdown-menu {
+    background-color: #202022;
+    max-height: 20rem;
+    overflow-y: auto;
+    border: 1px solid rgb(68, 142, 205);
+}
+
+.dropdown-item {
+    color: #eed;
+}
+
+/* readout */
+
+.readout {
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    border-radius: 10px;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 2px solid rgb(68, 142, 205);
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    /* padding controlled via CSS vars so JS can align the inner plot to the same inset */
+    padding: var(--rpad-y, 0.3rem) var(--rpad-x, 0.5rem);
+    overflow: hidden;
+}
+
+/* inner plot area that overlays the readout content area (inside padding) */
+.readout-plot {
+    /* occupy the full readout box so we can position the canvas inside it */
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    /* keep rounded corners */
+    border-radius: inherit;
+}
+
+/* position the canvas to the inner content area using the same padding vars
+   so the numeric text and the plot line up perfectly. Using calc keeps the
+   canvas sized to the inner box without JS geometry. */
+.readout-plot canvas {
+    position: absolute;
+    left: var(--rpad-x, 0.5rem);
+    top: var(--rpad-y, 0.3rem);
+    width: calc(100% - (2 * var(--rpad-x, 0.5rem)));
+    height: calc(100% - (2 * var(--rpad-y, 0.3rem)));
+    display: block;
+}
+
+/* when a readout renders a background chart, we size the canvas to the
+    readout's inner content area in JS so the container padding is preserved
+    and the numeric text keeps its spacing. */
+
+/* boolean readout */
+
+.boolean-readout {
+    --chamfer: 0.75rem;
+
+    /* add a chamfer (it looks very sexy) */
+    clip-path: polygon(var(--chamfer) 0%,
+            calc(100% - var(--chamfer)) 0%,
+            100% var(--chamfer),
+            100% calc(100% - var(--chamfer)),
+            calc(100% - var(--chamfer)) 100%,
+            var(--chamfer) 100%,
+            0% calc(100% - var(--chamfer)),
+            0% var(--chamfer));
+
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    padding: 0.4rem 0.75rem;
+}
+
+/* Swerve Module */
+
+.swerve-modules>table>tr>td:first-child {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
+}
+
+/* Input */
+
+input:focus {
+    outline: 2px solid rgb(255, 1, 152);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* CheckList */
+
+.form-check-input {
+    background-color: black;
+    border: 2px solid black;
+    transform: scale(1.5);
+    margin-right: 0.5rem;
+}
+
+.form-check-input:checked {
+    background-color: black;
+    border-color: black;
+}
+
+.form-check-input:checked::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='green' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: 80%;
+    background-color: green;
+}
+
+/* Master Alarms */
+
+.grid-squares {
+    width: 100%;
+    display: grid;
+    box-sizing: border-box;
+
+    background: rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(68, 142, 205, 0.9);
+    border-radius: 10px;
+    overflow: hidden;
+
+    animation: master-flash 1s linear infinite;
+}
+
+@keyframes master-flash {
+
+    0%,
+    15%,
+    85%,
+    100% {
+        --alarm-on: 1;
+    }
+
+    35%,
+    65% {
+        --alarm-on: 0;
+    }
+}
+
+.grid-square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.8rem;
+    font-weight: 500;
+    text-align: center;
+    user-select: none;
+
+    background: rgba(255, 255, 255, 0.03);
+    color: #eed;
+
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        color 0.2s ease;
+}
+
+.grid-square:nth-child(n) {
+    box-sizing: border-box;
+}
+
+.grid-square.highlighted {
+    color: #fff;
+
+    background: rgba(255, 1, 152,
+            calc(0.15 + 0.1 * var(--alarm-on)));
+
+    box-shadow: inset 0 0 calc(12px * var(--alarm-on)) rgba(255, 1, 152,
+            calc(0.6 * var(--alarm-on)));
+
+    border: 2px solid rgba(255, 1, 152,
+            calc(var(--alarm-on)));
+}
+
+.grid-square:hover {
+    background: rgba(68, 142, 205, 0.12);
+}
+
+/* Popover (unchanged) */
+
+.popover {
+    background-color: #202022 !important;
+    border: 2px solid rgba(68, 142, 205, 0.7) !important;
+    border-radius: 10px;
+    color: #eed !important;
+    max-width: 200px;
+    box-shadow: 0 0 12px rgba(68, 142, 205, 0.4);
+}
+
+.popover .popover-header {
+    background-color: rgba(68, 142, 205, 0.1) !important;
+    color: #eed !important;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(68, 142, 205, 0.3);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.popover .popover-body {
+    background-color: transparent !important;
+    color: #eed !important;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.popover.bs-popover-top .arrow::before,
+.popover.bs-popover-bottom .arrow::before,
+.popover.bs-popover-start .arrow::before,
+.popover.bs-popover-end .arrow::before {
+    border-color: #202022 !important;
+}
+
+/* Overrides */
+
+.switch-grid {
+    display: grid;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.switch-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0.75rem 0.5rem;
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.switch-grid-item:hover {
+    background: rgba(255, 1, 152, 0.08);
+}
+
+.switch-grid-label {
+    margin-bottom: 0.6rem;
+    padding-right: 0 !important;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Field Map */
+.field-map {
+    position: relative;
+    width: 100%;
+    flex-grow: 1;
+    min-height: 364px;
+    height: 100%;
+
+    display: flex;
+}
+
+.field-map-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.field-map-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.field-map {
+    contain: layout paint;
+    isolation: isolate;
+}
+
+.field-map-canvas {
+    transform: translateZ(0);
+    will-change: transform;
+}

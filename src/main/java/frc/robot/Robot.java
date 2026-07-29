@@ -66,6 +66,8 @@ public class Robot extends TimedRobot {
                         llMeasurement.pose, Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
             }
         }
+        
+        m_robotContainer.dashboard.update();
     }
 
     @Override

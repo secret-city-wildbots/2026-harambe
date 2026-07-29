@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,7 +40,6 @@ import frc.robot.Actors.Subsystems.Transfer.Transfer;
 import frc.robot.Actors.Subsystems.Transfer.TransferDummy;
 import frc.robot.Actors.Subsystems.Transfer.TransferReal;
 import frc.robot.Actors.Subsystems.Transfer.TransferSim;
-import frc.robot.Commands.Subsystems.Drivetrain.AimAtHeading;
 import frc.robot.Commands.Subsystems.Drivetrain.AimAtHeadingAssist;
 import frc.robot.Utils.ShotPredictor;
 
@@ -72,6 +72,10 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    public final Dashboard dashboard;
+
+    private final PowerDistribution pdh = new PowerDistribution();
+
     //public final Intake intake;
 
     public RobotContainer() {
@@ -101,6 +105,8 @@ public class RobotContainer {
         configureBindings();
 
         drivetrain.resetPose(new Pose2d(3, 3, new Rotation2d()));
+
+        dashboard = new Dashboard(drivetrain, shooter, indexer, transfer, intake, pdh, null);
     }
 
     private void configureBindings() {
