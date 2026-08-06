@@ -8,6 +8,7 @@ import com.ctre.phoenix6.Utils;
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,11 +28,13 @@ public class Robot extends TimedRobot {
 
     public static boolean test = true;
 
-    public static boolean dummyMode = false;
+    public static boolean dummyMode = true;
 
     public Robot() {
-        SimulatedArena.overrideInstance(new FixedArena2026Rebuilt(false));
-        SimulatedArena.getInstance().resetFieldForAuto();
+        if (RobotBase.isSimulation()) {
+            SimulatedArena.overrideInstance(new FixedArena2026Rebuilt(false));
+            SimulatedArena.getInstance().resetFieldForAuto();
+        }
         m_robotContainer = new RobotContainer();
     }
 

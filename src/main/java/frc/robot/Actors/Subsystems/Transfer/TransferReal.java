@@ -9,8 +9,10 @@ public class TransferReal implements Transfer {
 
     public TransferReal() {
         this.motor = new Motor(TransferConstants.motorID, MotorType.TFX);
-        this.motor.configTFX.Slot0.kV = 0.01;
-        this.motor.pid(0, 0, 0);
+        this.motor.setBrake(false);
+
+        this.motor.slot0TFX.kV = 0.12;
+        this.motor.pid(0.01, 0, 0);
     }
 
     public void startShooting() {

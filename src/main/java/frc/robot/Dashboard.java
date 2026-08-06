@@ -34,7 +34,6 @@ public class Dashboard {
     private Indexer indexer;
     private Transfer transfer;
     private Intake intake;
-    private PowerDistribution pdh;
 
     final VelocitySimpleSubsystem WBshooter;
     final SimpleSubsystem WBintake;
@@ -52,13 +51,12 @@ public class Dashboard {
 
     private Consumer<Command> autoChosen;
 
-    public Dashboard(CommandSwerveDrivetrain drivetrain, Shooter shooter, Indexer indexer, Transfer transfer, Intake intake, PowerDistribution pdh, Consumer<Command> autoChoosen) {
+    public Dashboard(CommandSwerveDrivetrain drivetrain, Shooter shooter, Indexer indexer, Transfer transfer, Intake intake, Consumer<Command> autoChoosen) {
         this.drivetrain = drivetrain;
         this.shooter = shooter;
         this.indexer = indexer;
         this.transfer = transfer;
         this.intake = intake;
-        this.pdh = pdh;
         this.autoChosen = autoChoosen;
         dashboard = new WildBoard(5804);
 
@@ -200,10 +198,10 @@ public class Dashboard {
             WBalarms.triggerAlarm(2);
         }
 
-        currAvg = (currAvg + (pdh.getTotalCurrent() * 0.1)) / 1.1;
+        /*currAvg = (currAvg + (pdh.getTotalCurrent() * 0.1)) / 1.1;
         if (currAvg > 150.0) {
             WBalarms.triggerAlarm(3);
-        }
+        }*/
 
         if (!DriverStation.getJoystickIsXbox(0)) {
             WBalarms.triggerAlarm(4);

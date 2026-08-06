@@ -12,8 +12,8 @@ public class IntakeReal implements Intake {
         this.intakeMotor = new Motor(IntakeConstants.intakeMotorID, MotorType.TFX);
         this.extensionMotor = new Motor(IntakeConstants.extensionMotorID, MotorType.TFX);
 
-        this.intakeMotor.configTFX.Slot0.kV = 0.3;
-        this.intakeMotor.pid(0, 0, 0);
+        this.intakeMotor.configTFX.Slot0.kV = 0.14;
+        this.intakeMotor.pid(0.05, 0, 0);
 
         this.extensionMotor.pid(0.5, 0, 0);
     }

@@ -13,6 +13,9 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static class RobotConstants { 
+      public static final double driveCurLim = 35.0;
+    }
     public static class IntakeConstants {
     // Intake motor CANBus IDs
     public static final int intakeMotorID = 40;
