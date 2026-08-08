@@ -85,9 +85,9 @@ public class RobotContainer {
         }*/
         if (Robot.dummyMode) {
                 intake = new IntakeDummy();
-                shooter = new ShooterReal(drivetrain);
-                transfer = new TransferReal();
-                indexer = new IndexerReal();
+                shooter = new ShooterDummy();
+                transfer = new TransferDummy();
+                indexer = new IndexerDummy();
         } else if (RobotBase.isReal()) {
                 intake = new IntakeReal();
                 shooter = new ShooterReal(drivetrain);
