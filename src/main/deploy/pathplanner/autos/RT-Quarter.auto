@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Quarter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Quarter-Rev"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OUT-Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Simple",
+  "choreoAuto": false
+}

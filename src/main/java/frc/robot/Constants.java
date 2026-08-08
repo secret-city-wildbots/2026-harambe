@@ -40,4 +40,9 @@ public final class Constants {
     // Intake motor CANBus IDs
     public static final int indexerMotorID = 40;
   }
+
+  public static class VisionConstants {
+    // Limelight Names
+    public static final String[] limelightNames = {"limelight-front", "limelight-back", "limelight-left", "limelight-right"};
+  }
 }

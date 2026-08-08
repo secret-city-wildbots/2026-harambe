@@ -1,0 +1,100 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.5536000000000003,
+        "y": 2.845822222222222
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.439608433734939,
+        "y": 2.8329518072289157
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.6909457831325305,
+        "y": 1.1227650602409631
+      },
+      "prevControl": {
+        "x": 5.928281636279101,
+        "y": 1.4058631532048533
+      },
+      "nextControl": {
+        "x": 7.013542118893389,
+        "y": 1.0030185009883374
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.674439759036144,
+        "y": 1.4779156626506016
+      },
+      "prevControl": {
+        "x": 7.401544136640261,
+        "y": 1.0859513713251472
+      },
+      "nextControl": {
+        "x": 7.905135876840696,
+        "y": 1.8092681392235601
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.786266666666666,
+        "y": 3.541188888888888
+      },
+      "prevControl": {
+        "x": 7.7358777777777785,
+        "y": 2.089988888888889
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "R Bump Plow End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.1612903225806437,
+      "maxWaypointRelativePos": 2.242183622828794,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 3.0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "Bumpy Ride L + R",
+  "idealStartingState": {
+    "velocity": 1.5,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}

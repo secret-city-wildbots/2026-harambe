@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LT-Dip1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LT-RDip1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LT-Dip2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LT-RDip2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LT-Dip3Push"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CTR-Dip3-Depot-Mid"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Dips",
+  "choreoAuto": false
+}

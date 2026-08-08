@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>PathPlanner overlay - 4265</title>
+<style>
+ :root{--bg:#12151a;--fg:#e6e9ef;--dim:#8b93a3;--line:#262b34;
+       --intake:#3ddc84;--shoot:#ff9f43;--err:#ff5c5c;--warn:#ffd166;
+       --path:#5b6472;--bot:#6aa9ff}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--bg);color:var(--fg);
+      font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
+ header{display:flex;gap:14px;align-items:center;padding:11px 18px;
+        border-bottom:1px solid var(--line);flex-wrap:wrap}
+ select{background:#1c212a;color:var(--fg);border:1px solid var(--line);
+        border-radius:6px;padding:7px 10px;font:inherit;min-width:240px}
+ button{background:#232a35;color:var(--fg);border:1px solid var(--line);
+        border-radius:6px;padding:6px 13px;font:inherit;cursor:pointer}
+ button:hover{background:#2c3542} button.on{background:var(--bot);color:#0d1014;border-color:var(--bot)}
+ .legend{display:flex;gap:13px;font-size:12px;color:var(--dim);flex-wrap:wrap}
+ .sw{display:inline-block;width:20px;height:4px;border-radius:2px;
+     vertical-align:middle;margin-right:5px}
+ main{padding:14px 18px;display:flex;flex-direction:column;gap:13px}
+ .card{background:#161a21;border:1px solid var(--line);border-radius:10px;padding:13px}
+ h2{margin:0 0 9px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--dim);font-weight:600}
+ .stat{color:var(--dim)} .stat b{color:var(--fg);font-weight:600}
+ .issue{padding:5px 0 5px 12px;border-left:3px solid var(--warn);margin:6px 0}
+ .issue.err{border-color:var(--err)}
+ .none{color:var(--intake)}
+ /* playback */
+ .bar{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-bottom:11px}
+ input[type=range]{flex:1;min-width:220px;accent-color:var(--bot)}
+ .now{display:flex;gap:9px;flex-wrap:wrap;align-items:stretch}
+ .chip{background:#1b212b;border:1px solid var(--line);border-radius:8px;
+       padding:8px 13px;min-width:132px}
+ .chip .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+ .chip .v{font-size:15px;font-weight:700;margin-top:2px}
+ .chip.hot{border-color:currentColor}
+ .off{color:#525a68}
+ text{font:10px ui-monospace,monospace}
+</style></head><body>
+<header>
+  <strong>PathPlanner overlay</strong>
+  <select id="sel"></select>
+  <span class="legend">
+    <span><i class="sw" style="background:var(--intake)"></i>intake down</span>
+    <span><i class="sw" style="background:var(--shoot)"></i>shooter running</span>
+    <span><i class="sw" style="background:var(--path)"></i>path</span>
+  </span>
+  <span class="stat" id="stat"></span>
+</header>
+<main>
+  <div class="card">
+    <h2>Playback <span style="text-transform:none;letter-spacing:0;font-weight:400">
+      &mdash; constant speed along the route, not real trajectory timing.
+      Space = play/pause, &larr;/&rarr; = step (hold Shift for 1&nbsp;m).</span></h2>
+    <div class="bar">
+      <button id="play">&#9654; Play</button>
+      <button id="rst">&#8635;</button>
+      <input type="range" id="scrub" min="0" max="1000" value="0" step="1">
+      <span class="stat" id="pos"></span>
+      <select id="spd" style="min-width:88px">
+        <option value="0.5">0.5&times;</option>
+        <option value="1" selected>1&times;</option>
+        <option value="2">2&times;</option>
+        <option value="4">4&times;</option>
+      </select>
+    </div>
+    <div class="now" id="now"></div>
+  </div>
+  <div class="card"><h2>Field</h2><div id="field"></div></div>
+  <div class="card"><h2>Along the path &mdash; does the span cover the right stretch?</h2><div id="gantt"></div></div>
+  <div class="card"><h2>Findings</h2><div id="issues"></div></div>
+</main>
+<script>
+const DATA = __DATA__, FX = __FX__, FY = __FY__;
+const ROBOT = __ROBOT__, DEFAULT_AUTO = __DEFAULT__;
+const RW = ROBOT.width, RL = ROBOT.length;
+const $ = s => document.querySelector(s);
+const SC = 62, PAD = 14;
+const W = FX*SC + PAD*2, H = FY*SC + PAD*2;
+const X = x => PAD + x*SC, Y = y => PAD + (FY - y)*SC;
+
+let D, arc, playing = false, s = 0, lastT = 0;
+const GW = 1100, LAB = 132, GGW = GW - LAB - 16, TOP = 30, ROWH = 26;
+
+/* ---------- geometry ---------- */
+function allPoly(d){ return d.segments.flatMap(x => x.poly); }
+function polyPts(poly, a, b){
+  return poly.filter(p => p[0] >= a-1e-9 && p[0] <= b+1e-9)
+             .map(p => X(p[1]).toFixed(1)+','+Y(p[2]).toFixed(1)).join(' ');
+}
+/* cumulative arc length, so playback moves at a constant speed across the
+   field instead of jumping between unequal waypoint segments */
+function buildArc(d){
+  const p = allPoly(d), a = [];
+  let acc = 0;
+  for(let i=0;i<p.length;i++){
+    if(i) acc += Math.hypot(p[i][1]-p[i-1][1], p[i][2]-p[i-1][2]);
+    a.push({s:acc, g:p[i][0], x:p[i][1], y:p[i][2]});
+  }
+  return a;
+}
+function atS(v){
+  let lo=0, hi=arc.length-1;
+  while(lo<hi){ const m=(lo+hi)>>1; if(arc[m].s < v) lo=m+1; else hi=m; }
+  return arc[lo];
+}
+
+/* ---------- what is happening right here ---------- */
+function stateAt(g){
+  const seg = D.segments.find(x => g >= x.start-1e-9 && g <= x.end+1e-9) || D.segments[D.segments.length-1];
+  const inSpan = sp => g >= sp.a && (g < sp.b || (sp.open && g <= sp.b));
+  const intake = D.intake.some(inSpan);
+  const shot = D.shooter.find(inSpan);
+  const past = D.events.filter(e => e.g <= g);
+  const next = D.events.find(e => e.g > g);
+  return {seg, intake, shot, last: past[past.length-1], next};
+}
+function chip(k, v, colour, hot){
+  return `<div class="chip ${hot?'hot':''}" style="${hot?'color:'+colour:''}">
+            <div class="k">${k}</div>
+            <div class="v" style="color:${hot?colour:'var(--fg)'}">${v}</div></div>`;
+}
+function paintNow(g){
+  const st = stateAt(g);
+  const local = g - st.seg.start;
+  let h = '';
+  h += chip('Path', st.seg.name, 'var(--fg)', false);
+  h += chip('Position', '@' + local.toFixed(2), 'var(--fg)', false);
+  const hd = ((headingAt(g) % 360) + 540) % 360 - 180;
+  h += chip('Heading', hd.toFixed(0) + '°', 'var(--fg)', false);
+  h += chip('Intake', st.intake ? 'DOWN' : 'up', 'var(--intake)', st.intake);
+  h += chip('Shooter', st.shot ? ('shot #' + st.shot.n) : 'off', 'var(--shoot)', !!st.shot);
+  h += chip('Last marker', st.last ? st.last.name : '—', 'var(--fg)', false);
+  h += chip('Next marker', st.next
+        ? st.next.name + ' @' + (st.next.g - st.seg.start).toFixed(2)
+        : 'end of auto', 'var(--fg)', false);
+  $('#now').innerHTML = h;
+}
+
+/* ---------- the robot, drawn from settings.json robotFeatures ----------
+   Robot frame is +X forward, +Y left, in metres. Screen Y is already
+   flipped by Y(), so inside the robot group we only flip the local y. */
+const lx = v => v*SC, ly = v => -v*SC;
+
+function robotArt(){
+  let o = '';
+  // bumpers
+  o += `<rect x="${lx(ROBOT.ox) - RL*SC/2}" y="${ly(ROBOT.oy) - RW*SC/2}"
+         width="${RL*SC}" height="${RW*SC}" rx="5"
+         fill="var(--bot)" fill-opacity=".16" stroke="var(--bot)" stroke-width="2"/>`;
+  // rings that light up with mechanism state
+  const r0 = Math.max(RL, RW)*SC/2;
+  o += `<circle id="botIntake" r="0" fill="none" stroke="var(--intake)" stroke-width="3" stroke-opacity=".9"/>`;
+  o += `<circle id="botShoot"  r="0" fill="none" stroke="var(--shoot)"  stroke-width="3" stroke-opacity=".9"/>`;
+  // the features you drew in PathPlanner
+  ROBOT.features.forEach(f => {
+    const d = f.data || {}, sw = Math.max((d.strokeWidth||0.01)*SC, 1.2);
+    const isIntake = /intake/i.test(f.name);
+    const col = isIntake ? 'var(--intake)' : (/turret/i.test(f.name) ? 'var(--shoot)' : '#cdd4e0');
+    const id  = isIntake ? ' class="featIntake"' : (/turret/i.test(f.name) ? ' class="featTurret"' : '');
+    if(f.type === 'line' && d.start && d.end){
+      o += `<line${id} x1="${lx(d.start.x)}" y1="${ly(d.start.y)}"
+             x2="${lx(d.end.x)}" y2="${ly(d.end.y)}"
+             stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    } else if(f.type === 'circle' && d.center){
+      o += `<circle${id} cx="${lx(d.center.x)}" cy="${ly(d.center.y)}" r="${(d.radius||0)*SC}"
+             fill="${d.filled ? col : 'none'}" fill-opacity=".3"
+             stroke="${col}" stroke-width="${sw}"/>`;
+    } else if((f.type === 'rounded_rect' || f.type === 'rect') && d.center && d.size){
+      // 'length' is the X extent, 'width' is the Y extent
+      const L = (d.size.length||0)*SC, Wd = (d.size.width||0)*SC;
+      o += `<rect${id} x="${lx(d.center.x) - L/2}" y="${ly(d.center.y) - Wd/2}"
+             width="${L}" height="${Wd}" rx="${(d.borderRadius||0)*SC}"
+             fill="${d.filled ? col : 'none'}" fill-opacity=".3"
+             stroke="${col}" stroke-width="${sw}"/>`;
+    }
+  });
+  // nose marker so heading is unmistakable
+  o += `<polygon points="${lx(RL/2+0.05)},0 ${lx(RL/2-0.10)},${ly(0.10)} ${lx(RL/2-0.10)},${ly(-0.10)}"
+         fill="var(--bot)"/>`;
+  return o;
+}
+
+/* holonomic heading at a global relpos: interpolate the path's rotation
+   track (idealStartingState -> rotationTargets -> goalEndState) taking the
+   shortest way round, the same as PathPlanner does between targets. */
+function headingAt(g){
+  const seg = D.segments.find(x => g >= x.start-1e-9 && g <= x.end+1e-9)
+           || D.segments[D.segments.length-1];
+  const r = seg.rot || [];
+  if(!r.length) return 0;
+  if(g <= r[0][0]) return r[0][1];
+  if(g >= r[r.length-1][0]) return r[r.length-1][1];
+  for(let i=0;i<r.length-1;i++){
+    if(g >= r[i][0] && g <= r[i+1][0]){
+      const span = r[i+1][0]-r[i][0];
+      const t = span > 1e-9 ? (g-r[i][0])/span : 0;
+      let dA = ((r[i+1][1]-r[i][1]) % 360 + 540) % 360 - 180;   // shortest way
+      return r[i][1] + dA*t;
+    }
+  }
+  return r[r.length-1][1];
+}
+
+/* ---------- static renders ---------- */
+function field(d){
+  const p = allPoly(d);
+  let o = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;background:#0d1014;border-radius:6px">`;
+  // Field render, stretched to the field rectangle so path coordinates line up
+  // with it. If features look offset, adjust FIELD_X / FIELD_Y in
+  // tools/pathplanner_visualize.py.
+  o += `<image href="field2026.png" x="${PAD}" y="${PAD}" width="${FX*SC}" height="${FY*SC}"
+          preserveAspectRatio="none" opacity="0.9"/>`;
+  o += `<rect x="${PAD}" y="${PAD}" width="${FX*SC}" height="${FY*SC}" fill="none" stroke="#3a4150"/>`;
+  d.segments.forEach(sg => o += `<polyline points="${polyPts(sg.poly, sg.start, sg.end)}"
+      fill="none" stroke="#aab3c0" stroke-width="3" stroke-linecap="round"/>`);
+  d.intake.forEach(sp => o += `<polyline points="${polyPts(p, sp.a, sp.b)}" fill="none"
+      stroke="var(--intake)" stroke-width="9" stroke-opacity=".55" stroke-linecap="round"/>`);
+  d.shooter.forEach(sp => o += `<polyline points="${polyPts(p, sp.a, sp.b)}" fill="none"
+      stroke="var(--shoot)" stroke-width="4" stroke-linecap="round"/>`);
+  const f=p[0], l=p[p.length-1];
+  o += `<circle cx="${X(f[1])}" cy="${Y(f[2])}" r="7" fill="none" stroke="#fff" stroke-width="2"/>`;
+  o += `<rect x="${X(l[1])-5}" y="${Y(l[2])-5}" width="10" height="10" fill="none" stroke="#fff" stroke-width="2"/>`;
+  d.events.forEach(e => {
+    const c = (e.name.startsWith('Intake')||e.name==='StopIntake') ? 'var(--intake)' : 'var(--shoot)';
+    o += `<circle cx="${X(e.x)}" cy="${Y(e.y)}" r="4.5" fill="${c}" stroke="#0d1014" stroke-width="1.5">
+            <title>${e.name}\n${e.path} @ ${e.local.toFixed(2)}</title></circle>`;
+  });
+  // the robot: translate() puts it on the field, the inner rotate() aims it
+  o += `<g id="bot"><g id="botRot">${robotArt()}</g></g>`;
+  return o + '</svg>';
+}
+
+function gantt(d){
+  const rows=['Intake','Shooter'];
+  const gx = v => LAB + (v/d.total)*GGW;
+  const h = TOP + rows.length*ROWH + 44;
+  let o = `<svg viewBox="0 0 ${GW} ${h}" style="width:100%;height:auto">`;
+  d.segments.forEach((sg,i)=>{
+    const x1=gx(sg.start), x2=gx(sg.end);
+    if(i%2===0) o+=`<rect x="${x1}" y="${TOP-8}" width="${x2-x1}" height="${rows.length*ROWH+8}" fill="#1b2029"/>`;
+    o+=`<line x1="${x1}" y1="${TOP-12}" x2="${x1}" y2="${TOP+rows.length*ROWH+4}" stroke="#39404d"/>`;
+    o+=`<text x="${(x1+x2)/2}" y="${TOP-16}" fill="var(--dim)" text-anchor="middle">${sg.name}</text>`;
+  });
+  rows.forEach((r,i)=>{
+    const y=TOP+i*ROWH;
+    o+=`<text x="8" y="${y+16}" fill="var(--dim)">${r}</text>`;
+    o+=`<line x1="${LAB}" y1="${y+21}" x2="${LAB+GGW}" y2="${y+21}" stroke="#232833"/>`;
+  });
+  d.intake.forEach(sp=>{
+    o+=`<rect x="${gx(sp.a)}" y="${TOP+2}" width="${Math.max(gx(sp.b)-gx(sp.a),3)}" height="17" rx="3"
+         fill="var(--intake)" fill-opacity="${sp.open?.35:.8}" stroke="var(--intake)"
+         stroke-dasharray="${sp.open?'4 3':'0'}"><title>intake down</title></rect>`;
+  });
+  d.shooter.forEach(sp=>{
+    const y=TOP+ROWH+2;
+    o+=`<rect x="${gx(sp.a)}" y="${y}" width="${Math.max(gx(sp.b)-gx(sp.a),3)}" height="17" rx="3"
+         fill="var(--shoot)" fill-opacity="${sp.open?.35:.8}" stroke="var(--shoot)"
+         stroke-dasharray="${sp.open?'4 3':'0'}"><title>shot #${sp.n}${sp.open?' (never stopped)':''}</title></rect>`;
+    o+=`<text x="${gx(sp.a)+5}" y="${y+13}" fill="#12151a" font-weight="700">${sp.n}</text>`;
+  });
+  d.events.forEach(e=>{
+    const x=gx(e.g), isI=e.name.startsWith('Intake')||e.name==='StopIntake';
+    const y=TOP+(isI?0:ROWH);
+    o+=`<line x1="${x}" y1="${y-3}" x2="${x}" y2="${y+22}" stroke="#fff" stroke-opacity=".65"/>`;
+  });
+  d.issues.filter(i=>i.level==='err'&&i.g>0).forEach(i=>{
+    o+=`<line x1="${gx(i.g)}" y1="${TOP-8}" x2="${gx(i.g)}" y2="${TOP+rows.length*ROWH+4}"
+         stroke="var(--err)" stroke-width="2"/>`;
+  });
+  o+=`<line id="ph" x1="${LAB}" y1="${TOP-14}" x2="${LAB}" y2="${TOP+rows.length*ROWH+6}"
+        stroke="var(--bot)" stroke-width="2"/>`;
+  o+=`<text x="${LAB}" y="${h-12}" fill="var(--dim)">start</text>`;
+  o+=`<text x="${LAB+GGW}" y="${h-12}" fill="var(--dim)" text-anchor="end">end of auto</text>`;
+  return o+'</svg>';
+}
+
+/* ---------- playhead ---------- */
+function seek(v){
+  s = Math.max(0, Math.min(v, arc[arc.length-1].s));
+  const a = atS(s);
+  const bot = $('#bot'), rot = $('#botRot');
+  const hdg = headingAt(a.g);
+  if(bot) bot.setAttribute('transform', `translate(${X(a.x).toFixed(1)},${Y(a.y).toFixed(1)})`);
+  // field heading is CCW-positive; screen Y is flipped, so negate for SVG
+  if(rot) rot.setAttribute('transform', `rotate(${(-hdg).toFixed(2)})`);
+  const st = stateAt(a.g);
+  const bi = $('#botIntake'), bs = $('#botShoot');
+  const r0 = Math.max(RL, RW)*SC/2;
+  if(bi) bi.setAttribute('r', st.intake ? (r0 + 7) : 0);
+  if(bs) bs.setAttribute('r', st.shot   ? (r0 + 13) : 0);
+  document.querySelectorAll('.featIntake').forEach(el =>
+    el.setAttribute('stroke-opacity', st.intake ? 1 : .25));
+  document.querySelectorAll('.featTurret').forEach(el =>
+    el.setAttribute('stroke-opacity', st.shot ? 1 : .25));
+  D._hdg = hdg;
+  const ph = $('#ph');
+  if(ph){ const x = LAB + (a.g/D.total)*GGW; ph.setAttribute('x1',x); ph.setAttribute('x2',x); }
+  const total = arc[arc.length-1].s;
+  $('#scrub').value = Math.round(s/total*1000);
+  $('#pos').textContent = s.toFixed(1) + ' / ' + total.toFixed(1) + ' m';
+  paintNow(a.g);
+}
+function tick(t){
+  if(!playing) return;
+  const dt = lastT ? (t-lastT)/1000 : 0; lastT = t;
+  const speed = 2.2 * parseFloat($('#spd').value);   // metres per second
+  const end = arc[arc.length-1].s;
+  let n = s + speed*dt;
+  if(n >= end){ n = end; setPlay(false); }
+  seek(n);
+  requestAnimationFrame(tick);
+}
+function setPlay(on){
+  playing = on; lastT = 0;
+  $('#play').innerHTML = on ? '&#10073;&#10073; Pause' : '&#9654; Play';
+  $('#play').classList.toggle('on', on);
+  if(on){
+    if(s >= arc[arc.length-1].s - 1e-6) s = 0;
+    requestAnimationFrame(tick);
+  }
+}
+
+/* ---------- wire up ---------- */
+function render(){
+  D = DATA[$('#sel').value];
+  arc = buildArc(D);
+  $('#field').innerHTML = field(D);
+  $('#gantt').innerHTML = gantt(D);
+  const errs = D.issues.filter(i=>i.level==='err');
+  $('#stat').innerHTML = `<b>${D.segments.length}</b> paths &middot; <b>${D.events.length}</b> markers
+    &middot; <b>${D.shots}</b> shots &middot; ${errs.length
+      ? `<b style="color:var(--err)">${errs.length} error(s)</b>` : '<b class="none">clean</b>'}`;
+  $('#issues').innerHTML = D.issues.length
+    ? D.issues.map(i=>`<div class="issue ${i.level==='err'?'err':''}">${i.text}</div>`).join('')
+    : '<div class="none">nothing wrong</div>';
+  setPlay(false); seek(0);
+}
+const names = Object.keys(DATA).sort();
+$('#sel').innerHTML = names.map(n =>
+  `<option value="${n}"${n===DEFAULT_AUTO?' selected':''}>${
+     DATA[n].issues.some(i=>i.level==='err')?'● ':'○ '}${n}</option>`).join('');
+$('#sel').onchange = render;
+$('#play').onclick = () => setPlay(!playing);
+$('#rst').onclick  = () => { setPlay(false); seek(0); };
+$('#scrub').oninput = e => { setPlay(false); seek(e.target.value/1000*arc[arc.length-1].s); };
+addEventListener('keydown', e => {
+  if(e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if(e.code === 'Space'){ e.preventDefault(); setPlay(!playing); }
+  if(e.code === 'ArrowRight'){ setPlay(false); seek(s + (e.shiftKey?1:0.15)); }
+  if(e.code === 'ArrowLeft'){  setPlay(false); seek(s - (e.shiftKey?1:0.15)); }
+  if(e.code === 'Home'){ setPlay(false); seek(0); }
+});
+render();
+</script></body></html>

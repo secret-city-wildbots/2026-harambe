@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>PathPlanner map - 4265</title>
+<style>
+ :root{--bg:#12151a;--fg:#e6e9ef;--dim:#8b93a3;--line:#262b34;--acc:#6aa9ff;
+       --intake:#3ddc84;--shoot:#ff9f43;--err:#ff5c5c;--warn:#ffd166}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--bg);color:var(--fg);
+      font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+ header{display:flex;gap:14px;align-items:center;padding:11px 18px;
+        border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:0;
+        background:var(--bg);z-index:5}
+ input[type=search]{background:#1c212a;color:var(--fg);border:1px solid var(--line);
+        border-radius:6px;padding:7px 11px;font:inherit;min-width:260px}
+ button{background:#232a35;color:var(--fg);border:1px solid var(--line);
+        border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
+ button:hover{background:#2c3542} button.on{background:var(--acc);color:#0d1014;border-color:var(--acc)}
+ .stat{color:var(--dim)} .stat b{color:var(--fg)}
+ .cols{display:grid;grid-template-columns:1fr 1fr 320px;gap:13px;padding:14px 18px;align-items:start}
+ @media(max-width:1200px){.cols{grid-template-columns:1fr}}
+ .card{background:#161a21;border:1px solid var(--line);border-radius:10px;padding:12px}
+ .card.sticky{position:sticky;top:62px}
+ h2{margin:0 0 9px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--dim);font-weight:600}
+ .zone{margin:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+       color:#5d6675;border-bottom:1px solid var(--line);padding-bottom:3px}
+ .row{display:flex;align-items:center;gap:7px;padding:3px 7px;border-radius:5px;cursor:pointer}
+ .row:hover{background:#1e242e}
+ .row.sel{background:var(--acc);color:#0d1014}
+ .row.sel .badge,.row.sel .nm{color:#0d1014}
+ .row.lit{background:#213047;outline:1px solid #33507a}
+ .row.dim{opacity:.22}
+ .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .badge{font-size:11px;color:var(--dim);flex:none}
+ .badge.sh{color:var(--warn);font-weight:700}
+ .badge.err{color:var(--err);font-weight:700}
+ .badge.orph{color:#5d6675;font-style:italic}
+ .dot{width:7px;height:7px;border-radius:50%;flex:none;background:#2f3542}
+ .dot.err{background:var(--err)} .dot.warn{background:var(--warn)} .dot.ok{background:var(--intake)}
+ .det .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:11px}
+ .det .v{margin-top:2px;word-break:break-word}
+ .mk{display:inline-block;background:#1e242e;border:1px solid var(--line);border-radius:4px;
+     padding:1px 6px;margin:2px 3px 0 0;font-size:11px}
+ .mk.i{border-color:var(--intake);color:var(--intake)}
+ .mk.s{border-color:var(--shoot);color:var(--shoot)}
+ .mk.x{border-color:var(--err);color:var(--err)}
+ .warnbox{background:#2a1f13;border:1px solid #5c421f;border-radius:7px;padding:9px 11px;margin-top:11px}
+ .warnbox b{color:var(--warn)}
+ a.lnk{color:var(--acc);cursor:pointer;text-decoration:none} a.lnk:hover{text-decoration:underline}
+ .hint{color:#5d6675;font-size:12px}
+</style></head><body>
+<header>
+  <strong>PathPlanner map</strong>
+  <input type="search" id="q" placeholder="filter paths and autos…">
+  <button id="onlyShared">Shared only</button>
+  <button id="onlyErr">Errored autos</button>
+  <button id="clr">Clear</button>
+  <span class="stat" id="stat"></span>
+</header>
+<div class="cols">
+  <div class="card"><h2>Paths <span class="hint">click → autos that use it</span></h2><div id="paths"></div></div>
+  <div class="card"><h2>Autos <span class="hint">click → paths it runs</span></h2><div id="autos"></div></div>
+  <div class="card sticky det"><h2>Detail</h2><div id="det" class="hint">Pick a path or an auto.</div></div>
+</div>
+<script>
+const PATHS = {"45-Dip-FromLBump-2": {"zone": "45\u00b0 start", "waypoints": 6, "markers": [{"pos": 0.0, "name": "IntakeRetract", "embedded": false}, {"pos": 0.23, "name": "AimAndShoot", "embedded": false}, {"pos": 0.84, "name": "Intake", "embedded": false}, {"pos": 4.86, "name": "AimAndShoot", "embedded": false}], "autos": ["LT-2Dip-Depot", "LT-2Dip"], "shared": true, "orphan": false}, "45-Dip-FromLBump": {"zone": "45\u00b0 start", "waypoints": 6, "markers": [{"pos": 0.18, "name": "IntakeRetract", "embedded": false}, {"pos": 0.28, "name": "AimAndShoot", "embedded": false}, {"pos": 0.86, "name": "Intake", "embedded": false}, {"pos": 4.49, "name": "AimAndShoot", "embedded": false}], "autos": ["45-Defensive"], "shared": false, "orphan": false}, "45-LBump-2": {"zone": "45\u00b0 start", "waypoints": 2, "markers": [{"pos": 0.9, "name": "AimAndShoot", "embedded": false}], "autos": ["LT-Defensive"], "shared": false, "orphan": false}, "45-LBump": {"zone": "45\u00b0 start", "waypoints": 2, "markers": [{"pos": 0.83, "name": "AimAndShoot", "embedded": false}], "autos": ["45-Defensive"], "shared": false, "orphan": false}, "45-Mid": {"zone": "45\u00b0 start", "waypoints": 4, "markers": [{"pos": 1.02, "name": "AimAndShoot", "embedded": false}, {"pos": 1.81, "name": "Intake", "embedded": false}], "autos": ["45-Defensive", "LT-2Dip-Depot"], "shared": true, "orphan": false}, "CTR-Depot": {"zone": "Center / Mid", "waypoints": 2, "markers": [{"pos": 0.03, "name": "Intake", "embedded": false}], "autos": ["CTR-Depot"], "shared": false, "orphan": false}, "CTR-Dip3-Depot-Mid": {"zone": "Center / Mid", "waypoints": 3, "markers": [], "autos": ["CTR-Dip"], "shared": false, "orphan": false}, "CTR-FastAway": {"zone": "Center / Mid", "waypoints": 2, "markers": [], "autos": ["CTR-FastAway"], "shared": false, "orphan": false}, "CTR-Plow": {"zone": "Center / Mid", "waypoints": 4, "markers": [{"pos": 0.07, "name": "AimAndShoot", "embedded": false}, {"pos": 2.86, "name": "AimAndShoot", "embedded": false}], "autos": ["S8-Plow"], "shared": false, "orphan": false}, "DEP-Back-Oscillate": {"zone": "Depot", "waypoints": 2, "markers": [{"pos": 0.29, "name": "IntakeRetract", "embedded": false}, {"pos": 0.51, "name": "Intake", "embedded": false}, {"pos": 0.77, "name": "IntakeRetract", "embedded": false}], "autos": ["CTR-Depot"], "shared": false, "orphan": false}, "LB-45-Depot": {"zone": "Left Bump", "waypoints": 3, "markers": [], "autos": ["45-Defensive", "LT-2Dip-Depot"], "shared": true, "orphan": false}, "LB-Depot-Climb": {"zone": "Left Bump", "waypoints": 4, "markers": [], "autos": ["BUMP-Ride-RL", "CTR-2Dip"], "shared": true, "orphan": false}, "LB-Dip": {"zone": "Left Bump", "waypoints": 6, "markers": [{"pos": 0.23, "name": "AimAndShoot", "embedded": false}, {"pos": 0.84, "name": "Intake", "embedded": false}, {"pos": 4.91, "name": "AimAndShoot", "embedded": false}], "autos": ["LB-Dip"], "shared": false, "orphan": false}, "LB-Plow-P1": {"zone": "Left Bump", "waypoints": 4, "markers": [], "autos": ["BUMP-Ride-LR"], "shared": false, "orphan": false}, "LB-Plow-P2": {"zone": "Left Bump", "waypoints": 3, "markers": [], "autos": ["BUMP-Ride-LR"], "shared": false, "orphan": false}, "LT-45": {"zone": "Left Trench", "waypoints": 3, "markers": [{"pos": 0.39, "name": "Intake", "embedded": false}], "autos": ["45-Defensive", "LT-Defensive"], "shared": true, "orphan": false}, "LT-BackToMid": {"zone": "Left Trench", "waypoints": 4, "markers": [{"pos": 0.0, "name": "AimAndShoot", "embedded": false}, {"pos": 0.42, "name": "AimAndShoot", "embedded": false}, {"pos": 1.2, "name": "IntakeRetract", "embedded": false}, {"pos": 2.07, "name": "AimAndShoot", "embedded": false}], "autos": ["LT-RT-BackToMid-NC"], "shared": false, "orphan": false}, "LT-Base-Fwd": {"zone": "Left Trench", "waypoints": 3, "markers": [{"pos": 0.29, "name": "Intake", "embedded": true}, {"pos": 0.59, "name": "AimAndShoot", "embedded": false}, {"pos": 1.81, "name": "AimAndShoot", "embedded": false}], "autos": ["LT-2Dip-Depot", "LT-2Dip"], "shared": true, "orphan": false}, "LT-Base-OB": {"zone": "Left Trench", "waypoints": 2, "markers": [{"pos": 1.0, "name": "AimAndShoot", "embedded": false}], "autos": ["LT-2Dip-Depot", "LT-2Dip", "LT-SlowLob"], "shared": true, "orphan": false}, "LT-Base-Rev": {"zone": "Left Trench", "waypoints": 2, "markers": [{"pos": 0.45, "name": "IntakeRetract", "embedded": false}, {"pos": 1.0, "name": "AimAndShoot", "embedded": false}], "autos": ["LT-RT-BackToMid-NC", "LT-Simple-Depot", "LT-Simple-NC", "LT-Simple", "ZZ-Old-NewAuto"], "shared": true, "orphan": false}, "LT-Base": {"zone": "Left Trench", "waypoints": 3, "markers": [{"pos": 0.39, "name": "AimAndShoot", "embedded": false}, {"pos": 0.58, "name": "Intake", "embedded": true}, {"pos": 1.84, "name": "AimAndShoot", "embedded": false}], "autos": ["LT-RT-BackToMid-NC", "LT-Simple-Depot", "LT-Simple-NC", "LT-Simple", "ZZ-Old-NewAuto"], "shared": true, "orphan": false}, "LT-Depot-Mid": {"zone": "Left Trench", "waypoints": 4, "markers": [{"pos": 0.43, "name": "Intake", "embedded": true}], "autos": ["LT-Simple-Depot", "RT-Plow"], "shared": true, "orphan": false}, "LT-Depot-Pickup": {"zone": "Left Trench", "waypoints": 3, "markers": [{"pos": 0.0, "name": "AimAndShoot", "embedded": false}, {"pos": 0.1, "name": "Intake", "embedded": true}], "autos": ["LT-RT-BackToMid-NC", "LT-Simple-NC", "ZZ-Old-NewAuto"], "shared": true, "orphan": false}, "LT-Dip1": {"zone": "Left Trench", "waypoints": 3, "markers": [], "autos": ["CTR-2Dip", "CTR-Dip"], "shared": true, "orphan": false}, "LT-Dip2": {"zone": "Left Trench", "waypoints": 2, "markers": [], "autos": ["CTR-2Dip", "CTR-Dip"], "shared": true, "orphan": false}, "LT-Dip3Push": {"zone": "Left Trench", "waypoints": 5, "markers": [], "autos": ["CTR-Dip"], "shared": false, "orphan": false}, "LT-FromRPlow": {"zone": "Left Trench", "waypoints": 2, "markers": [{"pos": 0.27, "name": "Intake", "embedded": false}], "autos": ["RT-Plow"], "shared": false, "orphan": false}, "LT-Plow": {"zone": "Left Trench", "waypoints": 3, "markers": [{"pos": 0.77, "name": "Intake", "embedded": true}], "autos": ["LT-Plow-Outpost", "LT-Plow"], "shared": true, "orphan": false}, "LT-RDip1": {"zone": "Left Trench", "waypoints": 3, "markers": [], "autos": ["CTR-2Dip", "CTR-Dip"], "shared": true, "orphan": false}, "LT-RDip2": {"zone": "Left Trench", "waypoints": 2, "markers": [], "autos": ["CTR-2Dip", "CTR-Dip"], "shared": true, "orphan": false}, "LT-SlowLob": {"zone": "Left Trench", "waypoints": 3, "markers": [{"pos": 0.58, "name": "Intake", "embedded": false}, {"pos": 1.96, "name": "IntakeRetract", "embedded": false}], "autos": ["LT-SlowLob"], "shared": false, "orphan": false}, "OUT-Hub": {"zone": "Outpost", "waypoints": 2, "markers": [], "autos": ["LT-Plow-Outpost"], "shared": false, "orphan": false}, "OUT-Mid": {"zone": "Outpost", "waypoints": 3, "markers": [], "autos": ["RT-Simple-Outpost-Backup", "RT-Simple-Outpost"], "shared": true, "orphan": false}, "OUT-MidDip": {"zone": "Outpost", "waypoints": 3, "markers": [{"pos": 0.45, "name": "AimAndShoot", "embedded": false}, {"pos": 0.75, "name": "Intake", "embedded": false}], "autos": ["RT-2Dip-Outpost"], "shared": false, "orphan": false}, "OUT-RTrench-Shoot": {"zone": "Outpost", "waypoints": 2, "markers": [], "autos": ["OUT-Base"], "shared": false, "orphan": false}, "OUT-Shoot": {"zone": "Outpost", "waypoints": 2, "markers": [{"pos": 0.0, "name": "AimAndShoot", "embedded": false}, {"pos": 0.0, "name": "Intake", "embedded": false}], "autos": ["LT-Plow-Outpost", "OUT-Base", "RT-Quarter", "RT-Simple-Outpost-Backup", "RT-Simple-Outpost", "RT-Simple-Sweep", "ZZ-SMR-1"], "shared": true, "orphan": false}, "OUT-Side-RTrench": {"zone": "Outpost", "waypoints": 2, "markers": [{"pos": 1.0, "name": "AimAndShoot", "embedded": false}], "autos": ["OUT-FromBump", "ZZ-Old-NewNewAuto"], "shared": true, "orphan": false}, "OUT-Sweep": {"zone": "Outpost", "waypoints": 2, "markers": [], "autos": ["RT-Simple-Sweep"], "shared": false, "orphan": false}, "RB-Outpost-In": {"zone": "Right Bump", "waypoints": 2, "markers": [], "autos": ["BUMP-Ride-LR"], "shared": false, "orphan": false}, "RB-Outpost-Side": {"zone": "Right Bump", "waypoints": 2, "markers": [{"pos": 0.0, "name": "Intake", "embedded": false}, {"pos": 0.0, "name": "AimAndShoot", "embedded": false}], "autos": ["OUT-FromBump", "ZZ-Old-NewNewAuto"], "shared": true, "orphan": false}, "RB-Outpost": {"zone": "Right Bump", "waypoints": 2, "markers": [], "autos": ["RT-2Dip-Outpost", "RT-Outpost"], "shared": true, "orphan": false}, "RB-Plow-P1": {"zone": "Right Bump", "waypoints": 4, "markers": [], "autos": ["BUMP-Ride-RL"], "shared": false, "orphan": false}, "RB-Plow-P2": {"zone": "Right Bump", "waypoints": 3, "markers": [], "autos": ["BUMP-Ride-RL"], "shared": false, "orphan": false}, "RB-RTrench": {"zone": "Right Bump", "waypoints": 2, "markers": [{"pos": 0.64, "name": "IntakeRetract", "embedded": false}, {"pos": 0.79, "name": "AimAndShoot", "embedded": false}], "autos": ["RT-2Dip", "S8-RT-2Dip"], "shared": true, "orphan": false}, "RT-BackToMid": {"zone": "Right Trench", "waypoints": 3, "markers": [], "autos": ["RT-Simple-BackToMid-NC"], "shared": false, "orphan": false}, "RT-Base-Rev-Fwd": {"zone": "Right Trench", "waypoints": 2, "markers": [], "autos": ["RT-Simple-Outpost-Backup", "RT-Simple-Outpost", "RT-Simple-Sweep", "ZZ-SMR-1"], "shared": true, "orphan": false}, "RT-Base-Rev-OB-2": {"zone": "Right Trench", "waypoints": 2, "markers": [{"pos": 0.94, "name": "AimAndShoot", "embedded": true}], "autos": ["RT-2Dip-Outpost", "RT-2Dip-Outpost", "RT-2Dip", "RT-2Dip", "RT-Outpost", "S8-RT-2Dip", "S8-RT-2Dip"], "shared": true, "orphan": false}, "RT-Base-Rev-OB": {"zone": "Right Trench", "waypoints": 2, "markers": [{"pos": 0.8, "name": "AimAndShoot", "embedded": true}], "autos": ["RT-Bump"], "shared": false, "orphan": false}, "RT-Base-Rev": {"zone": "Right Trench", "waypoints": 2, "markers": [{"pos": 0.99, "name": "AimAndShoot", "embedded": false}], "autos": ["OUT-Base", "RT-Simple-BackToMid-NC", "S8-RT-Dip", "S8-RT-Dip"], "shared": true, "orphan": false}, "RT-Base": {"zone": "Right Trench", "waypoints": 3, "markers": [{"pos": 0.02, "name": "Intake", "embedded": false}], "autos": ["OUT-Base", "OUT-FromBump", "RT-2Dip-Outpost", "RT-2Dip", "RT-Outpost", "RT-Simple-BackToMid-NC", "RT-Simple-Outpost-Backup", "RT-Simple-Outpost", "RT-Simple-Sweep", "S8-RT-Dip", "ZZ-SMR-1"], "shared": true, "orphan": false}, "RT-Dip1": {"zone": "Right Trench", "waypoints": 3, "markers": [{"pos": 0.05, "name": "Intake", "embedded": false}], "autos": ["RT-2Dip", "S8-RT-2Dip"], "shared": true, "orphan": false}, "RT-Dip2": {"zone": "Right Trench", "waypoints": 3, "markers": [{"pos": 0.02, "name": "AimAndShoot", "embedded": false}, {"pos": 0.05, "name": "Intake", "embedded": false}], "autos": ["S8-RT-Dip"], "shared": false, "orphan": false}, "RT-FromLPlow": {"zone": "Right Trench", "waypoints": 2, "markers": [{"pos": 0.35, "name": "Intake", "embedded": true}], "autos": ["LT-Plow-Outpost", "LT-Plow"], "shared": true, "orphan": false}, "RT-Plow": {"zone": "Right Trench", "waypoints": 3, "markers": [{"pos": 0.74, "name": "Intake", "embedded": true}], "autos": ["RT-Plow"], "shared": false, "orphan": false}, "RT-Quarter-Rev": {"zone": "Right Trench", "waypoints": 2, "markers": [], "autos": ["RT-Quarter"], "shared": false, "orphan": false}, "RT-Quarter": {"zone": "Right Trench", "waypoints": 3, "markers": [{"pos": 0.5, "name": "Intake", "embedded": false}, {"pos": 2.0, "name": "StopIntake", "embedded": false}], "autos": ["RT-Quarter"], "shared": false, "orphan": false}, "RT-Shoot-2": {"zone": "Right Trench", "waypoints": 2, "markers": [], "autos": ["LT-Plow", "OUT-Base"], "shared": true, "orphan": false}, "RT-Shoot": {"zone": "Right Trench", "waypoints": 3, "markers": [{"pos": 0.0, "name": "Intake", "embedded": false}, {"pos": 1.08, "name": "AimAndShoot", "embedded": false}, {"pos": 1.71, "name": "AimAndShoot", "embedded": false}], "autos": ["RT-Bump"], "shared": false, "orphan": false}, "S8-Backup": {"zone": "Shoot 8", "waypoints": 2, "markers": [{"pos": 0.0, "name": "AimAndShoot", "embedded": false}, {"pos": 0.51, "name": "Intake", "embedded": false}], "autos": ["S8-Plow"], "shared": false, "orphan": false}, "S8-Center": {"zone": "Shoot 8", "waypoints": 2, "markers": [{"pos": 0.81, "name": "AimAndShoot", "embedded": false}], "autos": ["CTR-Depot"], "shared": false, "orphan": false}, "S8-RTrench-Back": {"zone": "Shoot 8", "waypoints": 2, "markers": [{"pos": 0.93, "name": "Intake", "embedded": false}, {"pos": 0.98, "name": "AimAndShoot", "embedded": false}], "autos": ["S8-RT-Dip"], "shared": false, "orphan": false}, "S8-RTrench-Fwd": {"zone": "Shoot 8", "waypoints": 2, "markers": [{"pos": 0.03, "name": "AimAndShoot", "embedded": false}], "autos": ["S8-RT-2Dip", "S8-RT-Dip"], "shared": true, "orphan": false}, "ZZ-EventTrig": {"zone": "Test / dev", "waypoints": 2, "markers": [{"pos": 0.0, "name": "Intake", "embedded": false}, {"pos": 0.3, "name": "AimAndShoot", "embedded": false}, {"pos": 0.6, "name": "AimAndShoot", "embedded": false}, {"pos": 1.0, "name": "AimAndShoot", "embedded": false}], "autos": ["ZZ-Old-Awesome"], "shared": false, "orphan": false}, "ZZ-EventTriggers": {"zone": "Test / dev", "waypoints": 2, "markers": [{"pos": 0.0, "name": "Intake", "embedded": false}, {"pos": 0.0, "name": "AimAndShoot", "embedded": false}, {"pos": 0.3, "name": "IntakeRetract", "embedded": false}, {"pos": 0.4, "name": "AimAndShoot", "embedded": false}, {"pos": 0.55, "name": "AimAndShoot", "embedded": false}, {"pos": 0.67, "name": "AimAndShoot", "embedded": false}], "autos": ["ZZ-EventTest"], "shared": false, "orphan": false}, "ZZ-SMR": {"zone": "Test / dev", "waypoints": 2, "markers": [], "autos": ["ZZ-SMR-5"], "shared": false, "orphan": false}, "ZZ-SysCheck": {"zone": "Test / dev", "waypoints": 5, "markers": [], "autos": ["ZZ-SysCheck"], "shared": false, "orphan": false}, "ZZ-Testing": {"zone": "Test / dev", "waypoints": 2, "markers": [], "autos": ["ZZ-Old-NotAwesome"], "shared": false, "orphan": false}}, AUTOS = {"45-Defensive": {"paths": ["LT-45", "45-LBump", "LB-45-Depot", "45-Dip-FromLBump", "45-Mid"], "named": [], "zone": "45\u00b0 start", "errors": 0, "warns": 2, "summary": "5 paths, 8 markers, 2 shot(s), shooter off at end"}, "BUMP-Ride-LR": {"paths": ["LB-Plow-P1", "LB-Plow-P2", "RB-Outpost-In"], "named": ["Shoot"], "zone": "Bump traverse", "errors": 1, "warns": 0, "summary": "3 paths, 0 markers, 0 shot(s), shooter off at end"}, "BUMP-Ride-RL": {"paths": ["RB-Plow-P1", "RB-Plow-P2", "LB-Depot-Climb"], "named": ["Shoot"], "zone": "Bump traverse", "errors": 1, "warns": 0, "summary": "3 paths, 0 markers, 0 shot(s), shooter off at end"}, "CTR-2Dip": {"paths": ["LT-Dip1", "LT-RDip1", "LT-Dip2", "LT-RDip2", "LB-Depot-Climb"], "named": [], "zone": "Center / Mid", "errors": 0, "warns": 0, "summary": "5 paths, 0 markers, 0 shot(s), shooter off at end"}, "CTR-Depot": {"paths": ["S8-Center", "CTR-Depot", "DEP-Back-Oscillate"], "named": [], "zone": "Center / Mid", "errors": 0, "warns": 1, "summary": "3 paths, 5 markers, 1 shot(s), shooter RUNNING at end"}, "CTR-Dip": {"paths": ["LT-Dip1", "LT-RDip1", "LT-Dip2", "LT-RDip2", "LT-Dip3Push", "CTR-Dip3-Depot-Mid"], "named": [], "zone": "Center / Mid", "errors": 0, "warns": 0, "summary": "6 paths, 0 markers, 0 shot(s), shooter off at end"}, "CTR-FastAway": {"paths": ["CTR-FastAway"], "named": [], "zone": "Center / Mid", "errors": 0, "warns": 0, "summary": "1 paths, 0 markers, 0 shot(s), shooter off at end"}, "LB-Dip": {"paths": ["LB-Dip"], "named": [], "zone": "Left Bump", "errors": 0, "warns": 1, "summary": "1 paths, 3 markers, 1 shot(s), shooter off at end"}, "LT-2Dip-Depot": {"paths": ["LT-Base-Fwd", "LT-Base-OB", "LB-45-Depot", "45-Dip-FromLBump-2", "45-Mid"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 2, "summary": "5 paths, 10 markers, 3 shot(s), shooter off at end"}, "LT-2Dip": {"paths": ["LT-Base-Fwd", "LT-Base-OB", "45-Dip-FromLBump-2"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 2, "summary": "3 paths, 8 markers, 3 shot(s), shooter RUNNING at end"}, "LT-Defensive": {"paths": ["LT-45", "45-LBump-2"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 2, "summary": "2 paths, 2 markers, 1 shot(s), shooter RUNNING at end"}, "LT-Plow-Outpost": {"paths": ["LT-Plow", "RT-FromLPlow", "OUT-Shoot", "OUT-Hub"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 4, "summary": "4 paths, 4 markers, 1 shot(s), shooter RUNNING at end"}, "LT-Plow": {"paths": ["LT-Plow", "RT-FromLPlow", "RT-Shoot-2"], "named": ["Shoot"], "zone": "Left Trench", "errors": 1, "warns": 2, "summary": "3 paths, 2 markers, 0 shot(s), shooter off at end"}, "LT-RT-BackToMid-NC": {"paths": ["LT-Base", "LT-Base-Rev", "LT-Depot-Pickup", "LT-BackToMid"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 1, "summary": "4 paths, 11 markers, 4 shot(s), shooter RUNNING at end"}, "LT-Simple-Depot": {"paths": ["LT-Base", "LT-Base-Rev", "LT-Depot-Mid"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 2, "summary": "3 paths, 6 markers, 2 shot(s), shooter RUNNING at end"}, "LT-Simple-NC": {"paths": ["LT-Base", "LT-Base-Rev", "LT-Depot-Pickup"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 1, "summary": "3 paths, 7 markers, 2 shot(s), shooter off at end"}, "LT-Simple": {"paths": ["LT-Base", "LT-Base-Rev"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 1, "summary": "2 paths, 5 markers, 2 shot(s), shooter RUNNING at end"}, "LT-SlowLob": {"paths": ["LT-SlowLob", "LT-Base-OB"], "named": [], "zone": "Left Trench", "errors": 0, "warns": 1, "summary": "2 paths, 3 markers, 1 shot(s), shooter RUNNING at end"}, "OUT-Base": {"paths": ["OUT-Shoot", "OUT-RTrench-Shoot", "RT-Base", "RT-Base-Rev", "RT-Shoot-2"], "named": [], "zone": "Outpost", "errors": 0, "warns": 2, "summary": "5 paths, 4 markers, 1 shot(s), shooter off at end"}, "OUT-FromBump": {"paths": ["RB-Outpost-Side", "OUT-Side-RTrench", "RT-Base"], "named": [], "zone": "Outpost", "errors": 0, "warns": 2, "summary": "3 paths, 4 markers, 1 shot(s), shooter off at end"}, "RT-2Dip-Outpost": {"paths": ["RT-Base", "RT-Base-Rev-OB-2", "RB-Outpost", "OUT-MidDip", "RT-Base-Rev-OB-2"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 3, "summary": "5 paths, 5 markers, 2 shot(s), shooter RUNNING at end"}, "RT-2Dip": {"paths": ["RT-Base", "RT-Base-Rev-OB-2", "RB-RTrench", "RT-Dip1", "RT-Base-Rev-OB-2"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 2, "summary": "5 paths, 6 markers, 2 shot(s), shooter RUNNING at end"}, "RT-Bump": {"paths": ["RT-Shoot", "RT-Base-Rev-OB"], "named": ["NamedAimAndShoot"], "zone": "Right Trench", "errors": 1, "warns": 2, "summary": "2 paths, 4 markers, 2 shot(s), shooter RUNNING at end"}, "RT-Outpost": {"paths": ["RT-Base", "RT-Base-Rev-OB-2", "RB-Outpost"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 2, "summary": "3 paths, 2 markers, 1 shot(s), shooter RUNNING at end"}, "RT-Plow": {"paths": ["RT-Plow", "LT-FromRPlow", "LT-Depot-Mid"], "named": ["Shoot"], "zone": "Right Trench", "errors": 1, "warns": 3, "summary": "3 paths, 3 markers, 0 shot(s), shooter off at end"}, "RT-Quarter": {"paths": ["RT-Quarter", "RT-Quarter-Rev", "OUT-Shoot"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 2, "summary": "3 paths, 4 markers, 1 shot(s), shooter RUNNING at end"}, "RT-Simple-BackToMid-NC": {"paths": ["RT-Base", "RT-Base-Rev", "RT-BackToMid"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 2, "summary": "3 paths, 2 markers, 1 shot(s), shooter RUNNING at end"}, "RT-Simple-Outpost-Backup": {"paths": ["RT-Base", "RT-Base-Rev-Fwd", "OUT-Shoot", "OUT-Mid"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 3, "summary": "4 paths, 3 markers, 1 shot(s), shooter RUNNING at end"}, "RT-Simple-Outpost": {"paths": ["RT-Base", "RT-Base-Rev-Fwd", "OUT-Shoot", "OUT-Mid"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 3, "summary": "4 paths, 3 markers, 1 shot(s), shooter RUNNING at end"}, "RT-Simple-Sweep": {"paths": ["RT-Base", "RT-Base-Rev-Fwd", "OUT-Shoot", "OUT-Sweep"], "named": [], "zone": "Right Trench", "errors": 0, "warns": 3, "summary": "4 paths, 3 markers, 1 shot(s), shooter RUNNING at end"}, "S8-Plow": {"paths": ["S8-Backup", "CTR-Plow"], "named": [], "zone": "Shoot 8", "errors": 0, "warns": 2, "summary": "2 paths, 4 markers, 2 shot(s), shooter RUNNING at end"}, "S8-RT-2Dip": {"paths": ["S8-RTrench-Fwd", "RT-Base-Rev-OB-2", "RB-RTrench", "RT-Dip1", "RT-Base-Rev-OB-2"], "named": [], "zone": "Shoot 8", "errors": 0, "warns": 2, "summary": "5 paths, 6 markers, 2 shot(s), shooter off at end"}, "S8-RT-Dip": {"paths": ["S8-RTrench-Back", "S8-RTrench-Fwd", "RT-Base", "RT-Base-Rev", "RT-Dip2", "RT-Base-Rev"], "named": [], "zone": "Shoot 8", "errors": 0, "warns": 4, "summary": "6 paths, 8 markers, 3 shot(s), shooter RUNNING at end"}, "ZZ-EventTest": {"paths": ["ZZ-EventTriggers"], "named": [], "zone": "Test / dev", "errors": 0, "warns": 0, "summary": "1 paths, 6 markers, 2 shot(s), shooter off at end"}, "ZZ-Old-Awesome": {"paths": ["ZZ-EventTrig"], "named": [], "zone": "Test / dev", "errors": 0, "warns": 2, "summary": "1 paths, 4 markers, 2 shot(s), shooter RUNNING at end"}, "ZZ-Old-NewAuto": {"paths": ["LT-Base", "LT-Base-Rev", "LT-Depot-Pickup"], "named": [], "zone": "Test / dev", "errors": 0, "warns": 1, "summary": "3 paths, 7 markers, 2 shot(s), shooter off at end"}, "ZZ-Old-NewNewAuto": {"paths": ["RB-Outpost-Side", "OUT-Side-RTrench"], "named": [], "zone": "Test / dev", "errors": 0, "warns": 1, "summary": "2 paths, 3 markers, 1 shot(s), shooter off at end"}, "ZZ-Old-NotAwesome": {"paths": ["ZZ-Testing"], "named": [], "zone": "Test / dev", "errors": 0, "warns": 0, "summary": "1 paths, 0 markers, 0 shot(s), shooter off at end"}, "ZZ-SMR-1": {"paths": ["RT-Base", "RT-Base-Rev-Fwd", "OUT-Shoot"], "named": [], "zone": "Test / dev", "errors": 0, "warns": 3, "summary": "3 paths, 3 markers, 1 shot(s), shooter RUNNING at end"}, "ZZ-SMR-5": {"paths": ["ZZ-SMR"], "named": ["AimAndShoot"], "zone": "Test / dev", "errors": 1, "warns": 0, "summary": "1 paths, 0 markers, 0 shot(s), shooter off at end"}, "ZZ-SysCheck": {"paths": ["ZZ-SysCheck"], "named": [], "zone": "Test / dev", "errors": 0, "warns": 0, "summary": "1 paths, 0 markers, 0 shot(s), shooter off at end"}}, ZONES = ["Left Trench", "Right Trench", "Left Bump", "Right Bump", "Outpost", "Center / Mid", "Depot", "Shoot 8", "45\u00b0 start", "Bump traverse", "Test / dev", "Unprefixed"];
+const $ = s => document.querySelector(s);
+let sel = null, filt = '', onlyShared = false, onlyErr = false;
+
+const pathAutos = p => [...new Set((PATHS[p]||{}).autos||[])].sort();
+const mkClass = m => m.embedded ? 'x' : (/^(Intake|IntakeRetract|StopIntake)$/.test(m.name) ? 'i' : 's');
+
+function group(obj, keyFn){
+  const g = {};
+  ZONES.forEach(z => g[z] = []);
+  Object.keys(obj).sort().forEach(n => (g[keyFn(n)] = g[keyFn(n)] || []).push(n));
+  return g;
+}
+
+function visible(kind, n){
+  if(filt && !n.toLowerCase().includes(filt)) return false;
+  if(kind === 'path' && onlyShared && !PATHS[n].shared) return false;
+  if(kind === 'auto' && onlyErr && !AUTOS[n].errors) return false;
+  return true;
+}
+
+function render(){
+  // --- paths column ---
+  const gp = group(PATHS, n => PATHS[n].zone);
+  let h = '';
+  ZONES.forEach(z => {
+    const rows = (gp[z]||[]).filter(n => visible('path', n));
+    if(!rows.length) return;
+    h += `<div class="zone">${z}</div>`;
+    rows.forEach(n => {
+      const d = PATHS[n], us = pathAutos(n);
+      let cls = 'row';
+      if(sel && sel.kind === 'path' && sel.name === n) cls += ' sel';
+      else if(sel && sel.kind === 'auto') cls += AUTOS[sel.name].paths.includes(n) ? ' lit' : ' dim';
+      const badge = d.orphan ? '<span class="badge orph">orphan</span>'
+                  : `<span class="badge ${d.shared?'sh':''}">${us.length} auto${us.length>1?'s':''}</span>`;
+      h += `<div class="${cls}" data-k="path" data-n="${n}">
+              <span class="nm">${n}</span>${badge}</div>`;
+    });
+  });
+  $('#paths').innerHTML = h || '<div class="hint">nothing matches</div>';
+
+  // --- autos column ---
+  const ga = group(AUTOS, n => AUTOS[n].zone);
+  h = '';
+  ZONES.forEach(z => {
+    const rows = (ga[z]||[]).filter(n => visible('auto', n));
+    if(!rows.length) return;
+    h += `<div class="zone">${z}</div>`;
+    rows.forEach(n => {
+      const d = AUTOS[n];
+      let cls = 'row';
+      if(sel && sel.kind === 'auto' && sel.name === n) cls += ' sel';
+      else if(sel && sel.kind === 'path') cls += pathAutos(sel.name).includes(n) ? ' lit' : ' dim';
+      const dot = d.errors ? 'err' : (d.warns ? 'warn' : 'ok');
+      const badge = d.errors ? `<span class="badge err">${d.errors} err</span>`
+                             : `<span class="badge">${d.paths.length} paths</span>`;
+      h += `<div class="${cls}" data-k="auto" data-n="${n}">
+              <span class="dot ${dot}"></span><span class="nm">${n}</span>${badge}</div>`;
+    });
+  });
+  $('#autos').innerHTML = h || '<div class="hint">nothing matches</div>';
+
+  const sharedN = Object.values(PATHS).filter(d => d.shared).length;
+  const orphN = Object.values(PATHS).filter(d => d.orphan).length;
+  const errN = Object.values(AUTOS).filter(d => d.errors).length;
+  $('#stat').innerHTML = `<b>${Object.keys(PATHS).length}</b> paths &middot;
+     <b>${Object.keys(AUTOS).length}</b> autos &middot;
+     <b style="color:var(--warn)">${sharedN}</b> shared &middot;
+     <b>${orphN}</b> orphaned &middot; <b style="color:var(--err)">${errN}</b> errored`;
+  detail();
+}
+
+function detail(){
+  if(!sel){ $('#det').innerHTML = '<div class="hint">Pick a path or an auto.</div>'; return; }
+  let h = '';
+  if(sel.kind === 'path'){
+    const d = PATHS[sel.name], us = pathAutos(sel.name);
+    h += `<div style="font-size:15px;font-weight:700">${sel.name}</div>`;
+    h += `<div class="k">Waypoints</div><div class="v">${d.waypoints}</div>`;
+    h += `<div class="k">Markers</div><div class="v">` +
+         (d.markers.length ? d.markers.map(m =>
+            `<span class="mk ${mkClass(m)}">${m.name}@${m.pos}${m.embedded?' ⚠embedded':''}</span>`).join('')
+          : '<span class="hint">none</span>') + `</div>`;
+    h += `<div class="k">Used by ${us.length} auto(s)</div><div class="v">` +
+         (us.length ? us.map(u => `<div><a class="lnk" data-go="auto" data-n="${u}">${u}</a></div>`).join('')
+          : '<span class="hint">orphan — nothing references this</span>') + `</div>`;
+    if(d.shared) h += `<div class="warnbox"><b>Shared path.</b> Moving or renaming a marker
+        here changes all ${us.length} autos above. Check each one before you edit.</div>`;
+  } else {
+    const d = AUTOS[sel.name];
+    h += `<div style="font-size:15px;font-weight:700">${sel.name}</div>`;
+    h += `<div class="k">Summary</div><div class="v">${d.summary}</div>`;
+    h += `<div class="k">Runs, in order</div><div class="v">` +
+         d.paths.map((p,i) => {
+           const sh = PATHS[p] && PATHS[p].shared;
+           return `<div>${i+1}. <a class="lnk" data-go="path" data-n="${p}">${p}</a>` +
+                  (sh ? ` <span class="badge sh">shared</span>` : '') + `</div>`;
+         }).join('') + `</div>`;
+    if(d.named.length) h += `<div class="k">Broken</div><div class="v">` +
+      d.named.map(n => `<span class="mk x">NamedCommand ${n}</span>`).join('') +
+      `<div class="hint">never registered — this auto fails to load</div></div>`;
+  }
+  $('#det').innerHTML = h;
+}
+
+document.addEventListener('click', e => {
+  const go = e.target.closest('[data-go]');
+  if(go){ sel = {kind: go.dataset.go, name: go.dataset.n}; render(); return; }
+  const row = e.target.closest('.row');
+  if(row){
+    const k = row.dataset.k, n = row.dataset.n;
+    sel = (sel && sel.kind === k && sel.name === n) ? null : {kind:k, name:n};
+    render();
+  }
+});
+$('#q').oninput = e => { filt = e.target.value.toLowerCase().trim(); render(); };
+$('#onlyShared').onclick = e => { onlyShared = !onlyShared; e.target.classList.toggle('on', onlyShared); render(); };
+$('#onlyErr').onclick = e => { onlyErr = !onlyErr; e.target.classList.toggle('on', onlyErr); render(); };
+$('#clr').onclick = () => { sel = null; filt = ''; onlyShared = onlyErr = false;
+  $('#q').value=''; $('#onlyShared').classList.remove('on'); $('#onlyErr').classList.remove('on'); render(); };
+render();
+</script></body></html>

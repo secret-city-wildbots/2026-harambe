@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LT-45"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "45-LBump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LB-45-Depot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "45-Dip-FromLBump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "45-Mid"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Defensive Autos",
+  "choreoAuto": false
+}

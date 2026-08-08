@@ -1,0 +1,102 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.4,
+        "y": 5.4
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.952111111111111,
+        "y": 5.466044444444444
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.332766666666666,
+        "y": 6.262188888888889
+      },
+      "prevControl": {
+        "x": 6.718022222222223,
+        "y": 6.312577777777777
+      },
+      "nextControl": {
+        "x": 7.9357469579899,
+        "y": 6.212764274846001
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.806422222222222,
+        "y": 5.123399999999999
+      },
+      "prevControl": {
+        "x": 7.8834364918635975,
+        "y": 5.855035561593102
+      },
+      "nextControl": {
+        "x": 7.780251026092713,
+        "y": 4.874773636769648
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.1939777777777785,
+        "y": 5.0327
+      },
+      "prevControl": {
+        "x": 7.100977777777778,
+        "y": 4.438111111111112
+      },
+      "nextControl": {
+        "x": 5.337614069333874,
+        "y": 5.59409398664656
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.4,
+        "y": 5.4
+      },
+      "prevControl": {
+        "x": 4.528717397597331,
+        "y": 5.113095958485858
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 2.0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Dippy Doo",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}
