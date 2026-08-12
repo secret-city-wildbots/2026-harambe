@@ -78,14 +78,12 @@ public class RobotContainer {
 
     public final Dashboard dashboard;
 
-    private final PowerDistribution pdh = new PowerDistribution();
-
     //public final Intake intake;
 
     public RobotContainer() {
 
         /*if (RobotBase.isSimulation()) {
-            intake = new IntakeSim(drivetrain.get);
+            intake = new IntakeSim(drivetrain.get); 
         } else {
             intake = new IntakeReal();
         }*/
@@ -112,11 +110,7 @@ public class RobotContainer {
 
         drivetrain.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
-        // The last argument receives the auto armed from the dashboard's "Autos"
-        // tab. Passing null here made arming throw a NullPointerException, which
-        // surfaced only as "refused" in the UI.
-        dashboard = new Dashboard(drivetrain, shooter, indexer, transfer, intake, pdh,
-                (Command chosen) -> this.armedAuto = chosen);
+        dashboard = new Dashboard(drivetrain, shooter, indexer, transfer, intake, null);
     }
 
     /** Auto armed from the dashboard's Autos tab, or null if none. */

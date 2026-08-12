@@ -17,6 +17,7 @@ public class ShotPredictor {
     }
 
     public static double getShotRPS(Translation2d pose) {
-        return getShotVel(pose);
+        double dist = pose.getDistance(hubPosition);
+        return 1.0;
     }
 }

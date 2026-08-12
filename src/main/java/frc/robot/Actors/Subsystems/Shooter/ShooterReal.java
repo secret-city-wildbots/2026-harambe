@@ -6,6 +6,7 @@ import frc.robot.Actors.Subsystems.CommandSwerveDrivetrain;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.*;
 import frc.robot.Utils.MotorType;
 import frc.robot.Utils.RotationDir;
@@ -24,8 +25,8 @@ public class ShooterReal implements Shooter {
         this.leadMotor.motorConfig.peakReverseDC = 0.0;
         this.leadMotor.motorConfig.brake = false;
         this.leadMotor.applyConfig();
-        this.leadMotor.slot0TFX.kV = 0.11;
-        this.leadMotor.pid(0.4, 0.0, 0.0); // Setup the Shooter PID
+        this.leadMotor.slot0TFX.kV = 0.12;
+        this.leadMotor.pid(0.03, 0.0, 0.0); // Setup the Shooter PID
 
         this.drivetrain = drivetrain;
 
@@ -33,7 +34,7 @@ public class ShooterReal implements Shooter {
     }
 
     public void startShooting() {
-        this.leadMotor.vel(ShotPredictor.getShotRPS(drivetrain.getPose().getTranslation()));
+        ShotPredictor.getShotRPS(drivetrain.getPose().getTranslation());
     }
 
     public void stop() {
@@ -41,6 +42,6 @@ public class ShooterReal implements Shooter {
     }
 
     public void periodic() {
-        
+        System.out.println(drivetrain.getPose().getTranslation().getDistance(ShotPredictor.hubPosition));
     }
 }
