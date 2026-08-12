@@ -1,0 +1,91 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.0799444444444446,
+        "y": 7.380822222222222
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0698666666666665,
+        "y": 6.483899999999999
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.0799444444444446,
+        "y": 0.9008111111111099
+      },
+      "prevControl": {
+        "x": 3.0698666666666665,
+        "y": 2.1907666666666668
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AimAndShoot",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "IntakeRetract",
+      "waypointRelativePos": 0.30121816168327814,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AimAndShoot",
+      "waypointRelativePos": 0.3986710963455134,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AimAndShoot",
+      "waypointRelativePos": 0.5470653377630121,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AimAndShoot",
+      "waypointRelativePos": 0.6684073107049601,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 0.75,
+    "maxAcceleration": 0.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Testing",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": false
+}

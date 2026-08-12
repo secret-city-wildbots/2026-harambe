@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.8,
+        "y": 6.2
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.489888888888888,
+        "y": 6.179844444444445
+      },
+      "isLocked": false,
+      "linkedName": "Dip 1"
+    },
+    {
+      "anchor": {
+        "x": 5.3776777777777784,
+        "y": 5.657522222222221
+      },
+      "prevControl": {
+        "x": 6.153666666666667,
+        "y": 6.030399999999999
+      },
+      "nextControl": {
+        "x": 4.655438972434716,
+        "y": 5.310472406667762
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.4,
+        "y": 5.4
+      },
+      "prevControl": {
+        "x": 4.570107685716508,
+        "y": 5.4
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Dippy Doo",
+  "idealStartingState": {
+    "velocity": 3.0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}

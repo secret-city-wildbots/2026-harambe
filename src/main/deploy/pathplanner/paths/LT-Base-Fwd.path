@@ -1,0 +1,117 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.5975757575757576,
+        "y": 7.42479797979798
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.470790466947052,
+        "y": 7.529637837449225
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.777563131313132,
+        "y": 6.749128787878788
+      },
+      "prevControl": {
+        "x": 7.758184460902226,
+        "y": 7.107634190480508
+      },
+      "nextControl": {
+        "x": 7.79771868686869,
+        "y": 6.376251010101009
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.8,
+        "y": 4.8
+      },
+      "prevControl": {
+        "x": 7.7464917773080595,
+        "y": 6.484084978896756
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2251082251082252,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.9696969696969695,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.7707641196013256,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.29242819843342044,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Shoot"
+        }
+      }
+    },
+    {
+      "name": "AimAndShoot",
+      "waypointRelativePos": 0.5918189730200195,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "AimAndShoot",
+      "waypointRelativePos": 1.8102697998259312,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.5,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Simple Left",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}

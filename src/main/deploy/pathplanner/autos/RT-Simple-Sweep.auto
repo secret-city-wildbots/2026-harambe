@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Base"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Base-Rev-Fwd"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OUT-Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OUT-Sweep"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Simple",
+  "choreoAuto": false
+}

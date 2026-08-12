@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S8-RTrench-Back"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "S8-RTrench-Fwd"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Base"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Base-Rev"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Dip2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-Base-Rev"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Dips",
+  "choreoAuto": false
+}

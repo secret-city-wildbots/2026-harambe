@@ -11,6 +11,8 @@ import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.events.EventTrigger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,6 +20,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,6 +45,7 @@ import frc.robot.Actors.Subsystems.Transfer.TransferReal;
 import frc.robot.Actors.Subsystems.Transfer.TransferSim;
 import frc.robot.Commands.Subsystems.Drivetrain.AimAtHeadingAssist;
 import frc.robot.Utils.ShotPredictor;
+import frc.robot.Utils.JoystickScaler;
 
 public class RobotContainer {
     public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -100,12 +104,17 @@ public class RobotContainer {
                 indexer = new IndexerSim();
         }
 
+        new EventTrigger("Intake").toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
+
         configureBindings();
 
         drivetrain.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
         dashboard = new Dashboard(drivetrain, shooter, indexer, transfer, intake, null);
     }
+
+    /** Auto armed from the dashboard's Autos tab, or null if none. */
+    private Command armedAuto = null;
 
     private void configureBindings() {
 
@@ -176,7 +185,12 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        /* Run the path selected from the auto chooser */
-        return Commands.print("blah");
+        /* Run the auto armed in the dashboard's "Autos" tab */
+        if (armedAuto == null) {
+            DriverStation.reportWarning(
+                    "No auto armed — pick one in the dashboard's Autos tab", false);
+            return Commands.none();
+        }
+        return armedAuto;
     }
 }

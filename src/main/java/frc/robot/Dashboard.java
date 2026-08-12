@@ -43,6 +43,8 @@ public class Dashboard {
     final MasterAlarms WBalarms;
     final FieldMap WBfieldMap;
     final NumberDisplay WBnumberDisplay;
+    final AutoTools WBautoTools;
+    final AutoChooser WBautoChooser;
 
     public double battAvg = 12.0;
     public double currAvg = 50.0;
@@ -61,6 +63,7 @@ public class Dashboard {
         dashboard = new WildBoard(5804);
 
         WBfieldMap = new FieldMap();
+        WBautoChooser = new AutoChooser();
 
         // Checklist
         dashboard.addTab(new Tab()
@@ -81,11 +84,9 @@ public class Dashboard {
                                         new CameraFeed(13)).addChild(
                                                 new CameraFeed(14))))
                 .addChild(new Col(4).addChild(
-                    // TODO: Add autos into Dashboard
-                        new AutoChooser(new String[] { "Nothing", "SMR 1", "EventTest", "Awesome", "L Trench 2 Dip", "R Trench 2 Dips + Outpost","Simple Left" }).onChange((String choice) -> {
-                            System.out.println("Auto Chosen: "+choice);
-                            autoChosen.accept(new PathPlannerAuto(choice));
-                        })).addChild(
+                        // Display only. Autos are armed from the "Autos" tab,
+                        // which validates them before letting you pick one.
+                        WBautoChooser).addChild(
                                 new Overrides(new String[] { "Limelight PowerSaver", "Disable Camera Feeds", "CompMode",
                                         "Disable Shot Smoothing", "Always Aim at Hub", "Disable Shoot Safeties" },
                                         2).onChange((Integer id, Boolean state) -> {
@@ -141,6 +142,22 @@ public class Dashboard {
                                                 )
                 .setTitle("Subsystems"));
 
+        // Autos — path visualiser + path/auto cross-reference map.
+        // The panel writes its own data to /dynamic/autoanalysis.json on start;
+        // only the armed auto name comes back over the socket.
+        // onArm runs on the robot thread (AutoTools defers it to update()), so
+        // building the command here is safe.
+        AutoTools tools = new AutoTools();
+        tools.onArm((String name) -> {
+            autoChosen.accept(new PathPlannerAuto(name));
+            WBautoChooser.setArmed(name, tools.getWarnCount(name) > 0);
+        });
+        WBautoTools = tools;
+
+        dashboard.addTab(new Tab()
+                .setTitle("Autos")
+                .addChild(new Col(12).addChild(WBautoTools)));
+
         dashboard.addPanel(new LooptimeMonitor());
         dashboard.addPanel(new PingMonitor());
         dashboard.addPanel(new FPSMonitor());
@@ -149,6 +166,25 @@ public class Dashboard {
     }
 
     public void update() {
+        try {
+            updateTelemetry();
+        } catch (Exception e) {
+            // A telemetry read that throws must not stop dashboard.update()
+            // below — that call is what flushes every panel's messages, so
+            // losing it silently breaks the whole board.
+            if (!telemetryFaulted) {
+                telemetryFaulted = true;
+                System.err.println("[Dashboard] telemetry update failed, "
+                        + "panels will keep running: " + e);
+                e.printStackTrace();
+            }
+        }
+        dashboard.update();
+    }
+
+    private boolean telemetryFaulted = false;
+
+    private void updateTelemetry() {
         Pose2d pose = drivetrain.getPose();
         WBfieldMap.sendPose((DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 16.0-pose.getY():pose.getY(), pose.getX(), pose.getRotation().getDegrees());
 
@@ -217,7 +253,5 @@ public class Dashboard {
         if (battAvg < 10.0) {
             WBalarms.triggerAlarm(7);
         }
-
-        dashboard.update();
     }
 }

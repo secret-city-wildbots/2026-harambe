@@ -1,0 +1,228 @@
+==========================================================================
+PATHPLANNER AUDIT  -  67 paths, 41 autos
+==========================================================================
+
+STATIC ISSUES
+
+  [embedded command instead of bare trigger]  (9)
+    LT-Base-Fwd: 'Intake' @ 0.29
+    LT-Base: 'Intake' @ 0.58
+    LT-Depot-Mid: 'Intake' @ 0.43
+    LT-Depot-Pickup: 'Intake' @ 0.10
+    LT-Plow: 'Intake' @ 0.77
+    RT-Base-Rev-OB-2: 'AimAndShoot' @ 0.94
+    RT-Base-Rev-OB: 'AimAndShoot' @ 0.80
+    RT-FromLPlow: 'Intake' @ 0.35
+    RT-Plow: 'Intake' @ 0.74
+
+  [markers at identical position (undefined firing order)]  (3)
+    OUT-Shoot: 2 markers @ 0.00
+    RB-Outpost-Side: 2 markers @ 0.00
+    ZZ-EventTriggers: 2 markers @ 0.00
+
+==========================================================================
+PER-AUTO REPLAY
+==========================================================================
+
+45-Defensive
+  5 paths, 8 markers, 2 shot(s), shooter off at end
+  ~ [45-Mid @1.81] 'Intake' fired while intake is already extended
+  ~ auto ends with intake still extended
+
+BUMP-Ride-LR
+  3 paths, 0 markers, 0 shot(s), shooter off at end
+  X auto-level NamedCommand 'Shoot': NamedCommands.registerCommand is never called anywhere in the Java, so this auto fails to load
+
+BUMP-Ride-RL
+  3 paths, 0 markers, 0 shot(s), shooter off at end
+  X auto-level NamedCommand 'Shoot': NamedCommands.registerCommand is never called anywhere in the Java, so this auto fails to load
+
+CTR-2Dip
+  5 paths, 0 markers, 0 shot(s), shooter off at end
+  OK
+
+CTR-Depot
+  3 paths, 5 markers, 1 shot(s), shooter RUNNING at end
+  ~ ends with shot #1 still running (started at [S8-Center @0.81]) — odd AimAndShoot count, shooter carries into teleop
+
+CTR-Dip
+  6 paths, 0 markers, 0 shot(s), shooter off at end
+  OK
+
+CTR-FastAway
+  1 paths, 0 markers, 0 shot(s), shooter off at end
+  OK
+
+LB-Dip
+  1 paths, 3 markers, 1 shot(s), shooter off at end
+  ~ auto ends with intake still extended
+
+LT-2Dip
+  3 paths, 8 markers, 3 shot(s), shooter RUNNING at end
+  ~ ends with shot #3 still running (started at [45-Dip-FromLBump-2 @4.86]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+LT-2Dip-Depot
+  5 paths, 10 markers, 3 shot(s), shooter off at end
+  ~ [45-Mid @1.81] 'Intake' fired while intake is already extended
+  ~ auto ends with intake still extended
+
+LT-Defensive
+  2 paths, 2 markers, 1 shot(s), shooter RUNNING at end
+  ~ ends with shot #1 still running (started at [45-LBump-2 @0.90]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+LT-Plow
+  3 paths, 2 markers, 0 shot(s), shooter off at end
+  X auto-level NamedCommand 'Shoot': NamedCommands.registerCommand is never called anywhere in the Java, so this auto fails to load
+  ~ [RT-FromLPlow @0.35] 'Intake' fired while intake is already extended
+  ~ auto ends with intake still extended
+
+LT-Plow-Outpost
+  4 paths, 4 markers, 1 shot(s), shooter RUNNING at end
+  ~ [RT-FromLPlow @0.35] 'Intake' fired while intake is already extended
+  ~ [OUT-Shoot @0.00] 'Intake' fired while intake is already extended
+  ~ ends with shot #1 still running (started at [OUT-Shoot @0.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+LT-RT-BackToMid-NC
+  4 paths, 11 markers, 4 shot(s), shooter RUNNING at end
+  ~ ends with shot #4 still running (started at [LT-BackToMid @2.07]) — odd AimAndShoot count, shooter carries into teleop
+
+LT-Simple
+  2 paths, 5 markers, 2 shot(s), shooter RUNNING at end
+  ~ ends with shot #2 still running (started at [LT-Base-Rev @1.00]) — odd AimAndShoot count, shooter carries into teleop
+
+LT-Simple-Depot
+  3 paths, 6 markers, 2 shot(s), shooter RUNNING at end
+  ~ ends with shot #2 still running (started at [LT-Base-Rev @1.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+LT-Simple-NC
+  3 paths, 7 markers, 2 shot(s), shooter off at end
+  ~ auto ends with intake still extended
+
+LT-SlowLob
+  2 paths, 3 markers, 1 shot(s), shooter RUNNING at end
+  ~ ends with shot #1 still running (started at [LT-Base-OB @1.00]) — odd AimAndShoot count, shooter carries into teleop
+
+OUT-Base
+  5 paths, 4 markers, 1 shot(s), shooter off at end
+  ~ [RT-Base @0.02] 'Intake' fired while intake is already extended
+  ~ auto ends with intake still extended
+
+OUT-FromBump
+  3 paths, 4 markers, 1 shot(s), shooter off at end
+  ~ [RT-Base @0.02] 'Intake' fired while intake is already extended
+  ~ auto ends with intake still extended
+
+RT-2Dip
+  5 paths, 6 markers, 2 shot(s), shooter RUNNING at end
+  ~ ends with shot #2 still running (started at [RT-Base-Rev-OB-2 @0.94]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-2Dip-Outpost
+  5 paths, 5 markers, 2 shot(s), shooter RUNNING at end
+  ~ [OUT-MidDip @0.75] 'Intake' fired while intake is already extended
+  ~ ends with shot #2 still running (started at [RT-Base-Rev-OB-2 @0.94]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-Bump
+  2 paths, 4 markers, 2 shot(s), shooter RUNNING at end
+  X auto-level NamedCommand 'NamedAimAndShoot': NamedCommands.registerCommand is never called anywhere in the Java, so this auto fails to load
+  ~ ends with shot #2 still running (started at [RT-Base-Rev-OB @0.80]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-Outpost
+  3 paths, 2 markers, 1 shot(s), shooter RUNNING at end
+  ~ ends with shot #1 still running (started at [RT-Base-Rev-OB-2 @0.94]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-Plow
+  3 paths, 3 markers, 0 shot(s), shooter off at end
+  X auto-level NamedCommand 'Shoot': NamedCommands.registerCommand is never called anywhere in the Java, so this auto fails to load
+  ~ [LT-FromRPlow @0.27] 'Intake' fired while intake is already extended
+  ~ [LT-Depot-Mid @0.43] 'Intake' fired while intake is already extended
+  ~ auto ends with intake still extended
+
+RT-Quarter
+  3 paths, 4 markers, 1 shot(s), shooter RUNNING at end
+  ~ ends with shot #1 still running (started at [OUT-Shoot @0.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-Simple-BackToMid-NC
+  3 paths, 2 markers, 1 shot(s), shooter RUNNING at end
+  ~ ends with shot #1 still running (started at [RT-Base-Rev @0.99]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-Simple-Outpost
+  4 paths, 3 markers, 1 shot(s), shooter RUNNING at end
+  ~ [OUT-Shoot @0.00] 'Intake' fired while intake is already extended
+  ~ ends with shot #1 still running (started at [OUT-Shoot @0.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-Simple-Outpost-Backup
+  4 paths, 3 markers, 1 shot(s), shooter RUNNING at end
+  ~ [OUT-Shoot @0.00] 'Intake' fired while intake is already extended
+  ~ ends with shot #1 still running (started at [OUT-Shoot @0.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+RT-Simple-Sweep
+  4 paths, 3 markers, 1 shot(s), shooter RUNNING at end
+  ~ [OUT-Shoot @0.00] 'Intake' fired while intake is already extended
+  ~ ends with shot #1 still running (started at [OUT-Shoot @0.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+S8-Plow
+  2 paths, 4 markers, 2 shot(s), shooter RUNNING at end
+  ~ ends with shot #2 still running (started at [CTR-Plow @2.86]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+S8-RT-2Dip
+  5 paths, 6 markers, 2 shot(s), shooter off at end
+  ~ [RB-RTrench @0.64] 'IntakeRetract' fired but intake was never extended
+  ~ auto ends with intake still extended
+
+S8-RT-Dip
+  6 paths, 8 markers, 3 shot(s), shooter RUNNING at end
+  ~ [RT-Base @0.02] 'Intake' fired while intake is already extended
+  ~ [RT-Dip2 @0.05] 'Intake' fired while intake is already extended
+  ~ ends with shot #3 still running (started at [RT-Base-Rev @0.99]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+ZZ-EventTest
+  1 paths, 6 markers, 2 shot(s), shooter off at end
+  OK
+
+ZZ-Old-Awesome
+  1 paths, 4 markers, 2 shot(s), shooter RUNNING at end
+  ~ ends with shot #2 still running (started at [ZZ-EventTrig @1.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+ZZ-Old-NewAuto
+  3 paths, 7 markers, 2 shot(s), shooter off at end
+  ~ auto ends with intake still extended
+
+ZZ-Old-NewNewAuto
+  2 paths, 3 markers, 1 shot(s), shooter off at end
+  ~ auto ends with intake still extended
+
+ZZ-Old-NotAwesome
+  1 paths, 0 markers, 0 shot(s), shooter off at end
+  OK
+
+ZZ-SMR-1
+  3 paths, 3 markers, 1 shot(s), shooter RUNNING at end
+  ~ [OUT-Shoot @0.00] 'Intake' fired while intake is already extended
+  ~ ends with shot #1 still running (started at [OUT-Shoot @0.00]) — odd AimAndShoot count, shooter carries into teleop
+  ~ auto ends with intake still extended
+
+ZZ-SMR-5
+  1 paths, 0 markers, 0 shot(s), shooter off at end
+  X auto-level NamedCommand 'AimAndShoot': NamedCommands.registerCommand is never called anywhere in the Java, so this auto fails to load
+
+ZZ-SysCheck
+  1 paths, 0 markers, 0 shot(s), shooter off at end
+  OK
+
+6 of 41 autos have errors.

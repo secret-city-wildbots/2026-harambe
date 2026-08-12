@@ -1,41 +1,44 @@
-import { h, Fragment } from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/node_modules/preact";
-import { useMemo, useState } from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/node_modules/preact/hooks";
-import { CompModeContext } from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/ws/CompModeContext.tsx";
-import TabbedContainer from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/components/TabbedContainer.tsx";
-import Container from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/components/Container.tsx";
-import { WsEventBus } from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/ws/WSEventBus.ts";
-import Checklist from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/Checklist.tsx";
+import { h, Fragment } from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/node_modules/preact";
+import { useMemo, useState } from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/node_modules/preact/hooks";
+import { CompModeContext } from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/ws/CompModeContext.tsx";
+import TabbedContainer from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/components/TabbedContainer.tsx";
+import Container from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/components/Container.tsx";
+import { WsEventBus } from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/ws/WSEventBus.ts";
+import Checklist from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/Checklist.tsx";
 
-import FieldMap from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/FieldMap.tsx";
+import FieldMap from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/FieldMap.tsx";
 
-import CameraFeed from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
-import CameraFeed from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
-import DashboardSubRow from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
-import CameraFeed from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
-import CameraFeed from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
-import DashboardSubRow from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
+import CameraFeed from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
+import CameraFeed from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
+import DashboardSubRow from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
+import CameraFeed from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
+import CameraFeed from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/CameraFeed.tsx";
+import DashboardSubRow from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
 
-import AutoChooser from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/AutoChooser.tsx";
-import Overrides from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/Overrides.tsx";
-
-
-import SwerveModules from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SwerveModules.tsx";
-import SystemsCheck from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SystemsCheck.tsx";
-
-import NumberDisplay from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/NumberDisplay.tsx";
-
-import SimpleSubsystem from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
-import SimpleSubsystem from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
-import DashboardSubRow from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
-import SimpleSubsystem from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
-import SimpleSubsystem from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
-import DashboardSubRow from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
+import AutoChooser from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/AutoChooser.tsx";
+import Overrides from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/Overrides.tsx";
 
 
-import LooptimeMonitor from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/LooptimeMonitor.tsx";
-import PingMonitor from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/PingMonitor.tsx";
-import FPSMonitor from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/FPSMonitor.tsx";
-import MasterAlarms from "D:/coding/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/MasterAlarms.tsx";
+import SwerveModules from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SwerveModules.tsx";
+import SystemsCheck from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SystemsCheck.tsx";
+
+import NumberDisplay from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/NumberDisplay.tsx";
+
+import SimpleSubsystem from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
+import SimpleSubsystem from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
+import DashboardSubRow from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
+import SimpleSubsystem from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
+import SimpleSubsystem from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/SimpleSubsystem.tsx";
+import DashboardSubRow from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/DashboardSubRow.tsx";
+
+
+import AutoTools from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/AutoTools.tsx";
+
+
+import LooptimeMonitor from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/LooptimeMonitor.tsx";
+import PingMonitor from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/PingMonitor.tsx";
+import FPSMonitor from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/FPSMonitor.tsx";
+import MasterAlarms from "C:/Users/wildr/Programming/Robotics/FRC-4265/2026-harambe/src/main/deploy/WildBoard/frontend/src/panels/MasterAlarms.tsx";
 
 
 export default function () {

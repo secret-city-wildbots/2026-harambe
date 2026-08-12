@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>PathPlanner map - 4265</title>
+<style>
+ :root{--bg:#12151a;--fg:#e6e9ef;--dim:#8b93a3;--line:#262b34;--acc:#6aa9ff;
+       --intake:#3ddc84;--shoot:#ff9f43;--err:#ff5c5c;--warn:#ffd166}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--bg);color:var(--fg);
+      font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+ header{display:flex;gap:14px;align-items:center;padding:11px 18px;
+        border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:0;
+        background:var(--bg);z-index:5}
+ input[type=search]{background:#1c212a;color:var(--fg);border:1px solid var(--line);
+        border-radius:6px;padding:7px 11px;font:inherit;min-width:260px}
+ button{background:#232a35;color:var(--fg);border:1px solid var(--line);
+        border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
+ button:hover{background:#2c3542} button.on{background:var(--acc);color:#0d1014;border-color:var(--acc)}
+ .stat{color:var(--dim)} .stat b{color:var(--fg)}
+ .cols{display:grid;grid-template-columns:1fr 1fr 320px;gap:13px;padding:14px 18px;align-items:start}
+ @media(max-width:1200px){.cols{grid-template-columns:1fr}}
+ .card{background:#161a21;border:1px solid var(--line);border-radius:10px;padding:12px}
+ .card.sticky{position:sticky;top:62px}
+ h2{margin:0 0 9px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--dim);font-weight:600}
+ .zone{margin:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+       color:#5d6675;border-bottom:1px solid var(--line);padding-bottom:3px}
+ .row{display:flex;align-items:center;gap:7px;padding:3px 7px;border-radius:5px;cursor:pointer}
+ .row:hover{background:#1e242e}
+ .row.sel{background:var(--acc);color:#0d1014}
+ .row.sel .badge,.row.sel .nm{color:#0d1014}
+ .row.lit{background:#213047;outline:1px solid #33507a}
+ .row.dim{opacity:.22}
+ .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .badge{font-size:11px;color:var(--dim);flex:none}
+ .badge.sh{color:var(--warn);font-weight:700}
+ .badge.err{color:var(--err);font-weight:700}
+ .badge.orph{color:#5d6675;font-style:italic}
+ .dot{width:7px;height:7px;border-radius:50%;flex:none;background:#2f3542}
+ .dot.err{background:var(--err)} .dot.warn{background:var(--warn)} .dot.ok{background:var(--intake)}
+ .det .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:11px}
+ .det .v{margin-top:2px;word-break:break-word}
+ .mk{display:inline-block;background:#1e242e;border:1px solid var(--line);border-radius:4px;
+     padding:1px 6px;margin:2px 3px 0 0;font-size:11px}
+ .mk.i{border-color:var(--intake);color:var(--intake)}
+ .mk.s{border-color:var(--shoot);color:var(--shoot)}
+ .mk.x{border-color:var(--err);color:var(--err)}
+ .warnbox{background:#2a1f13;border:1px solid #5c421f;border-radius:7px;padding:9px 11px;margin-top:11px}
+ .warnbox b{color:var(--warn)}
+ a.lnk{color:var(--acc);cursor:pointer;text-decoration:none} a.lnk:hover{text-decoration:underline}
+ .hint{color:#5d6675;font-size:12px}
+</style></head><body>
+<header>
+  <strong>PathPlanner map</strong>
+  <input type="search" id="q" placeholder="filter paths and autos…">
+  <button id="onlyShared">Shared only</button>
+  <button id="onlyErr">Errored autos</button>
+  <button id="clr">Clear</button>
+  <span class="stat" id="stat"></span>
+</header>
+<div class="cols">
+  <div class="card"><h2>Paths <span class="hint">click → autos that use it</span></h2><div id="paths"></div></div>
+  <div class="card"><h2>Autos <span class="hint">click → paths it runs</span></h2><div id="autos"></div></div>
+  <div class="card sticky det"><h2>Detail</h2><div id="det" class="hint">Pick a path or an auto.</div></div>
+</div>
+<script>
+const PATHS = __PATHS__, AUTOS = __AUTOS__, ZONES = __ZONES__;
+const $ = s => document.querySelector(s);
+let sel = null, filt = '', onlyShared = false, onlyErr = false;
+
+const pathAutos = p => [...new Set((PATHS[p]||{}).autos||[])].sort();
+const mkClass = m => m.embedded ? 'x' : (/^(Intake|IntakeRetract|StopIntake)$/.test(m.name) ? 'i' : 's');
+
+function group(obj, keyFn){
+  const g = {};
+  ZONES.forEach(z => g[z] = []);
+  Object.keys(obj).sort().forEach(n => (g[keyFn(n)] = g[keyFn(n)] || []).push(n));
+  return g;
+}
+
+function visible(kind, n){
+  if(filt && !n.toLowerCase().includes(filt)) return false;
+  if(kind === 'path' && onlyShared && !PATHS[n].shared) return false;
+  if(kind === 'auto' && onlyErr && !AUTOS[n].errors) return false;
+  return true;
+}
+
+function render(){
+  // --- paths column ---
+  const gp = group(PATHS, n => PATHS[n].zone);
+  let h = '';
+  ZONES.forEach(z => {
+    const rows = (gp[z]||[]).filter(n => visible('path', n));
+    if(!rows.length) return;
+    h += `<div class="zone">${z}</div>`;
+    rows.forEach(n => {
+      const d = PATHS[n], us = pathAutos(n);
+      let cls = 'row';
+      if(sel && sel.kind === 'path' && sel.name === n) cls += ' sel';
+      else if(sel && sel.kind === 'auto') cls += AUTOS[sel.name].paths.includes(n) ? ' lit' : ' dim';
+      const badge = d.orphan ? '<span class="badge orph">orphan</span>'
+                  : `<span class="badge ${d.shared?'sh':''}">${us.length} auto${us.length>1?'s':''}</span>`;
+      h += `<div class="${cls}" data-k="path" data-n="${n}">
+              <span class="nm">${n}</span>${badge}</div>`;
+    });
+  });
+  $('#paths').innerHTML = h || '<div class="hint">nothing matches</div>';
+
+  // --- autos column ---
+  const ga = group(AUTOS, n => AUTOS[n].zone);
+  h = '';
+  ZONES.forEach(z => {
+    const rows = (ga[z]||[]).filter(n => visible('auto', n));
+    if(!rows.length) return;
+    h += `<div class="zone">${z}</div>`;
+    rows.forEach(n => {
+      const d = AUTOS[n];
+      let cls = 'row';
+      if(sel && sel.kind === 'auto' && sel.name === n) cls += ' sel';
+      else if(sel && sel.kind === 'path') cls += pathAutos(sel.name).includes(n) ? ' lit' : ' dim';
+      const dot = d.errors ? 'err' : (d.warns ? 'warn' : 'ok');
+      const badge = d.errors ? `<span class="badge err">${d.errors} err</span>`
+                             : `<span class="badge">${d.paths.length} paths</span>`;
+      h += `<div class="${cls}" data-k="auto" data-n="${n}">
+              <span class="dot ${dot}"></span><span class="nm">${n}</span>${badge}</div>`;
+    });
+  });
+  $('#autos').innerHTML = h || '<div class="hint">nothing matches</div>';
+
+  const sharedN = Object.values(PATHS).filter(d => d.shared).length;
+  const orphN = Object.values(PATHS).filter(d => d.orphan).length;
+  const errN = Object.values(AUTOS).filter(d => d.errors).length;
+  $('#stat').innerHTML = `<b>${Object.keys(PATHS).length}</b> paths &middot;
+     <b>${Object.keys(AUTOS).length}</b> autos &middot;
+     <b style="color:var(--warn)">${sharedN}</b> shared &middot;
+     <b>${orphN}</b> orphaned &middot; <b style="color:var(--err)">${errN}</b> errored`;
+  detail();
+}
+
+function detail(){
+  if(!sel){ $('#det').innerHTML = '<div class="hint">Pick a path or an auto.</div>'; return; }
+  let h = '';
+  if(sel.kind === 'path'){
+    const d = PATHS[sel.name], us = pathAutos(sel.name);
+    h += `<div style="font-size:15px;font-weight:700">${sel.name}</div>`;
+    h += `<div class="k">Waypoints</div><div class="v">${d.waypoints}</div>`;
+    h += `<div class="k">Markers</div><div class="v">` +
+         (d.markers.length ? d.markers.map(m =>
+            `<span class="mk ${mkClass(m)}">${m.name}@${m.pos}${m.embedded?' ⚠embedded':''}</span>`).join('')
+          : '<span class="hint">none</span>') + `</div>`;
+    h += `<div class="k">Used by ${us.length} auto(s)</div><div class="v">` +
+         (us.length ? us.map(u => `<div><a class="lnk" data-go="auto" data-n="${u}">${u}</a></div>`).join('')
+          : '<span class="hint">orphan — nothing references this</span>') + `</div>`;
+    if(d.shared) h += `<div class="warnbox"><b>Shared path.</b> Moving or renaming a marker
+        here changes all ${us.length} autos above. Check each one before you edit.</div>`;
+  } else {
+    const d = AUTOS[sel.name];
+    h += `<div style="font-size:15px;font-weight:700">${sel.name}</div>`;
+    h += `<div class="k">Summary</div><div class="v">${d.summary}</div>`;
+    h += `<div class="k">Runs, in order</div><div class="v">` +
+         d.paths.map((p,i) => {
+           const sh = PATHS[p] && PATHS[p].shared;
+           return `<div>${i+1}. <a class="lnk" data-go="path" data-n="${p}">${p}</a>` +
+                  (sh ? ` <span class="badge sh">shared</span>` : '') + `</div>`;
+         }).join('') + `</div>`;
+    if(d.named.length) h += `<div class="k">Broken</div><div class="v">` +
+      d.named.map(n => `<span class="mk x">NamedCommand ${n}</span>`).join('') +
+      `<div class="hint">never registered — this auto fails to load</div></div>`;
+  }
+  $('#det').innerHTML = h;
+}
+
+document.addEventListener('click', e => {
+  const go = e.target.closest('[data-go]');
+  if(go){ sel = {kind: go.dataset.go, name: go.dataset.n}; render(); return; }
+  const row = e.target.closest('.row');
+  if(row){
+    const k = row.dataset.k, n = row.dataset.n;
+    sel = (sel && sel.kind === k && sel.name === n) ? null : {kind:k, name:n};
+    render();
+  }
+});
+$('#q').oninput = e => { filt = e.target.value.toLowerCase().trim(); render(); };
+$('#onlyShared').onclick = e => { onlyShared = !onlyShared; e.target.classList.toggle('on', onlyShared); render(); };
+$('#onlyErr').onclick = e => { onlyErr = !onlyErr; e.target.classList.toggle('on', onlyErr); render(); };
+$('#clr').onclick = () => { sel = null; filt = ''; onlyShared = onlyErr = false;
+  $('#q').value=''; $('#onlyShared').classList.remove('on'); $('#onlyErr').classList.remove('on'); render(); };
+render();
+</script></body></html>
