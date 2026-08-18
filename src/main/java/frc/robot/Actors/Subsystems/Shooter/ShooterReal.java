@@ -42,6 +42,6 @@ public class ShooterReal implements Shooter {
     }
 
     public void periodic() {
-        System.out.println(drivetrain.getPose().getTranslation().getDistance(ShotPredictor.hubPosition));
+        //System.out.println(drivetrain.getPose().getTranslation().getDistance(ShotPredictor.hubPosition));
     }
 }

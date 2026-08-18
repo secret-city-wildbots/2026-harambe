@@ -72,6 +72,8 @@ public class Robot extends TimedRobot {
         }
         
         m_robotContainer.dashboard.update();
+
+        System.out.println("Low Lim: "+m_robotContainer.elevator.lowerLimitActive()+" Mid Lim: "+m_robotContainer.elevator.handoffLimitActive()+" Upper Lim: "+m_robotContainer.elevator.topLimitActive());
     }
 
     @Override

@@ -27,6 +27,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.Actors.Subsystems.CommandSwerveDrivetrain;
+import frc.robot.Actors.Subsystems.Elevator.Elevator;
+import frc.robot.Actors.Subsystems.Elevator.ElevatorDummy;
+import frc.robot.Actors.Subsystems.Elevator.ElevatorReal;
+import frc.robot.Actors.Subsystems.Elevator.ElevatorSim;
 import frc.robot.Actors.Subsystems.Indexer.Indexer;
 import frc.robot.Actors.Subsystems.Indexer.IndexerDummy;
 import frc.robot.Actors.Subsystems.Indexer.IndexerReal;
@@ -74,6 +78,8 @@ public class RobotContainer {
 
     public final Indexer indexer;
 
+    public final Elevator elevator;
+
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final Dashboard dashboard;
@@ -92,16 +98,19 @@ public class RobotContainer {
                 shooter = new ShooterDummy();
                 transfer = new TransferDummy();
                 indexer = new IndexerDummy();
+                elevator = new ElevatorDummy();
         } else if (RobotBase.isReal()) {
                 intake = new IntakeReal();
                 shooter = new ShooterReal(drivetrain);
                 transfer = new TransferReal();
                 indexer = new IndexerReal();
+                elevator = new ElevatorReal();
         } else {
                 intake = new IntakeSim(drivetrain.getDriveSimulation());
                 shooter = new ShooterSim(drivetrain.getDriveSimulation());
                 transfer = new TransferSim();
                 indexer = new IndexerSim();
+                elevator = new ElevatorSim();
         }
 
         new EventTrigger("Intake").toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
