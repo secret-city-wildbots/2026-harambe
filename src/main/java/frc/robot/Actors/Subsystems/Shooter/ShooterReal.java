@@ -34,7 +34,7 @@ public class ShooterReal implements Shooter {
     }
 
     public void startShooting() {
-        ShotPredictor.getShotRPS(drivetrain.getPose().getTranslation());
+        this.leadMotor.vel(80);
     }
 
     public void stop() {

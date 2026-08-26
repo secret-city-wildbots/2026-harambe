@@ -18,7 +18,7 @@ public final class Constants {
     }
     public static class IntakeConstants {
     // Intake motor CANBus IDs
-    public static final int intakeMotorID = 40;
+    public static final int intakeMotorID = 54;
     public static final int extensionMotorID = 41;
 
     // Gear Ratios
@@ -33,6 +33,7 @@ public final class Constants {
     // Elevator motor CANBus IDs
     public static final int liftMotorID = 48;
     public static final int hookMotorID = 49;
+    public static final int CANifierID = 51; 
     public static final double maxSpeedPercentage = 0.1;
 
     // Sensor ID / Ports

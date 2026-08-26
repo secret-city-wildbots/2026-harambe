@@ -26,11 +26,10 @@ public class ElevatorReal implements Elevator {
 
     // Define variables
     public Motor motorHooks;
-    private DigitalInput lowerLimitMagneticSwitch; // Lower limit magnetic switch for the elevator lift
+   
     // private DigitalInput handoffLimitMagneticSwitch; // Handoff limit magnetic
     // switch for the elevator lift
     private CANifier handoffLimitSwitch; // Handoff limit magnetic switch for the elevator lift
-    private DigitalInput topLimitMagneticSwitch; // Top limit magnetic switch for the elevator lift
 
     // code to rotate 30 motor rotations
     private double initMotorRotations = -999999.0; // Picked a vaule that cannot be reached to indicate it is not set
@@ -61,8 +60,7 @@ public class ElevatorReal implements Elevator {
         // Configure the elevator magnetic switches
         //this.lowerLimitMagneticSwitch = new CANifier(find the ID);
         // this.handoffLimitMagneticSwitch = new DigitalInput(ElevatorConstants.handoffMagneticSensorPort);
-        this.handoffLimitSwitch = new CANifier(50);
-        this.topLimitMagneticSwitch = new DigitalInput(ElevatorConstants.topLimitMagneticSensorPort);
+        this.handoffLimitSwitch = new CANifier(ElevatorConstants.CANifierID);
     }
 
     public double getTemp() {
@@ -143,7 +141,7 @@ public class ElevatorReal implements Elevator {
      */
 
      public boolean lowerLimitActive() {
-        return  !this.handoffLimitSwitch.getGeneralInput(CANifier.GeneralPin.QUAD_B);
+        return  !this.handoffLimitSwitch.getGeneralInput(CANifier.GeneralPin.QUAD_A); // beam break
      }
 
      /**
@@ -154,7 +152,7 @@ public class ElevatorReal implements Elevator {
 
      public boolean handoffLimitActive() {
         // return  this.handoffLimitMagneticSwitch.get();
-        return !this.handoffLimitSwitch.getGeneralInput(CANifier.GeneralPin.LIMR);
+        return !this.handoffLimitSwitch.getGeneralInput(CANifier.GeneralPin.LIMF); // bottom magnet
      }
 
      /**
@@ -164,7 +162,7 @@ public class ElevatorReal implements Elevator {
      */
 
      public boolean topLimitActive() {
-        return  !this.handoffLimitSwitch.getGeneralInput(CANifier.GeneralPin.QUAD_A);
+        return  !this.handoffLimitSwitch.getGeneralInput(CANifier.GeneralPin.LIMR); //top magnet
      }
 
     /**
@@ -207,10 +205,28 @@ public class ElevatorReal implements Elevator {
         return this.targetAngle;
     }
 
+    private final CANifier.PinValues pins = new CANifier.PinValues();
+
     @Override
     public void periodic() {
-        // TODO: put logic to send position states to dashboard
-        // System.out.println("--------------------------------------------------");
-        // System.out.println("Encoder: " + this.getCurrentAngle());
+        // this.handoffLimitSwitch.getGeneralInputs(pins);
+        // System.out.println(
+        //         "CANifier fw=" + this.handoffLimitSwitch.getFirmwareVersion()
+        //                 + " bus=" + this.handoffLimitSwitch.getBusVoltage()
+        //                 + " err=" + this.handoffLimitSwitch.getLastError()
+        //                 + " | QUAD_A=" + pins.QUAD_A
+        //                 + " QUAD_B=" + pins.QUAD_B
+        //                 + " QUAD_IDX=" + pins.QUAD_IDX
+        //                 + " LIMF=" + pins.LIMF
+        //                 + " LIMR=" + pins.LIMR
+        //                 + " SDA=" + pins.SDA
+        //                 + " SCL=" + pins.SCL
+        //                 + " SPI_CS=" + pins.SPI_CS_PWM3
+        //                 + " SPI_MISO=" + pins.SPI_MISO_PWM2
+        //                 + " SPI_MOSI=" + pins.SPI_MOSI_PWM1
+        //                 + " SPI_CLK=" + pins.SPI_CLK_PWM0);
+         System.out.println("Low Lim: "+lowerLimitActive()+" Mid Lim: "+handoffLimitActive()+" Upper Lim: "+topLimitActive());
+         System.out.println("Current Angle: "+getCurrentAngle()+" Target Angle: "+getTargetAngle());
+         System.out.println("Init Motor Rotations: "+this.initMotorRotations+" Motor Rotations Since Top Limit Switch: "+this.motorRotationsSinceTopLimitSwitch);
     }
 }

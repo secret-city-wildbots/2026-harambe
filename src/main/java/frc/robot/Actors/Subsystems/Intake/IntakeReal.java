@@ -25,7 +25,8 @@ public class IntakeReal implements Intake {
 
     public void startIntaking() {
         extensionMotor.pos(IntakeConstants.maxDegree);
-        intakeMotor.vel(40);
+        //intakeMotor.vel(80);
+        intakeMotor.volt(12);
     }
 
     public void startOuttaking() {
