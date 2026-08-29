@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
 
     public static boolean test = true;
 
-    public static boolean dummyMode = false;
+    public static boolean dummyMode = true;
 
     public Robot() {
         if (RobotBase.isSimulation()) {

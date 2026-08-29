@@ -34,7 +34,7 @@ public final class Constants {
     public static final int liftMotorID = 48;
     public static final int hookMotorID = 49;
     public static final int CANifierID = 51; 
-    public static final double maxSpeedPercentage = 0.1;
+    public static final double maxSpeedPercentage = 0.08;
 
     // Sensor ID / Ports
     public static final int lowerLimitMagneticSensorPort = 0;

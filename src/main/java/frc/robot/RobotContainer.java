@@ -48,6 +48,9 @@ import frc.robot.Actors.Subsystems.Transfer.TransferDummy;
 import frc.robot.Actors.Subsystems.Transfer.TransferReal;
 import frc.robot.Actors.Subsystems.Transfer.TransferSim;
 import frc.robot.Commands.Subsystems.Drivetrain.AimAtHeadingAssist;
+import frc.robot.Commands.Subsystems.Elevator.ClimbSequenceL1;
+import frc.robot.Commands.Subsystems.Elevator.ExtendLiftCommand;
+import frc.robot.Commands.Subsystems.Elevator.RetractLiftCommand;
 import frc.robot.Utils.ShotPredictor;
 import frc.robot.Utils.JoystickScaler;
 
@@ -98,9 +101,9 @@ public class RobotContainer {
                 shooter = new ShooterDummy();
                 transfer = new TransferDummy();
                 indexer = new IndexerDummy();
-                elevator = new ElevatorDummy();
+                elevator = new ElevatorReal(); //TODO: Change Back!
         } else if (RobotBase.isReal()) {
-                intake = new IntakeReal();
+                intake = new IntakeReal(); 
                 shooter = new ShooterReal(drivetrain);
                 transfer = new TransferReal();
                 indexer = new IndexerReal();
@@ -127,13 +130,19 @@ public class RobotContainer {
 
     private void configureBindings() {
 
+        //Descend from Auto L1 + Retract Lift down
+        joystick.y().whileTrue(new ExtendLiftCommand(elevator));
+        joystick.a().whileTrue(new RetractLiftCommand(elevator, false));
+        
+        joystick.b().toggleOnTrue(new ClimbSequenceL1(elevator));
+
         joystick.leftBumper().toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
         joystick.rightTrigger(0.4).whileTrue(Commands.runEnd(
                 () -> {shooter.startShooting(); indexer.startIndexer(); transfer.startShooting();},
                 () -> {shooter.stop(); indexer.stop(); transfer.stop();}, 
                 shooter, indexer, transfer));
 
-        joystick.a().whileTrue(new AimAtHeadingAssist(drivetrain, () -> {
+        joystick.x().whileTrue(new AimAtHeadingAssist(drivetrain, () -> {
                 return ShotPredictor.hubPosition.minus(drivetrain.getPose().getTranslation()).getAngle().plus(new Rotation2d(Math.PI/2));
         }, () -> {
                 return (-joystick.getLeftY() * MaxSpeed * 0.5);
@@ -182,10 +191,10 @@ public class RobotContainer {
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left pov
         joystick.pov(270).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
