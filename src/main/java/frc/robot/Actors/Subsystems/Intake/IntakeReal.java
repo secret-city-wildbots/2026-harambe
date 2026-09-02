@@ -13,6 +13,9 @@ public class IntakeReal implements Intake {
         this.intakeMotor = new Motor(IntakeConstants.intakeMotorID, MotorType.TFX);
         this.extensionMotor = new Motor(IntakeConstants.extensionMotorID, MotorType.TFX);
 
+        this.extensionMotor.applyConfig();
+        this.extensionMotor.motionMagic(1.5, 0, 0, 0, 0, 4, 0.7);
+
         this.intakeMotor.configTFX.Slot0.kV = 0.14;
         this.intakeMotor.pid(0.05, 0, 0);
 
@@ -24,23 +27,23 @@ public class IntakeReal implements Intake {
     }
 
     public void startIntaking() {
-        extensionMotor.pos(IntakeConstants.maxDegree);
+        extensionMotor.posMM(IntakeConstants.maxDegree);
         //intakeMotor.vel(80);
         intakeMotor.volt(12);
     }
 
     public void startOuttaking() {
-        extensionMotor.pos(IntakeConstants.maxDegree);
+        extensionMotor.posMM(IntakeConstants.maxDegree);
         intakeMotor.vel(-30);
     }
 
     public void stop() {
-        extensionMotor.pos(IntakeConstants.minDegree);
+        extensionMotor.posMM(IntakeConstants.minDegree);
         intakeMotor.volt(0);
     }
 
     public void startIntakeVoltage(double voltage) {
-        extensionMotor.pos(IntakeConstants.maxDegree);
+        extensionMotor.posMM(IntakeConstants.maxDegree);
         intakeMotor.volt(voltage);
     }
 }
