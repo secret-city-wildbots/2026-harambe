@@ -22,7 +22,7 @@ public class RetractLiftCommand extends Command {
         // Assign the variables and add the subsystem as a requirement to the command
         this.elevatorLift = elevatorLift;
         this.stopAtHandoff = stopAtHandoff;
-        addRequirements(this.elevatorLift);
+        addRequirements(this.elevatorLift.liftRequirement());
     }
 
     @Override

@@ -4,7 +4,7 @@ package frc.robot.Actors.Subsystems.Elevator;
 // Import WPILib Libraries
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 // Import Phoenix 6 Libraries
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -27,7 +27,12 @@ public class ElevatorReal implements Elevator {
 
     // Define variables
     public Motor motorHooks;
-   
+
+    // Requirement tokens so lift commands and hook commands can run at the same
+    // time
+    private final Requirement liftReq = new Requirement("ElevatorLift");
+    private final Requirement hookReq = new Requirement("ElevatorHooks");
+
     // private DigitalInput handoffLimitMagneticSwitch; // Handoff limit magnetic
     // switch for the elevator lift
     private CANifier elevatorSensors; // Handoff limit magnetic switch for the elevator lift
@@ -59,10 +64,19 @@ public class ElevatorReal implements Elevator {
         this.motorHooks.powersave();
 
         // Configure the elevator magnetic switches
-        //this.lowerLimitMagneticSwitch = new CANifier(find the ID);
-        // this.handoffLimitMagneticSwitch = new DigitalInput(ElevatorConstants.handoffMagneticSensorPort);
+        // this.lowerLimitMagneticSwitch = new CANifier(find the ID);
+        // this.handoffLimitMagneticSwitch = new
+        // DigitalInput(ElevatorConstants.handoffMagneticSensorPort);
         this.elevatorSensors = new CANifier(ElevatorConstants.CANifierID);
 
+    }
+
+    public Subsystem liftRequirement() {
+        return this.liftReq;
+    }
+
+    public Subsystem hookRequirement() {
+        return this.hookReq;
     }
 
     public double getTemp() {
@@ -108,7 +122,6 @@ public class ElevatorReal implements Elevator {
             this.initMotorRotations = motorLift.pos();
         }
 
-
         if (!topLimitActive()) {
             // reset variables
             this.initMotorRotations = -999999.0;
@@ -119,7 +132,8 @@ public class ElevatorReal implements Elevator {
         }
 
         // Check to make sure the elevator is safe to move up
-        if (percent < 0.0 && topLimitActive() && Math.abs(Math.abs(this.motorRotationsSinceTopLimitSwitch) - Math.abs(this.initMotorRotations)) > 12.5) {
+        if (percent < 0.0 && topLimitActive() && Math
+            .abs(Math.abs(this.motorRotationsSinceTopLimitSwitch) - Math.abs(this.initMotorRotations)) > 12.5) {
             // if it is not safe, dont allow the motor to move
             motorLift.dc(0.0);
             return;
@@ -142,30 +156,30 @@ public class ElevatorReal implements Elevator {
      * @return active status (sensor is made)
      */
 
-     public boolean lowerLimitActive() {
-        return  !this.elevatorSensors.getGeneralInput(CANifier.GeneralPin.QUAD_A); // beam break
-     }
+    public boolean lowerLimitActive() {
+        return !this.elevatorSensors.getGeneralInput(CANifier.GeneralPin.QUAD_A); // beam break
+    }
 
-     /**
+    /**
      * Get handoff limit switch made status.
      * 
      * @return active status (sensor is made)
      */
 
-     public boolean handoffLimitActive() {
-        // return  this.handoffLimitMagneticSwitch.get();
+    public boolean handoffLimitActive() {
+        // return this.handoffLimitMagneticSwitch.get();
         return !this.elevatorSensors.getGeneralInput(CANifier.GeneralPin.LIMF); // bottom magnet
-     }
+    }
 
-     /**
+    /**
      * Get top limit switch made status.
      * 
      * @return active status (sensor is made)
      */
 
-     public boolean topLimitActive() {
-        return  !this.elevatorSensors.getGeneralInput(CANifier.GeneralPin.LIMR); //top magnet
-     }
+    public boolean topLimitActive() {
+        return !this.elevatorSensors.getGeneralInput(CANifier.GeneralPin.LIMR); // top magnet
+    }
 
     /**
      * Sets the target angle for the hooks to travel to
@@ -181,12 +195,13 @@ public class ElevatorReal implements Elevator {
      * 
      * @return true to continue to lift false to false to stop lifting
      */
-     public boolean climbAfterTopLimitSwitch() {
+    public boolean climbAfterTopLimitSwitch() {
         if (topLimitActive()) {
-            return Math.abs(Math.abs(this.motorRotationsSinceTopLimitSwitch) - Math.abs(this.initMotorRotations)) > 12.5;
-        } 
+            return Math
+                .abs(Math.abs(this.motorRotationsSinceTopLimitSwitch) - Math.abs(this.initMotorRotations)) > 12.5;
+        }
         return false;
-     }
+    }
 
     // Sensor Controls
 
@@ -195,7 +210,7 @@ public class ElevatorReal implements Elevator {
      */
     public double getCurrentAngle() {
         // We get the absolute position of the encoder (-1 - 1 rotations) and multiply
-        // by 360 to get degrees
+        // by 360 to get degrees... bro you idiot no we dont
         return this.encoder.getAbsolutePosition().getValueAsDouble();
     }
 
@@ -213,27 +228,29 @@ public class ElevatorReal implements Elevator {
     public void periodic() {
         // this.elevatorSensors.getGeneralInputs(pins);
         // System.out.println(
-        //         "CANifier fw=" + this.elevatorSensors.getFirmwareVersion()
-        //                 + " bus=" + this.elevatorSensors.getBusVoltage()
-        //                 + " err=" + this.elevatorSensors.getLastError()
-        //                 + " | QUAD_A=" + pins.QUAD_A
-        //                 + " QUAD_B=" + pins.QUAD_B
-        //                 + " QUAD_IDX=" + pins.QUAD_IDX
-        //                 + " LIMF=" + pins.LIMF
-        //                 + " LIMR=" + pins.LIMR
-        //                 + " SDA=" + pins.SDA
-        //                 + " SCL=" + pins.SCL
-        //                 + " SPI_CS=" + pins.SPI_CS_PWM3
-        //                 + " SPI_MISO=" + pins.SPI_MISO_PWM2
-        //                 + " SPI_MOSI=" + pins.SPI_MOSI_PWM1
-        //                 + " SPI_CLK=" + pins.SPI_CLK_PWM0);
+        // "CANifier fw=" + this.elevatorSensors.getFirmwareVersion()
+        // + " bus=" + this.elevatorSensors.getBusVoltage()
+        // + " err=" + this.elevatorSensors.getLastError()
+        // + " | QUAD_A=" + pins.QUAD_A
+        // + " QUAD_B=" + pins.QUAD_B
+        // + " QUAD_IDX=" + pins.QUAD_IDX
+        // + " LIMF=" + pins.LIMF
+        // + " LIMR=" + pins.LIMR
+        // + " SDA=" + pins.SDA
+        // + " SCL=" + pins.SCL
+        // + " SPI_CS=" + pins.SPI_CS_PWM3
+        // + " SPI_MISO=" + pins.SPI_MISO_PWM2
+        // + " SPI_MOSI=" + pins.SPI_MOSI_PWM1
+        // + " SPI_CLK=" + pins.SPI_CLK_PWM0);
         DogLog.log("ElevatorSensors/Handoff (bot. M)", handoffLimitActive());
         DogLog.log("ElevatorSensors/Lower Lim (BB)", lowerLimitActive());
         DogLog.log("ElevatorSensors/Upper Lim (up M)", topLimitActive());
 
-        System.out.println("Low Lim: "+lowerLimitActive()+" Mid Lim: "+handoffLimitActive()+" Upper Lim: "+topLimitActive());
-        System.out.println("Current Angle: "+getCurrentAngle()+" Target Angle: "+getTargetAngle());
-        System.out.println("Init Motor Rotations: "+this.initMotorRotations+" Motor Rotations Since Top Limit Switch: "+this.motorRotationsSinceTopLimitSwitch);
+        System.out.println("Low Lim: " + lowerLimitActive() + " Mid Lim: " + handoffLimitActive() + " Upper Lim: "
+            + topLimitActive());
+        System.out.println("Current Angle: " + getCurrentAngle() + " Target Angle: " + getTargetAngle());
+        System.out.println("Init Motor Rotations: " + this.initMotorRotations
+            + " Motor Rotations Since Top Limit Switch: " + this.motorRotationsSinceTopLimitSwitch);
     }
 
 }

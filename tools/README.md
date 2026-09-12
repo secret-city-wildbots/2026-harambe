@@ -7,7 +7,90 @@
   `RT-Base` alone feeds 11 autos.
 - **`pathplanner_audit.py`** — text report of the same analysis, for one auto or all.
   Run `tools\audit.bat`.
+- **`pathplanner_mirror.html`** — flip a path to the other side of the field.
+  Double-click `tools\mirror.bat`, drop `.path` files on the page, download the
+  mirrored copies.
 - **`pathplanner_rename.py`** — bulk rename paths/autos, rewriting references.
+
+---
+
+# `pathplanner_mirror.html`
+
+Left ↔ right mirror for `.path` files. A standalone page — no Python, no build.
+Double-click **`tools\mirror.bat`** (or just open the `.html`), drop `.path` files
+on it, download the mirrored copies into `src\main\deploy\pathplanner\paths\`.
+
+Everything runs in the browser, so this ports straight into WildBoard later —
+the `MIRROR CORE` block at the top of the file is DOM-free and lifts out as a
+`.ts` module unchanged.
+
+## What it changes
+
+| | |
+|---|---|
+| positions | `y' = 8.052 - y`, on anchors and both control handles. `x` untouched. |
+| headings | negated and normalized to `(-180, 180]` — `rotationTargets`, `idealStartingState`, `goalEndState`, `pointTowardsZones.rotationOffset` |
+| `pointTowardsZones` | `fieldPosition.y` flipped too |
+| everything else | copied verbatim — velocities, accelerations, constraint zones, event markers, `waypointRelativePos`, `reversed`, `folder` |
+
+Mirroring twice returns the original to within 1e-12 m, and key order is preserved,
+so a mirrored file diffs cleanly against its source.
+
+Field width is the `field width Y` box, default **8.052** to match `FIELD_Y` in
+`pathplanner_visualize.py`. Change it in one place if the 2026 number differs.
+
+## Names
+
+L/R tokens get swapped: `LT-Dip2 → RT-Dip2`, `LB-Plow-P1 → RB-Plow-P1`,
+`45-Dip-FromLBump → 45-Dip-FromRBump`, `LT-FromRPlow → RT-FromLPlow`,
+`LT-RDip1 → RT-LDip1`. A name with no L/R in it (`CTR-Depot`, `S8-Center`) gets
+`-Mirror` and a **suffix** badge, so you know to name it yourself. The name box is
+editable either way.
+
+**Load the whole `paths` folder** (button in the header) before mirroring and the
+tool knows what already exists — `LT-Plow → RT-Plow` lights up red *"name already
+loaded"* instead of you overwriting a hand-tuned path with a download.
+
+## Linked waypoints — read this one
+
+28 of the 67 paths have linked waypoints, and a link is what breaks a naive mirror:
+keep `linkedName: "L Bump 45"` on a mirrored waypoint and PathPlanner snaps it back
+to the original anchor, silently un-mirroring that point.
+
+The **linked waypoints** dropdown:
+
+- **swap L/R, unlink the rest** (default) — `L Bump 45 → R Bump 45`. If that anchor
+  already exists in PathPlanner the waypoint snaps to *it* rather than the exact
+  mirror, which is usually what you want on a real field. Links with no L/R
+  counterpart (`Dip 1`, `Outpost`) are dropped.
+- **unlink all** — safest. Every waypoint becomes a plain anchor at the mirrored spot.
+- **keep as-is** — for when you know what you're doing. Flagged in red.
+
+Whatever the mode, the page lists exactly what happened to each linked waypoint.
+
+## Reading the preview
+
+Original in grey, mirrored in green, over `field2026.png`. Dashed line down the
+middle is the flip axis. White circle = start, hollow square = end, blue arrows
+are headings (start, every rotation target, end), amber dots are event markers
+placed by evaluating the bezier at their `waypointRelativePos` — the same exact
+placement `pathplanner_visualize.py` uses.
+
+Below the field, a waypoint table shows `was x, y → now x, y` and the link
+before/after, plus a heading table. That's the verification pass: the sum of each
+`was y` and `now y` should be the field width.
+
+## Then
+
+Downloads land in your browser's download folder — move them into
+`src\main\deploy\pathplanner\paths\` and reopen PathPlanner. `folder` is copied
+unchanged, so a mirrored path shows up in the same PathPlanner folder as its
+original; drag it where it belongs.
+
+Mirroring a path does **not** create an auto. Build the mirrored auto in
+PathPlanner, then run `tools\audit.bat` on it — mirroring preserves marker order,
+so if the original had clean shot parity the mirror does too, but the auto that
+strings them together is new and unaudited.
 
 ---
 

@@ -18,32 +18,26 @@ public class IntakeReal implements Intake {
 
         this.intakeMotor.configTFX.Slot0.kV = 0.14;
         this.intakeMotor.pid(0.05, 0, 0);
-
-        if (Robot.test) {
-            this.extensionMotor.pid(0.0, 0, 0);
-        } else {
-            this.extensionMotor.pid(0.5, 0, 0);
-        }
     }
 
     public void startIntaking() {
-        extensionMotor.posMM(IntakeConstants.maxDegree);
-        //intakeMotor.vel(80);
-        intakeMotor.volt(12);
+        extensionMotor.posMM(IntakeConstants.maxRotations);
+        intakeMotor.vel(80);
+        //intakeMotor.volt(12);
     }
 
     public void startOuttaking() {
-        extensionMotor.posMM(IntakeConstants.maxDegree);
+        extensionMotor.posMM(IntakeConstants.maxRotations);
         intakeMotor.vel(-30);
     }
 
     public void stop() {
-        extensionMotor.posMM(IntakeConstants.minDegree);
-        intakeMotor.volt(0);
+        extensionMotor.posMM(IntakeConstants.minRotations);
+        intakeMotor.vel(0);
     }
 
     public void startIntakeVoltage(double voltage) {
-        extensionMotor.posMM(IntakeConstants.maxDegree);
+        extensionMotor.posMM(IntakeConstants.maxRotations);
         intakeMotor.volt(voltage);
     }
 }
