@@ -61,7 +61,7 @@ public class ElevatorReal implements Elevator {
         this.motorHooks.motorConfig.direction = RotationDir.CounterClockwise;
         this.motorHooks.applyConfig();
 
-        this.motorHooks.powersave();
+        // this.motorHooks.powersave();
 
         // Configure the elevator magnetic switches
         // this.lowerLimitMagneticSwitch = new CANifier(find the ID);

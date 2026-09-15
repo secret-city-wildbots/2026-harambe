@@ -48,13 +48,13 @@ public final class Constants {
 
         // Hook Cancoder CANBus IDs
         public static final int hookMotorCancoderID = 34;
-        public static final double hookEncoderOffset = -0.267822265625;
+        public static final double hookEncoderOffset = 0.41357421875;
 
         // Hook motor positions
         public static final double hookSafePosition = 0.0;
-        public static final double hookGuideDeployedPosition = 0.14;
-        public static final double hookDeployedPosition = 0.18;
-        public static final double hookPosForTopRungClearance = 43.56;
+        public static final double hookGuideDeployedPosition = 0.1;
+        public static final double hookDeployedPosition = 0.142; // 0.135 needed for continue
+        public static final double hookPosForTopRungClearance = 0.172; // 0.06 dc needed
         public static final double angleTolerance = 2.0;
     }
 

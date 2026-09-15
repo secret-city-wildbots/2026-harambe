@@ -61,8 +61,9 @@ import frc.robot.Utils.ShotPredictor;
 import frc.robot.Utils.JoystickScaler;
 
 public class RobotContainer {
-    public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
-                                                                                        // speed
+    public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * 0.1; // kSpeedAt12Volts desired
+                                                                                              // top
+    // speed
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
                                                                                             // second max angular
                                                                                             // velocity
