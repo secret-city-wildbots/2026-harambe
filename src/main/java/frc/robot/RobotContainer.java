@@ -56,17 +56,18 @@ import frc.robot.Commands.Subsystems.Elevator.ClimbSequenceL1;
 import frc.robot.Commands.Subsystems.Elevator.ClimbSequenceL3;
 import frc.robot.Commands.Subsystems.Elevator.ExtendLiftCommand;
 import frc.robot.Commands.Subsystems.Elevator.RetractLiftCommand;
+import frc.robot.Commands.Subsystems.Elevator.RotateHookToPositionCommand;
 import frc.robot.Commands.Subsystems.Shooter.Shoot;
 import frc.robot.Utils.ShotPredictor;
 import frc.robot.Utils.JoystickScaler;
 
 public class RobotContainer {
     public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * 0.1; // kSpeedAt12Volts desired
-                                                                                              // top
-    // speed
+                                                                                             // top
+                                                                                             // speed
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-                                                                                            // second max angular
-                                                                                            // velocity
+                                                                                           // second max angular
+                                                                                           // velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     public static SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -144,12 +145,14 @@ public class RobotContainer {
     private void configureBindings() {
 
         // Descend from Auto L1 + Retract Lift down
-        joystick.y().whileTrue(new ExtendLiftCommand(elevator));
-        joystick.a().whileTrue(new RetractLiftCommand(elevator, false));
+        joystick.y().whileTrue(new ExtendLiftCommand(elevator, .35));
+        joystick.a().whileTrue(new RetractLiftCommand(elevator, false, .35));
         joystick.x().whileTrue(new ClimbSequenceL3(elevator));
         joystick.b().toggleOnTrue(new ClimbSequenceL1(elevator));
 
-        joystick.pov(90).whileTrue(new AutoAlignToClimb());
+        joystick.pov(180).whileTrue(new RotateHookToPositionCommand(elevator, 0.1));
+
+        //joystick.pov(90).whileTrue(new AutoAlignToClimb());
 
         joystick.leftBumper().toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
         joystick.leftTrigger(0.4).whileTrue(new Shoot(shooter, indexer, transfer));
@@ -192,12 +195,8 @@ public class RobotContainer {
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(
                     () -> drive.withVelocityX(
-                        -(joystick.getLeftY()) * (MaxSpeed + ((Math.random() - 0.5) * 0.5))) // Drive forward with
-                                                                                             // negative Y (forward)
-                        .withVelocityY(-(joystick.getLeftX()) * (MaxSpeed + ((Math.random() - 0.5) * 0.5))) // Drive
-                                                                                                            // left with
-                                                                                                            // negative
-                                                                                                            // X (left)
+                        -(joystick.getLeftY()) * (MaxSpeed + ((Math.random() - 0.5) * 0.5))) // Drive forward with negative Y (forward)
+                        .withVelocityY(-(joystick.getLeftX()) * (MaxSpeed + ((Math.random() - 0.5) * 0.5))) // Drive left with negative X (left)
                         .withRotationalRate(-joystick.getRightX()
                             * MaxAngularRate * 1.5) // Drive counterclockwise with negative X (left)
                 ));

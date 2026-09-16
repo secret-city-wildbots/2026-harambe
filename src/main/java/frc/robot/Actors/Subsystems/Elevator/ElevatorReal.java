@@ -95,7 +95,7 @@ public class ElevatorReal implements Elevator {
         percent = MathUtil.clamp(percent, -1.0, 1.0);
 
         // Check to make sure the hooks are safe to extend out
-        if (percent > 0.0 && getCurrentAngle() >= ElevatorConstants.hookDeployedPosition) {
+        if (percent > 0.0 && getCurrentAngle() >= ElevatorConstants.hookDeployedPos[1]) {
             // if it is not safe, dont allow the motor to move
             motorHooks.dc(0.0);
             return;
@@ -246,11 +246,14 @@ public class ElevatorReal implements Elevator {
         DogLog.log("ElevatorSensors/Lower Lim (BB)", lowerLimitActive());
         DogLog.log("ElevatorSensors/Upper Lim (up M)", topLimitActive());
 
-        System.out.println("Low Lim: " + lowerLimitActive() + " Mid Lim: " + handoffLimitActive() + " Upper Lim: "
-            + topLimitActive());
-        System.out.println("Current Angle: " + getCurrentAngle() + " Target Angle: " + getTargetAngle());
-        System.out.println("Init Motor Rotations: " + this.initMotorRotations
-            + " Motor Rotations Since Top Limit Switch: " + this.motorRotationsSinceTopLimitSwitch);
+        // System.out.println("Low Lim: " + lowerLimitActive() + " Mid Lim: " +
+        // handoffLimitActive() + " Upper Lim: "
+        // + topLimitActive());
+        // System.out.println("Current Angle: " + getCurrentAngle() + " Target Angle: "
+        // + getTargetAngle());
+        // System.out.println("Init Motor Rotations: " + this.initMotorRotations
+        // + " Motor Rotations Since Top Limit Switch: " +
+        // this.motorRotationsSinceTopLimitSwitch);
     }
 
 }

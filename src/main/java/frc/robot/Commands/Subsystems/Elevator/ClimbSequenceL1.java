@@ -11,18 +11,19 @@ public class ClimbSequenceL1 extends SequentialCommandGroup {
     /**
      * Creates and sets up the ClimbSequenceL1
      * 
-     * @param elevatorLift The subsystem to be controlled by the command ({@link ElevatorLift})
+     * @param elevatorLift
+     *            The subsystem to be controlled by the command
+     *            ({@link ElevatorLift})
      */
     public ClimbSequenceL1(Elevator elevatorLift) {
 
         addCommands(
 
             // 1. Full extend
-            new ExtendLiftCommand(elevatorLift),
+            new ExtendLiftCommand(elevatorLift, .35),
 
             // 2. Pull down to handoff
-            new RetractLiftCommand(elevatorLift, true)
-        );
+            new RetractLiftCommand(elevatorLift, true, .35));
     }
-    
+
 }

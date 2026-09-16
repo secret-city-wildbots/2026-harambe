@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
 
     public static boolean test = true;
 
-    public static boolean dummyMode = false;
+    public static boolean dummyMode = true;
 
     public Robot() {
         if (RobotBase.isSimulation()) {
@@ -42,10 +42,10 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         DogLog.setOptions(new DogLogOptions()
-                .withLogExtras(true)
-                .withCaptureDs(true)
-                .withNtPublish(true)
-                .withCaptureNt(true));
+            .withLogExtras(true)
+            .withCaptureDs(true)
+            .withNtPublish(true)
+            .withCaptureNt(true));
         DogLog.setPdh(new PowerDistribution());
     }
 
@@ -56,34 +56,41 @@ public class Robot extends TimedRobot {
         m_robotContainer.shooter.periodic();
 
         /*
-         * This example of adding Limelight is very simple and may not be sufficient for on-field use.
-         * Users typically need to provide a standard deviation that scales with the distance to target
+         * This example of adding Limelight is very simple and may not be sufficient for
+         * on-field use.
+         * Users typically need to provide a standard deviation that scales with the
+         * distance to target
          * and changes with number of tags available.
          *
-         * This example is sufficient to show that vision integration is possible, though exact implementation
-         * of how to use vision should be tuned per-robot and to the team's specification.
+         * This example is sufficient to show that vision integration is possible,
+         * though exact implementation
+         * of how to use vision should be tuned per-robot and to the team's
+         * specification.
          */
         if (kUseLimelight) {
             var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
             if (llMeasurement != null) {
                 m_robotContainer.drivetrain.addVisionMeasurement(
-                        llMeasurement.pose, Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
+                    llMeasurement.pose, Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
             }
         }
-        
+
         m_robotContainer.dashboard.update();
 
         m_robotContainer.elevator.periodic();
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+    }
 
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+    }
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+    }
 
     @Override
     public void autonomousInit() {
@@ -95,10 +102,12 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() {
+    }
 
     @Override
-    public void autonomousExit() {}
+    public void autonomousExit() {
+    }
 
     @Override
     public void teleopInit() {
@@ -108,10 +117,12 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+    }
 
     @Override
-    public void teleopExit() {}
+    public void teleopExit() {
+    }
 
     @Override
     public void testInit() {
@@ -119,10 +130,12 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void testPeriodic() {}
+    public void testPeriodic() {
+    }
 
     @Override
-    public void testExit() {}
+    public void testExit() {
+    }
 
     @Override
     public void simulationPeriodic() {

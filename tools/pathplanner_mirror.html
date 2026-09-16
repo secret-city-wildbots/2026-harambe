@@ -8,120 +8,149 @@
   :root{
     --bg:#14161a; --panel:#1c1f25; --panel2:#22262e; --line:#2e333c;
     --fg:#e7e9ee; --dim:#8b93a1; --amber:#ffd166; --green:#4ade80;
-    --grey:#7f8794; --red:#ff6b6b; --blue:#5aa9ff;
+    --grey:#7f8794; --red:#ff6b6b; --blue:#5aa9ff; --violet:#b48ead;
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--fg);
     font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif;}
-  h1{font-size:1rem;margin:0;letter-spacing:.02em}
+  h1{font-size:1rem;margin:0;letter-spacing:.02em;white-space:nowrap}
   h1 span{color:var(--dim);font-weight:400;margin-left:.5rem;font-size:.8rem}
-  header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
-    padding:.7rem 1rem;background:var(--panel);border-bottom:1px solid var(--line)}
+  header{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;
+    padding:.65rem 1rem;background:var(--panel);border-bottom:1px solid var(--line)}
   header .grow{flex:1}
   label.ctl{display:flex;align-items:center;gap:.35rem;color:var(--dim);font-size:.78rem}
   input[type=number],select,input[type=text]{background:var(--panel2);color:var(--fg);
     border:1px solid var(--line);border-radius:4px;padding:.25rem .4rem;font:inherit}
-  input[type=number]{width:5.5rem;font-family:var(--mono)}
+  input[type=number]{width:5.2rem;font-family:var(--mono)}
   button{background:var(--panel2);color:var(--fg);border:1px solid var(--line);
-    border-radius:4px;padding:.35rem .7rem;font:inherit;cursor:pointer}
-  button:hover{border-color:var(--amber);color:var(--amber)}
-  button:disabled{opacity:.4;cursor:default;border-color:var(--line);color:var(--dim)}
+    border-radius:4px;padding:.35rem .7rem;font:inherit;cursor:pointer;white-space:nowrap}
+  button:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}
+  button:disabled{opacity:.4;cursor:default}
 
-  main{display:grid;grid-template-columns:340px 1fr;gap:0;height:calc(100vh - 53px)}
+  main{display:grid;grid-template-columns:360px 1fr;height:calc(100vh - 52px)}
   #list{border-right:1px solid var(--line);overflow:auto;background:var(--panel)}
-  #right{overflow:auto;padding:1rem}
+  #right{overflow:auto;padding:1rem 1.2rem 3rem}
 
-  .drop{margin:1rem;padding:1.6rem 1rem;border:1.5px dashed var(--line);border-radius:8px;
-    text-align:center;color:var(--dim);font-size:.82rem}
-  .drop b{color:var(--fg);display:block;margin-bottom:.3rem;font-weight:600}
+  .drop{margin:.9rem;padding:1.3rem .9rem;border:1.5px dashed var(--line);border-radius:8px;
+    text-align:center;color:var(--dim);font-size:.8rem;line-height:1.5}
+  .drop b{color:var(--fg);display:block;margin-bottom:.25rem;font-weight:600}
   body.dragging .drop{border-color:var(--green);color:var(--green)}
 
-  .row{padding:.55rem .7rem;border-bottom:1px solid var(--line);cursor:pointer}
+  .grouphd{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem .3rem;
+    font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);
+    border-bottom:1px solid var(--line);background:var(--panel);
+    position:sticky;top:0;z-index:2}
+  .grouphd .n{color:#5d6470}
+  .grouphd button{padding:.1rem .35rem;font-size:.65rem;margin-left:auto;text-transform:none;letter-spacing:0}
+
+  .row{display:flex;gap:.5rem;padding:.5rem .7rem;border-bottom:1px solid var(--line);cursor:pointer}
   .row:hover{background:var(--panel2)}
   .row.sel{background:var(--panel2);box-shadow:inset 3px 0 0 var(--amber)}
+  .row .cb{margin-top:.15rem}
+  .row .body{min-width:0;flex:1}
   .row .src{font-family:var(--mono);font-size:.78rem;color:var(--dim)}
-  .row .arrow{color:var(--dim);margin:0 .3rem}
+  .row .arrow{color:#5d6470;margin:0 .25rem}
   .row .dst{font-family:var(--mono);font-size:.82rem;color:var(--green)}
-  .row .dst.collide{color:var(--red)}
+  .row.skip .dst{color:var(--violet);text-decoration:line-through;text-decoration-color:#5d6470}
+  .row .dst.bad{color:var(--red)}
   .row .meta{font-size:.7rem;color:var(--dim);margin-top:.15rem}
-  .row .warn{color:var(--amber)}
-  .badge{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;
-    border:1px solid var(--line);border-radius:3px;padding:0 .25rem;color:var(--dim);margin-left:.3rem}
+  .warn{color:var(--amber)} .bad{color:var(--red)} .ok{color:var(--green)}
+  .badge{font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;
+    border:1px solid var(--line);border-radius:3px;padding:0 .25rem;color:var(--dim);
+    margin-left:.3rem;white-space:nowrap}
   .badge.suffix{color:var(--amber);border-color:#5a4a1f}
+  .badge.reuse{color:var(--violet);border-color:#4d3a4a}
+  .badge.missing{color:var(--red);border-color:#5a2020}
 
-  #canvasWrap{position:relative;background:#0f1114;border:1px solid var(--line);
-    border-radius:6px;overflow:hidden}
+  #canvasWrap{background:#0f1114;border:1px solid var(--line);border-radius:6px;overflow:hidden}
   canvas{display:block;width:100%;height:auto}
-  .legend{display:flex;gap:1.1rem;flex-wrap:wrap;margin:.6rem 0 1rem;font-size:.75rem;color:var(--dim)}
+  .legend{display:flex;gap:1.1rem;flex-wrap:wrap;margin:.6rem 0 .2rem;font-size:.75rem;color:var(--dim)}
   .legend i{display:inline-block;width:14px;height:0;border-top:3px solid;
     vertical-align:middle;margin-right:.35rem}
-  .toggles{display:flex;gap:1rem;flex-wrap:wrap;margin:.6rem 0;font-size:.78rem;color:var(--dim)}
+  .toggles{display:flex;gap:1rem;flex-wrap:wrap;margin:.5rem 0 0;font-size:.78rem;color:var(--dim)}
   .toggles label{display:flex;align-items:center;gap:.3rem;cursor:pointer}
 
   .nameEdit{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap}
-  .nameEdit input[type=text]{font-family:var(--mono);width:16rem}
+  .nameEdit input[type=text]{font-family:var(--mono);width:17rem}
   .hint{font-size:.75rem;color:var(--dim)}
   .hint.bad{color:var(--red)}
+  .kind{font-size:.65rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);
+    border:1px solid var(--line);border-radius:3px;padding:.05rem .35rem}
 
-  h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);
-    margin:1.4rem 0 .5rem;font-weight:600}
-  table{border-collapse:collapse;font-family:var(--mono);font-size:.76rem;width:100%;max-width:640px}
+  h2{font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);
+    margin:1.5rem 0 .5rem;font-weight:600}
+  table{border-collapse:collapse;font-family:var(--mono);font-size:.76rem;width:100%;max-width:700px}
   th{text-align:left;color:var(--dim);font-weight:500;border-bottom:1px solid var(--line);
-    padding:.25rem .6rem .25rem 0;font-family:system-ui,sans-serif;font-size:.7rem;
+    padding:.25rem .6rem .25rem 0;font-family:system-ui,sans-serif;font-size:.68rem;
     text-transform:uppercase;letter-spacing:.05em}
-  td{padding:.2rem .6rem .2rem 0;border-bottom:1px solid #23262c}
-  td.was{color:var(--dim)}
-  td.now{color:var(--green)}
-  .note{border-left:2px solid var(--amber);background:#221e12;padding:.5rem .7rem;
-    border-radius:0 4px 4px 0;font-size:.78rem;margin:.4rem 0;max-width:720px}
+  td{padding:.22rem .6rem .22rem 0;border-bottom:1px solid #23262c;vertical-align:top}
+  td.was{color:var(--dim)} td.now{color:var(--green)}
+  td.num{color:#5d6470;width:1.6rem}
+  tr.reuse td.now{color:var(--violet)} tr.missing td.now{color:var(--red)}
+  .note{border-left:2px solid var(--amber);background:#221e12;padding:.45rem .7rem;
+    border-radius:0 4px 4px 0;font-size:.78rem;margin:.35rem 0;max-width:760px}
   .note.red{border-color:var(--red);background:#241417}
-  .note code{font-family:var(--mono);color:var(--amber)}
-  .empty{color:var(--dim);padding:2rem 0;text-align:center}
+  .note.violet{border-color:var(--violet);background:#1f1a20}
+  .note code{font-family:var(--mono);color:inherit;opacity:.85}
+  .empty{color:var(--dim);padding:3rem 1rem;text-align:center;line-height:1.7}
   footer{color:var(--dim);font-size:.75rem;margin-top:2rem;border-top:1px solid var(--line);
-    padding-top:.7rem;max-width:720px}
+    padding-top:.7rem;max-width:760px}
   footer code{font-family:var(--mono);color:var(--fg)}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Path Mirror <span>flip a .path to the other side of the field</span></h1>
+  <h1>Path Mirror <span>flip paths and autos to the other side</span></h1>
   <div class="grow"></div>
-  <label class="ctl">field width Y
+  <label class="ctl">field Y
     <input type="number" id="fieldY" value="8.052" step="0.001" min="1">m
   </label>
-  <label class="ctl">linked waypoints
-    <select id="linkMode">
-      <option value="swap">swap L/R, unlink the rest</option>
+  <label class="ctl">links
+    <select id="linkMode" title="What to do with linked waypoints in a mirrored path">
+      <option value="swap">swap L/R</option>
       <option value="unlink">unlink all</option>
-      <option value="keep">keep as-is</option>
+      <option value="keep">keep</option>
     </select>
   </label>
-  <button id="pickFiles">Load .path files</button>
-  <button id="pickDir">Load paths folder</button>
-  <button id="dlAll" disabled>Download all</button>
+  <label class="ctl">duplicates
+    <select id="dupMode" title="When the mirrored path name already exists in the loaded library">
+      <option value="reuse">reuse existing</option>
+      <option value="emit">write a copy</option>
+    </select>
+  </label>
+  <button id="pickFiles">Load files</button>
+  <button id="pickDir">Load folder</button>
+  <button id="dlSel" disabled>Download selected</button>
   <button id="clear" disabled>Clear</button>
-  <input type="file" id="fileIn" accept=".path" multiple hidden>
+  <input type="file" id="fileIn" accept=".path,.auto" multiple hidden>
   <input type="file" id="dirIn" webkitdirectory hidden>
 </header>
 
 <main>
   <div id="list">
     <div class="drop" id="drop">
-      <b>Drop .path files here</b>
-      anywhere on the window works — or load the whole
-      <code>pathplanner/paths</code> folder to catch name collisions
+      <b>Drop .path and .auto files here</b>
+      Drop an auto and it mirrors the auto <i>and</i> every path it runs.<br>
+      <b style="margin-top:.5rem">Load folder</b>
+      point it at <code>deploy/pathplanner</code> to pull in everything as a
+      library — nothing gets selected, but collisions and reusable
+      counterparts light up.
     </div>
     <div id="rows"></div>
   </div>
   <div id="right">
-    <div class="empty" id="emptyMsg">Nothing loaded yet.</div>
+    <div class="empty" id="emptyMsg">
+      Nothing loaded yet.<br>
+      <span style="font-size:.8rem">Load the <code>pathplanner</code> folder first, then tick the autos you want mirrored.</span>
+    </div>
     <div id="detail" hidden>
       <div class="nameEdit">
+        <span class="kind" id="kindTag">path</span>
         <span class="hint">saves as</span>
         <input type="text" id="dstName">
-        <span class="hint">.path</span>
+        <span class="hint" id="extHint">.path</span>
         <button id="dlOne">Download</button>
         <span class="hint" id="nameHint"></span>
       </div>
@@ -131,7 +160,7 @@
         <span><i style="border-color:var(--green)"></i>mirrored</span>
         <span><i style="border-color:var(--blue)"></i>heading</span>
         <span><i style="border-color:var(--amber)"></i>event marker</span>
-        <span><i style="border-color:#4a5160;border-top-style:dashed"></i>field centerline</span>
+        <span><i style="border-color:#4a5160;border-top-style:dashed"></i>flip axis</span>
       </div>
       <div class="toggles">
         <label><input type="checkbox" id="tOrig" checked>original</label>
@@ -139,15 +168,11 @@
         <label><input type="checkbox" id="tCtrl" checked>control handles</label>
         <label><input type="checkbox" id="tHead" checked>headings</label>
         <label><input type="checkbox" id="tMark" checked>markers</label>
+        <label><input type="checkbox" id="tSeq" checked>step numbers</label>
       </div>
       <div id="notes"></div>
       <div id="tables"></div>
-      <footer>
-        Downloads land in your browser's download folder — move them into
-        <code>src\main\deploy\pathplanner\paths\</code>, then reopen PathPlanner.
-        The <code>folder</code> field is copied unchanged, so a mirrored path shows up
-        in the same PathPlanner folder as its original.
-      </footer>
+      <footer id="foot"></footer>
     </div>
   </div>
 </main>
@@ -161,8 +186,8 @@
 const FIELD_Y_DEFAULT = 8.052;   // 2026 field width, matches pathplanner_visualize.py
 
 /* L/R token pairs, applied in one left-to-right pass so nothing double-swaps.
-   Covers file names (LT-Dip2, 45-Dip-FromLBump) and linked-waypoint names
-   ("L Bump 45", "R Trench Plow End"). */
+   Covers path names (LT-Dip2, 45-Dip-FromLBump), auto names (BUMP-Ride-LR)
+   and linked-waypoint names ("L Bump 45", "R Trench Plow End"). */
 const LR_PAIRS = [
   ["L Trench", "R Trench"],
   ["L Bump",   "R Bump"],
@@ -174,6 +199,7 @@ const LR_PAIRS = [
   ["LDip",     "RDip"],
   ["LT-",      "RT-"],
   ["LB-",      "RB-"],
+  ["-LR",      "-RL"],
   ["Left",     "Right"],
 ];
 
@@ -264,6 +290,64 @@ function mirrorPath(src, opts = {}) {
   return { path: p, notes };
 }
 
+/* ── autos ────────────────────────────────────────────────────────────────
+   An .auto holds no field geometry of its own — the starting pose comes from
+   the first path's idealStartingState. Mirroring one is entirely a matter of
+   repointing every `path` node at the mirrored path. Walk generically so
+   parallel / race / deadline groups work the same as plain sequences.        */
+
+/** Depth-first visit of every command node in an auto. */
+function walkNodes(node, fn) {
+  if (!node || typeof node !== "object") return;
+  fn(node);
+  const d = node.data || {};
+  for (const c of (d.commands || [])) walkNodes(c, fn);
+  if (d.command && typeof d.command === "object") walkNodes(d.command, fn);
+}
+
+/** Path names an auto runs, in execution order, duplicates kept. */
+function autoPathRefs(auto) {
+  const out = [];
+  walkNodes(auto.command, n => {
+    if (n.type === "path" && n.data && n.data.pathName) out.push(n.data.pathName);
+  });
+  return out;
+}
+
+/** Flat step list for display: {type, pathName?, waitTime?, name?}. */
+function autoSteps(auto) {
+  const out = [];
+  walkNodes(auto.command, n => {
+    if (n.type === "path") out.push({ type: "path", pathName: n.data && n.data.pathName });
+    else if (n.type === "wait") out.push({ type: "wait", waitTime: n.data && n.data.waitTime });
+    else if (n.type === "named") out.push({ type: "named", name: n.data && n.data.name });
+  });
+  return out;
+}
+
+/**
+ * Mirror an auto by repointing its path references.
+ * @param {object} src      parsed .auto JSON (not mutated)
+ * @param {Map|Function} resolve  pathName -> mirrored pathName. Anything the
+ *        map doesn't answer falls back to mirrorName().
+ * @returns {{ auto: object, changes: Array<{from:string,to:string}> }}
+ */
+function mirrorAuto(src, resolve) {
+  const a = JSON.parse(JSON.stringify(src));
+  const lookup = typeof resolve === "function" ? resolve
+    : (resolve instanceof Map ? (n => resolve.get(n)) : (() => undefined));
+  const changes = [];
+  walkNodes(a.command, n => {
+    if (n.type === "path" && n.data && n.data.pathName) {
+      const from = n.data.pathName;
+      const to = lookup(from) ?? mirrorName(from).name;
+      n.data.pathName = to;
+      changes.push({ from, to });
+    }
+  });
+  return { auto: a, changes };
+}
+
 /* geometry helpers — used by the preview, and handy in the dashboard too */
 const bez = (a, b, c, d, t) => {
   const u = 1 - t;
@@ -289,88 +373,218 @@ function sampleAt(wps, t) {
    ══════════════════════════════════════════════════════════════════════════ */
 
 const FIELD_X = 17.548;
-const files = [];            // {srcName, src, dstName, mode, mirrored, notes}
-let sel = -1;
+
+/* lib.paths / lib.autos : name -> {name, src, dst, manual, out, kind} */
+const lib = { paths: new Map(), autos: new Map() };
+let sel = null;                 // {kind:'path'|'auto', name}
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
-
 const opts = () => ({
   fieldY: parseFloat($("fieldY").value) || FIELD_Y_DEFAULT,
   linkMode: $("linkMode").value,
 });
 
-function recompute() {
-  for (const f of files) {
-    const r = mirrorPath(f.src, opts());
-    f.mirrored = r.path;
-    f.notes = r.notes;
+/* ── derived state ──
+   decision per path:
+     'reuse'   mirrored name already exists in the library and dupMode=reuse
+               -> no file written, autos just point at the existing one
+     'new'     a file will be written
+   Autos always point at dst either way; only the emit changes.            */
+const D = { path: new Map(), auto: new Map() };
+
+function refresh() {
+  const reuse = $("dupMode").value === "reuse";
+  D.path.clear(); D.auto.clear();
+
+  for (const p of lib.paths.values()) {
+    const exists = lib.paths.has(p.dst) && p.dst !== p.name;
+    D.path.set(p.name, {
+      decision: (exists && reuse) ? "reuse" : "new",
+      collides: exists,
+      neededBy: [],
+      mirror: mirrorPath(p.src, opts()),
+    });
   }
-  renderList();
+
+  for (const a of lib.autos.values()) {
+    const refs = autoPathRefs(a.src).map(from => {
+      const p = lib.paths.get(from);
+      if (!p) return { from, to: mirrorName(from).name, status: "missing" };
+      return { from, to: p.dst, status: D.path.get(from).decision };
+    });
+    const uniq = [...new Map(refs.map(r => [r.from, r])).values()];
+    D.auto.set(a.name, {
+      refs, uniq,
+      missing: uniq.filter(r => r.status === "missing").length,
+      emits: uniq.filter(r => r.status === "new").length,
+      collides: lib.autos.has(a.dst) && a.dst !== a.name,
+      mirror: mirrorAuto(a.src, new Map(uniq.map(r => [r.from, r.to]))),
+    });
+    if (a.out) for (const r of uniq) {
+      const d = D.path.get(r.from);
+      if (d) d.neededBy.push(a.name);
+    }
+  }
+  render();
+}
+
+/* A path ships if you ticked it, or if a ticked auto needs it. The second case
+   is derived, never stored — untick the auto and the path lets go by itself. */
+const pathIncluded = p => p.out || D.path.get(p.name).neededBy.length > 0;
+
+/* output set: checked autos, plus included paths that actually emit a file */
+function outputFiles() {
+  const out = [];
+  for (const a of lib.autos.values())
+    if (a.out) out.push({ kind: "auto", name: a.dst, json: D.auto.get(a.name).mirror.auto });
+  for (const p of lib.paths.values())
+    if (pathIncluded(p) && D.path.get(p.name).decision === "new")
+      out.push({ kind: "path", name: p.dst, json: D.path.get(p.name).mirror.path });
+  return out;
+}
+
+/* ── loading ── */
+function addFile(fileName, text, checked) {
+  const isAuto = /\.auto$/i.test(fileName);
+  const isPath = /\.path$/i.test(fileName);
+  if (!isAuto && !isPath) return;
+  let src;
+  try { src = JSON.parse(text); }
+  catch (e) { console.warn(`${fileName}: ${e.message}`); return; }
+
+  const base = fileName.replace(/\.(path|auto)$/i, "");
+  if (isPath && !Array.isArray(src.waypoints)) return;
+  if (isAuto && !src.command) return;
+
+  const map = isAuto ? lib.autos : lib.paths;
+  const prev = map.get(base);
+  map.set(base, {
+    name: base, src,
+    dst: prev && prev.manual ? prev.dst : mirrorName(base).name,
+    mode: mirrorName(base).mode,
+    manual: prev ? prev.manual : false,
+    out: prev ? (prev.out || checked) : checked,
+    kind: isAuto ? "auto" : "path",
+  });
+}
+
+async function readAll(fileList, checked) {
+  const wanted = [...fileList].filter(f => /\.(path|auto)$/i.test(f.name));
+  if (!wanted.length) { alert("No .path or .auto files in that selection."); return; }
+  for (const f of wanted) addFile(f.name, await f.text(), checked);
+  if (!sel) {
+    const first = lib.autos.size ? [...lib.autos.values()].find(a => a.out) : null;
+    const fp = lib.paths.size ? [...lib.paths.values()].find(p => p.out) : null;
+    sel = first ? { kind: "auto", name: first.name }
+        : fp ? { kind: "path", name: fp.name }
+        : lib.autos.size ? { kind: "auto", name: [...lib.autos.keys()][0] }
+        : { kind: "path", name: [...lib.paths.keys()][0] };
+  }
+  refresh();
+}
+
+/* ── sidebar ── */
+function render() {
+  const rows = [];
+  const group = (title, n, act) =>
+    `<div class="grouphd">${title} <span class="n">${n}</span>${act || ""}</div>`;
+
+  if (lib.autos.size) {
+    const anyOut = [...lib.autos.values()].some(a => a.out);
+    rows.push(group("Autos", lib.autos.size,
+      `<button data-act="allautos">${anyOut ? "none" : "all"}</button>`));
+    for (const a of [...lib.autos.values()].sort((x, y) => x.name.localeCompare(y.name))) {
+      const d = D.auto.get(a.name);
+      const s = sel && sel.kind === "auto" && sel.name === a.name;
+      rows.push(`<div class="row ${s ? "sel" : ""}" data-kind="auto" data-name="${esc(a.name)}">
+        <input class="cb" type="checkbox" ${a.out ? "checked" : ""} data-cb="auto" data-name="${esc(a.name)}">
+        <div class="body">
+          <div><span class="src">${esc(a.name)}</span><span class="arrow">&rarr;</span><span class="dst ${d.collides ? "bad" : ""}">${esc(a.dst)}</span>${
+            a.mode === "suffix" && !a.manual ? '<span class="badge suffix">suffix</span>' : ""}</div>
+          <div class="meta">${d.refs.length} step${d.refs.length === 1 ? "" : "s"} · ${d.emits} new path${d.emits === 1 ? "" : "s"}${
+            d.missing ? ` · <span class="bad">${d.missing} missing</span>` : ""}${
+            d.collides ? ' · <span class="bad">name exists</span>' : ""}</div>
+        </div></div>`);
+    }
+  }
+
+  if (lib.paths.size) {
+    const anyOut = [...lib.paths.values()].some(p => p.out);
+    rows.push(group("Paths", lib.paths.size,
+      `<button data-act="allpaths">${anyOut ? "none" : "all"}</button>`));
+    for (const p of [...lib.paths.values()].sort((x, y) => x.name.localeCompare(y.name))) {
+      const d = D.path.get(p.name);
+      const s = sel && sel.kind === "path" && sel.name === p.name;
+      const skip = d.decision === "reuse";
+      const inc = pathIncluded(p), locked = d.neededBy.length > 0;
+      rows.push(`<div class="row ${s ? "sel" : ""} ${skip && inc ? "skip" : ""}" data-kind="path" data-name="${esc(p.name)}">
+        <input class="cb" type="checkbox" ${inc ? "checked" : ""} ${locked ? "disabled" : ""}
+          title="${locked ? `required by ${esc(d.neededBy.join(", "))}` : ""}"
+          data-cb="path" data-name="${esc(p.name)}">
+        <div class="body">
+          <div><span class="src">${esc(p.name)}</span><span class="arrow">&rarr;</span><span class="dst ${d.collides && !skip ? "bad" : ""}">${esc(p.dst)}</span>${
+            skip ? '<span class="badge reuse">reuse</span>'
+                 : p.mode === "suffix" && !p.manual ? '<span class="badge suffix">suffix</span>' : ""}</div>
+          <div class="meta">${p.src.waypoints.length} wp · ${(p.src.rotationTargets || []).length} rot · ${(p.src.eventMarkers || []).length} mk${
+            d.neededBy.length ? ` · <span class="ok">needed by ${d.neededBy.length}</span>` : ""}${
+            d.collides && !skip ? ' · <span class="bad">name exists</span>' : ""}${
+            d.mirror.notes.length ? ` · <span class="warn">${d.mirror.notes.length} link</span>` : ""}</div>
+        </div></div>`);
+    }
+  }
+
+  $("rows").innerHTML = rows.join("");
+  $("rows").querySelectorAll(".row").forEach(el => el.onclick = e => {
+    if (e.target.matches("input[type=checkbox]")) return;
+    sel = { kind: el.dataset.kind, name: el.dataset.name };
+    render(); renderDetail();
+  });
+  $("rows").querySelectorAll("input[data-cb]").forEach(el => el.onchange = () => {
+    const k = el.dataset.cb, n = el.dataset.name;
+    (k === "auto" ? lib.autos : lib.paths).get(n).out = el.checked;
+    refresh();     // a ticked auto pulls its paths in via pathIncluded()
+  });
+  $("rows").querySelectorAll("button[data-act]").forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    const map = el.dataset.act === "allautos" ? lib.autos : lib.paths;
+    const on = ![...map.values()].some(v => v.out);
+    for (const v of map.values()) v.out = on;
+    refresh();
+  });
+
+  const n = outputFiles().length;
+  $("dlSel").disabled = !n;
+  $("dlSel").textContent = n ? `Download selected (${n})` : "Download selected";
+  $("clear").disabled = !(lib.paths.size || lib.autos.size);
+  const any = lib.paths.size || lib.autos.size;
+  $("emptyMsg").hidden = !!any;
+  $("detail").hidden = !any;
   renderDetail();
 }
 
-function addFile(srcName, text) {
-  let src;
-  try { src = JSON.parse(text); }
-  catch (e) { alert(`${srcName}: not valid JSON — ${e.message}`); return; }
-  if (!Array.isArray(src.waypoints)) { alert(`${srcName}: no "waypoints" array, doesn't look like a .path`); return; }
-
-  const base = srcName.replace(/\.path$/i, "");
-  const mn = mirrorName(base);
-  const r = mirrorPath(src, opts());
-  const existing = files.findIndex(f => f.srcName === base);
-  const rec = { srcName: base, src, dstName: mn.name, mode: mn.mode, mirrored: r.path, notes: r.notes };
-  if (existing >= 0) files[existing] = rec; else files.push(rec);
-}
-
-function collides(f) {
-  return files.some(g => g !== f && g.srcName.toLowerCase() === f.dstName.toLowerCase());
-}
-
-function renderList() {
-  const rows = $("rows");
-  rows.innerHTML = files.map((f, i) => {
-    const warn = f.notes.length;
-    const col = collides(f);
-    const w = f.src.waypoints.length;
-    const rt = (f.src.rotationTargets || []).length;
-    const mk = (f.src.eventMarkers || []).length;
-    return `<div class="row ${i === sel ? "sel" : ""}" data-i="${i}">
-      <div>
-        <span class="src">${esc(f.srcName)}</span><span class="arrow">&rarr;</span>
-        <span class="dst ${col ? "collide" : ""}">${esc(f.dstName)}</span>
-        ${f.mode === "suffix" ? '<span class="badge suffix">suffix</span>' : ""}
-      </div>
-      <div class="meta">${w} wp · ${rt} rot · ${mk} mk${
-        col ? ' · <span style="color:var(--red)">name already loaded</span>' : ""}${
-        warn ? ` · <span class="warn">${warn} link note${warn > 1 ? "s" : ""}</span>` : ""}</div>
-    </div>`;
-  }).join("");
-  rows.querySelectorAll(".row").forEach(el =>
-    el.onclick = () => { sel = +el.dataset.i; renderList(); renderDetail(); });
-
-  $("dlAll").disabled = !files.length;
-  $("clear").disabled = !files.length;
-  $("emptyMsg").hidden = !!files.length;
-  $("detail").hidden = !files.length;
-  if (files.length && sel < 0) sel = 0;
-}
+const cur = () => sel && (sel.kind === "auto" ? lib.autos : lib.paths).get(sel.name);
 
 /* ── field preview ── */
+let fieldImg = null;
+function loadField() {
+  const img = new Image();
+  img.onload = () => { fieldImg = img; draw(); };
+  img.onerror = () => { fieldImg = null; };
+  img.src = "field2026.png";     // sits next to this file in tools/
+}
+
 function draw() {
-  const f = files[sel];
+  const rec = cur(); if (!rec) return;
   const cv = $("cv"), ctx = cv.getContext("2d");
-  const W = 1100, H = Math.round(W * (opts().fieldY / FIELD_X));
+  const fy = opts().fieldY;
+  const W = 1100, H = Math.round(W * (fy / FIELD_X));
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.width = W * dpr; cv.height = H * dpr; cv.style.aspectRatio = `${W} / ${H}`;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
 
-  const fy = opts().fieldY;
-  const sc = W / FIELD_X;
-  const X = x => x * sc;
-  const Y = y => H - y * sc;
+  const sc = W / FIELD_X, X = x => x * sc, Y = y => H - y * sc;
 
   if (fieldImg && fieldImg.complete && fieldImg.naturalWidth) {
     ctx.globalAlpha = .55; ctx.drawImage(fieldImg, 0, 0, W, H); ctx.globalAlpha = 1;
@@ -380,17 +594,17 @@ function draw() {
     for (let m = 1; m < fy; m++) { ctx.beginPath(); ctx.moveTo(0, Y(m)); ctx.lineTo(W, Y(m)); ctx.stroke(); }
   }
 
-  // centerline — the axis everything flips about
   ctx.save();
   ctx.strokeStyle = "#4a5160"; ctx.lineWidth = 1.5; ctx.setLineDash([7, 6]);
   ctx.beginPath(); ctx.moveTo(0, Y(fy / 2)); ctx.lineTo(W, Y(fy / 2)); ctx.stroke();
   ctx.restore();
 
-  const show = { orig: $("tOrig").checked, mir: $("tMir").checked,
-                 ctrl: $("tCtrl").checked, head: $("tHead").checked, mark: $("tMark").checked };
+  const show = { orig: $("tOrig").checked, mir: $("tMir").checked, ctrl: $("tCtrl").checked,
+                 head: $("tHead").checked, mark: $("tMark").checked, seq: $("tSeq").checked };
 
-  const drawPath = (p, color, lw, alpha) => {
-    const wps = p.waypoints;
+  /* one path. `pos` is its index in an auto route, or null for a lone path. */
+  function drawPath(p, color, lw, alpha, pos) {
+    const wps = p.waypoints; if (!wps || wps.length < 1) return;
     ctx.save(); ctx.globalAlpha = alpha;
     ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineJoin = "round";
     ctx.beginPath();
@@ -412,13 +626,12 @@ function draw() {
       ctx.setLineDash([]);
     }
 
-    ctx.globalAlpha = alpha; ctx.fillStyle = color;
+    ctx.globalAlpha = alpha;
     wps.forEach((w, i) => {
-      const r = (i === 0 || i === wps.length - 1) ? 5.5 : 4;
-      ctx.beginPath(); ctx.arc(X(w.anchor.x), Y(w.anchor.y), r, 0, 7);
-      if (i === 0) { ctx.fillStyle = "#fff"; ctx.fill(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke(); }
-      else if (i === wps.length - 1) { ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = "#0f1114"; ctx.fill(); }
+      const first = i === 0, last = i === wps.length - 1;
+      ctx.beginPath(); ctx.arc(X(w.anchor.x), Y(w.anchor.y), first || last ? 5.5 : 4, 0, 7);
+      if (first) { ctx.fillStyle = "#fff"; ctx.fill(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke(); }
+      else if (last) { ctx.fillStyle = "#0f1114"; ctx.fill(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke(); }
       else { ctx.fillStyle = color; ctx.fill(); }
     });
 
@@ -430,75 +643,154 @@ function draw() {
       ctx.strokeStyle = alpha > .6 ? "#5aa9ff" : "#3d5878";
       ctx.fillStyle = ctx.strokeStyle; ctx.lineWidth = 2;
       for (const [t, deg] of heads) {
-        const q = sampleAt(wps, t), a = deg * Math.PI / 180, L = 0.62 * sc;
+        const q = sampleAt(wps, t), a = deg * Math.PI / 180, L = .62 * sc;
         const ex = X(q.x) + Math.cos(a) * L, ey = Y(q.y) - Math.sin(a) * L;
         ctx.beginPath(); ctx.moveTo(X(q.x), Y(q.y)); ctx.lineTo(ex, ey); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(ex, ey);
+        ctx.beginPath(); ctx.moveTo(ex, ey);
         ctx.lineTo(ex - Math.cos(a - .4) * 8, ey + Math.sin(a - .4) * 8);
         ctx.lineTo(ex - Math.cos(a + .4) * 8, ey + Math.sin(a + .4) * 8);
         ctx.closePath(); ctx.fill();
       }
     }
 
-    if (show.mark) {
-      for (const m of (p.eventMarkers || [])) {
-        const q = sampleAt(wps, m.waypointRelativePos);
-        ctx.beginPath(); ctx.arc(X(q.x), Y(q.y), 3.5, 0, 7);
-        ctx.fillStyle = alpha > .6 ? "#ffd166" : "#7a6530"; ctx.fill();
-      }
+    if (show.mark) for (const m of (p.eventMarkers || [])) {
+      const q = sampleAt(wps, m.waypointRelativePos);
+      ctx.beginPath(); ctx.arc(X(q.x), Y(q.y), 3.5, 0, 7);
+      ctx.fillStyle = alpha > .6 ? "#ffd166" : "#7a6530"; ctx.fill();
+    }
+
+    if (show.seq && pos != null) {
+      const a0 = wps[0].anchor;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = "#0f1114"; ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(X(a0.x) + 13, Y(a0.y) - 13, 9, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = color; ctx.font = "600 11px ui-monospace,monospace";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(String(pos + 1), X(a0.x) + 13, Y(a0.y) - 13);
+      ctx.textAlign = "start"; ctx.textBaseline = "alphabetic";
     }
     ctx.restore();
-  };
+  }
 
-  if (show.orig) drawPath(f.src, "#7f8794", 2.5, .55);
-  if (show.mir) drawPath(f.mirrored, "#4ade80", 3, 1);
-}
-
-let fieldImg = null;
-function loadField() {
-  const img = new Image();
-  img.onload = () => { fieldImg = img; if (files.length) draw(); };
-  img.onerror = () => { fieldImg = null; };
-  img.src = "field2026.png";     // sits next to this file in tools/
+  if (sel.kind === "path") {
+    if (show.orig) drawPath(rec.src, "#7f8794", 2.5, .55, null);
+    if (show.mir) drawPath(D.path.get(rec.name).mirror.path, "#4ade80", 3, 1, null);
+  } else {
+    const seq = autoPathRefs(rec.src);
+    if (show.orig) seq.forEach((n, i) => { const p = lib.paths.get(n); if (p) drawPath(p.src, "#7f8794", 2.5, .5, i); });
+    if (show.mir) seq.forEach((n, i) => { const p = lib.paths.get(n); if (p) drawPath(D.path.get(n).mirror.path, "#4ade80", 3, 1, i); });
+  }
 }
 
 /* ── detail pane ── */
 function renderDetail() {
-  const f = files[sel];
-  if (!f) return;
+  const rec = cur();
+  if (!rec) { $("detail").hidden = true; return; }
+  $("detail").hidden = false;
+  const isAuto = sel.kind === "auto";
+  const d = (isAuto ? D.auto : D.path).get(rec.name);
 
-  $("dstName").value = f.dstName;
-  const col = collides(f);
-  $("nameHint").textContent = col
-    ? "a loaded path already has this name — it would overwrite it"
-    : (f.mode === "suffix" ? "no L/R token in the name, so a suffix was used" : "");
-  $("nameHint").className = "hint" + (col ? " bad" : "");
+  $("kindTag").textContent = isAuto ? "auto" : "path";
+  $("extHint").textContent = isAuto ? ".auto" : ".path";
+  // don't stomp the caret while the user is typing in it
+  if (document.activeElement !== $("dstName")) $("dstName").value = rec.dst;
 
-  $("notes").innerHTML = f.notes.length
-    ? `<h2>Linked waypoints</h2>` + f.notes.map(n =>
-        `<div class="note${/snap it back/.test(n) ? " red" : ""}">${n}</div>`).join("")
-    : "";
+  const bad = d.collides && !(!isAuto && d.decision === "reuse");
+  $("nameHint").textContent = bad
+    ? `${isAuto ? "an auto" : "a path"} with this name is already loaded — downloading would overwrite it`
+    : (!isAuto && d.decision === "reuse")
+      ? "already exists — the mirrored autos point at it, no file written"
+      : (rec.mode === "suffix" && !rec.manual ? "no L/R token in the name, so a suffix was used" : "");
+  $("nameHint").className = "hint" + (bad ? " bad" : "");
 
-  const wRows = f.src.waypoints.map((w, i) => {
-    const m = f.mirrored.waypoints[i];
-    return `<tr><td>${i}</td><td class="was">${w.anchor.x.toFixed(3)}, ${w.anchor.y.toFixed(3)}</td>
-      <td class="now">${m.anchor.x.toFixed(3)}, ${m.anchor.y.toFixed(3)}</td>
+  $("dlOne").textContent = isAuto && d.emits ? `Download auto + ${d.emits} path${d.emits === 1 ? "" : "s"}` : "Download";
+  $("dlOne").disabled = !isAuto && d.decision === "reuse";
+
+  isAuto ? renderAuto(rec, d) : renderPathDetail(rec, d);
+  draw();
+}
+
+function renderAuto(rec, d) {
+  const notes = [];
+  if (d.missing) notes.push(`<div class="note red"><b>${d.missing} referenced path${d.missing === 1 ? "" : "s"} not loaded.</b>
+    The mirrored auto still points at the mirrored name, but nothing will write that file.
+    Load the <code>paths</code> folder and re-check.</div>`);
+  if (d.collides) notes.push(`<div class="note red">An auto named <code>${esc(rec.dst)}</code> is already loaded.
+    Rename above, or accept that the download overwrites it.</div>`);
+  const reused = d.uniq.filter(r => r.status === "reuse");
+  if (reused.length) notes.push(`<div class="note violet"><b>${reused.length} path${reused.length === 1 ? "" : "s"} reused, not rewritten.</b>
+    ${reused.map(r => `<code>${esc(r.to)}</code>`).join(", ")} already exist, so the mirrored auto points
+    at your hand-tuned versions instead of dropping near-duplicates next to them.
+    Switch <i>mirrored path exists</i> to <i>write a copy anyway</i> if you'd rather have fresh files.</div>`);
+  const linkNotes = d.uniq.filter(r => r.status === "new")
+    .flatMap(r => (D.path.get(r.from)?.mirror.notes || []).map(n => `<code>${esc(r.from)}</code> — ${n}`));
+  if (linkNotes.length) notes.push(`<div class="note"><b>Linked waypoints in the paths this writes:</b><br>${linkNotes.join("<br>")}</div>`);
+  $("notes").innerHTML = notes.join("");
+
+  const steps = autoSteps(rec.src);
+  let pi = 0;
+  const rows = steps.map((s, i) => {
+    if (s.type === "path") {
+      const r = d.refs[pi++];
+      const badge = r.status === "reuse" ? '<span class="badge reuse">reuse</span>'
+                  : r.status === "missing" ? '<span class="badge missing">not loaded</span>'
+                  : '<span class="badge">new file</span>';
+      return `<tr class="${r.status}"><td class="num">${i + 1}</td><td>path</td>
+        <td class="was">${esc(r.from)}</td><td class="now">${esc(r.to)}${badge}</td></tr>`;
+    }
+    if (s.type === "wait")
+      return `<tr><td class="num">${i + 1}</td><td>wait</td><td class="was">${s.waitTime}s</td><td class="now">${s.waitTime}s</td></tr>`;
+    return `<tr><td class="num">${i + 1}</td><td>named</td><td class="was">${esc(s.name)}</td>
+      <td class="now" style="color:var(--dim)">${esc(s.name)} <span class="badge">unchanged</span></td></tr>`;
+  }).join("");
+
+  $("tables").innerHTML = `
+    <h2>Sequence</h2>
+    <table><thead><tr><th>#</th><th>type</th><th>was</th><th>now</th></tr></thead><tbody>${rows}</tbody></table>
+    <h2>Carried over unchanged</h2>
+    <div class="hint">
+      <code>resetOdom: ${rec.src.resetOdom}</code>, <code>choreoAuto: ${rec.src.choreoAuto}</code>,
+      folder <code>${esc(rec.src.folder ?? "null")}</code>, every wait time, and every named-command name.
+      The starting pose isn't stored in the auto — it comes from the first path's
+      <code>idealStartingState</code>, which the path mirror already flipped.
+    </div>`;
+
+  $("foot").innerHTML = `Downloads land in your browser's download folder. The <code>.auto</code>
+    goes in <code>src\\main\\deploy\\pathplanner\\autos\\</code>, the <code>.path</code> files in
+    <code>paths\\</code>. Then run <code>tools\\audit.bat</code> on the new auto — mirroring keeps marker
+    order, so shot parity carries over, but the auto is new and unaudited.`;
+}
+
+function renderPathDetail(rec, d) {
+  const m = d.mirror.path;
+  const notes = [];
+  if (d.decision === "reuse") notes.push(`<div class="note violet">
+    <code>${esc(rec.dst)}</code> is already loaded, so this path won't be written —
+    autos that run it point at the existing one. Rename above to force a new file.</div>`);
+  if (d.neededBy.length) notes.push(`<div class="note"><b>Needed by:</b> ${d.neededBy.map(esc).join(", ")}</div>`);
+  if (d.mirror.notes.length) notes.push(`<h2>Linked waypoints</h2>` +
+    d.mirror.notes.map(n => `<div class="note${/snap it back/.test(n) ? " red" : ""}">${n}</div>`).join(""));
+  $("notes").innerHTML = notes.join("");
+
+  const wRows = rec.src.waypoints.map((w, i) => {
+    const q = m.waypoints[i];
+    return `<tr><td class="num">${i}</td><td class="was">${w.anchor.x.toFixed(3)}, ${w.anchor.y.toFixed(3)}</td>
+      <td class="now">${q.anchor.x.toFixed(3)}, ${q.anchor.y.toFixed(3)}</td>
       <td class="was">${w.linkedName ? esc(w.linkedName) : "—"}</td>
-      <td class="now">${m.linkedName ? esc(m.linkedName) : "—"}</td></tr>`;
+      <td class="now">${q.linkedName ? esc(q.linkedName) : "—"}</td></tr>`;
   }).join("");
 
   const heads = [];
-  if (f.src.idealStartingState) heads.push(["start", f.src.idealStartingState.rotation, f.mirrored.idealStartingState.rotation]);
-  (f.src.rotationTargets || []).forEach((rt, i) =>
-    heads.push([`@${rt.waypointRelativePos.toFixed(2)}`, rt.rotationDegrees, f.mirrored.rotationTargets[i].rotationDegrees]));
-  if (f.src.goalEndState) heads.push(["end", f.src.goalEndState.rotation, f.mirrored.goalEndState.rotation]);
+  if (rec.src.idealStartingState) heads.push(["start", rec.src.idealStartingState.rotation, m.idealStartingState.rotation]);
+  (rec.src.rotationTargets || []).forEach((rt, i) =>
+    heads.push([`@${rt.waypointRelativePos.toFixed(2)}`, rt.rotationDegrees, m.rotationTargets[i].rotationDegrees]));
+  if (rec.src.goalEndState) heads.push(["end", rec.src.goalEndState.rotation, m.goalEndState.rotation]);
 
-  const zRows = (f.src.pointTowardsZones || []).map((z, i) => {
-    const m = f.mirrored.pointTowardsZones[i];
+  const zRows = (rec.src.pointTowardsZones || []).map((z, i) => {
+    const q = m.pointTowardsZones[i];
     return `<tr><td>${esc(z.name || "zone " + i)}</td>
       <td class="was">${z.fieldPosition.x.toFixed(3)}, ${z.fieldPosition.y.toFixed(3)} @ ${z.rotationOffset}&deg;</td>
-      <td class="now">${m.fieldPosition.x.toFixed(3)}, ${m.fieldPosition.y.toFixed(3)} @ ${m.rotationOffset}&deg;</td></tr>`;
+      <td class="now">${q.fieldPosition.x.toFixed(3)}, ${q.fieldPosition.y.toFixed(3)} @ ${q.rotationOffset}&deg;</td></tr>`;
   }).join("");
 
   $("tables").innerHTML = `
@@ -511,67 +803,67 @@ function renderDetail() {
     </tbody></table>
     ${zRows ? `<h2>Point-towards zones</h2><table><thead><tr><th>name</th><th>was</th><th>now</th></tr></thead><tbody>${zRows}</tbody></table>` : ""}
     <h2>Carried over unchanged</h2>
-    <div class="hint">${(f.src.eventMarkers || []).length} event marker(s),
-      ${(f.src.constraintZones || []).length} constraint zone(s), all velocities and
-      accelerations, <code>reversed: ${f.src.reversed}</code>, folder
-      <code>${esc(f.src.folder ?? "null")}</code>.</div>`;
+    <div class="hint">${(rec.src.eventMarkers || []).length} event marker(s),
+      ${(rec.src.constraintZones || []).length} constraint zone(s), all velocities and accelerations,
+      <code>reversed: ${rec.src.reversed}</code>, folder <code>${esc(rec.src.folder ?? "null")}</code>.</div>`;
 
-  draw();
+  $("foot").innerHTML = `Downloads land in your browser's download folder — move them into
+    <code>src\\main\\deploy\\pathplanner\\paths\\</code> and reopen PathPlanner.`;
 }
 
 /* ── download ── */
-function serialize(p) { return JSON.stringify(p, null, 2); }
-
-function download(f) {
-  const blob = new Blob([serialize(f.mirrored)], { type: "application/json" });
+function save(name, ext, json) {
+  const blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = f.dstName + ".path";
+  a.href = URL.createObjectURL(blob); a.download = name + ext;
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+async function saveMany(list) {
+  for (const f of list) { save(f.name, f.kind === "auto" ? ".auto" : ".path", f.json); await wait(260); }
 }
 
 /* ── wiring ── */
 $("pickFiles").onclick = () => $("fileIn").click();
 $("pickDir").onclick = () => $("dirIn").click();
-$("clear").onclick = () => { files.length = 0; sel = -1; renderList(); };
-$("dlOne").onclick = () => download(files[sel]);
-$("dlAll").onclick = async () => {
-  for (const f of files) { download(f); await new Promise(r => setTimeout(r, 250)); }
+$("clear").onclick = () => { lib.paths.clear(); lib.autos.clear(); sel = null; refresh(); };
+$("dlSel").onclick = () => saveMany(outputFiles());
+$("dlOne").onclick = () => {
+  const rec = cur();
+  if (sel.kind === "path") save(rec.dst, ".path", D.path.get(rec.name).mirror.path);
+  else {
+    const d = D.auto.get(rec.name);
+    saveMany([{ kind: "auto", name: rec.dst, json: d.mirror.auto },
+      ...d.uniq.filter(r => r.status === "new")
+        .map(r => ({ kind: "path", name: r.to, json: D.path.get(r.from).mirror.path }))]);
+  }
 };
 
 $("dstName").oninput = e => {
-  files[sel].dstName = e.target.value.replace(/\.path$/i, "");
-  files[sel].mode = "manual";
-  renderList();
-  const col = collides(files[sel]);
-  $("nameHint").textContent = col ? "a loaded path already has this name — it would overwrite it" : "";
-  $("nameHint").className = "hint" + (col ? " bad" : "");
+  const rec = cur(); if (!rec) return;
+  rec.dst = e.target.value.replace(/\.(path|auto)$/i, "");
+  rec.manual = true;
+  refresh();
 };
 
-for (const id of ["fieldY", "linkMode"]) $(id).onchange = recompute;
-for (const id of ["tOrig", "tMir", "tCtrl", "tHead", "tMark"]) $(id).onchange = draw;
+for (const id of ["fieldY", "linkMode", "dupMode"]) $(id).onchange = refresh;
+for (const id of ["tOrig", "tMir", "tCtrl", "tHead", "tMark", "tSeq"]) $(id).onchange = draw;
 
-async function readAll(fileList) {
-  const wanted = [...fileList].filter(f => /\.path$/i.test(f.name));
-  if (!wanted.length) { alert("No .path files in that selection."); return; }
-  for (const file of wanted) addFile(file.name, await file.text());
-  renderList(); renderDetail();
-}
-
-$("fileIn").onchange = e => { readAll(e.target.files); e.target.value = ""; };
-$("dirIn").onchange = e => { readAll(e.target.files); e.target.value = ""; };
+$("fileIn").onchange = e => { readAll(e.target.files, true); e.target.value = ""; };
+$("dirIn").onchange = e => { readAll(e.target.files, false); e.target.value = ""; };
 
 document.addEventListener("dragover", e => { e.preventDefault(); document.body.classList.add("dragging"); });
 document.addEventListener("dragleave", e => { if (e.relatedTarget === null) document.body.classList.remove("dragging"); });
 document.addEventListener("drop", e => {
   e.preventDefault(); document.body.classList.remove("dragging");
-  readAll(e.dataTransfer.files);
+  readAll(e.dataTransfer.files, true);
 });
+window.addEventListener("resize", draw);
 
-window.addEventListener("resize", () => { if (files.length) draw(); });
 loadField();
-renderList();
+refresh();
 </script>
 </body>
 </html>

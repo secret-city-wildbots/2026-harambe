@@ -7,24 +7,38 @@
   `RT-Base` alone feeds 11 autos.
 - **`pathplanner_audit.py`** — text report of the same analysis, for one auto or all.
   Run `tools\audit.bat`.
-- **`pathplanner_mirror.html`** — flip a path to the other side of the field.
-  Double-click `tools\mirror.bat`, drop `.path` files on the page, download the
-  mirrored copies.
+- **`pathplanner_mirror.html`** — flip a path *or a whole auto* to the other side
+  of the field. Double-click `tools\mirror.bat`, load the `pathplanner` folder,
+  tick the autos you want, download.
 - **`pathplanner_rename.py`** — bulk rename paths/autos, rewriting references.
 
 ---
 
 # `pathplanner_mirror.html`
 
-Left ↔ right mirror for `.path` files. A standalone page — no Python, no build.
-Double-click **`tools\mirror.bat`** (or just open the `.html`), drop `.path` files
-on it, download the mirrored copies into `src\main\deploy\pathplanner\paths\`.
+Left ↔ right mirror for `.path` **and `.auto`** files. A standalone page — no
+Python, no build. Double-click **`tools\mirror.bat`** (or just open the `.html`).
 
 Everything runs in the browser, so this ports straight into WildBoard later —
 the `MIRROR CORE` block at the top of the file is DOM-free and lifts out as a
-`.ts` module unchanged.
+`.ts` module unchanged (`mirrorPath`, `mirrorAuto`, `mirrorName`, `autoPathRefs`,
+`autoSteps`, `sampleAt`).
 
-## What it changes
+## The flow
+
+1. **Load folder** → point it at `src\main\deploy\pathplanner`. All 66 paths and
+   37 autos load as a *library*. Nothing is selected — this is context, so the
+   tool knows which counterparts already exist.
+2. **Tick the autos** (or paths) you want mirrored. Ticking an auto pulls in every
+   path it runs; those path checkboxes lock, with a tooltip naming the auto.
+3. **Download selected** → the `.auto` files and the `.path` files they need.
+
+You can also just drop files on the page. Anything dropped or picked with
+**Load files** arrives ticked, so dropping a single `.auto` is the one-shot
+version of the whole flow — as long as the library is loaded, or the paths come
+along in the same drop.
+
+## What a path mirror changes
 
 | | |
 |---|---|
@@ -36,37 +50,73 @@ the `MIRROR CORE` block at the top of the file is DOM-free and lifts out as a
 Mirroring twice returns the original to within 1e-12 m, and key order is preserved,
 so a mirrored file diffs cleanly against its source.
 
-Field width is the `field width Y` box, default **8.052** to match `FIELD_Y` in
+Field width is the `field Y` box, default **8.052** to match `FIELD_Y` in
 `pathplanner_visualize.py`. Change it in one place if the 2026 number differs.
+
+## What an auto mirror changes
+
+**Nothing but the path references.** An `.auto` holds no field geometry of its
+own — the starting pose comes from the first path's `idealStartingState`, which
+the path mirror already flipped. So mirroring an auto is repointing every `path`
+node and leaving the rest alone: wait times, `resetOdom`, `choreoAuto`, `folder`
+and named-command names all carry over untouched.
+
+The walk is generic over the command tree, so `parallel` / `race` / `deadline`
+groups and nested sequences mirror the same as a flat sequence — not just the
+shape your autos happen to use today.
+
+Named commands are **not** renamed. `Shoot` stays `Shoot`. If you ever add a
+side-specific one you'll have to fix it by hand.
+
+The **Sequence** table shows the whole auto step by step, `was` → `now`, with a
+badge on each path saying whether it's a new file, a reused existing one, or not
+loaded. The field preview draws the entire route end to end, original in grey and
+mirrored in green, numbered in run order.
+
+## Duplicates — the setting that matters for autos
+
+Mirror `RT-2Dip` and it wants `LT-Base`, `LT-Dip1`, `LT-Base-Rev-OB-2`… and you
+already hand-tuned two of those. The **duplicates** dropdown decides what happens:
+
+- **reuse existing** (default) — if the mirrored name is already in the loaded
+  library, no file is written and the mirrored auto points at *your* version.
+  The row greys out with a `reuse` badge. This is almost always what you want:
+  it's how a mirrored auto ends up running real paths instead of 6 near-duplicates.
+- **write a copy** — mirror everything fresh. Rows that would overwrite an existing
+  file are flagged red, so you can rename before downloading.
+
+Either way the auto's `pathName` string is the same; only the set of files
+written changes.
 
 ## Names
 
 L/R tokens get swapped: `LT-Dip2 → RT-Dip2`, `LB-Plow-P1 → RB-Plow-P1`,
 `45-Dip-FromLBump → 45-Dip-FromRBump`, `LT-FromRPlow → RT-FromLPlow`,
-`LT-RDip1 → RT-LDip1`. A name with no L/R in it (`CTR-Depot`, `S8-Center`) gets
-`-Mirror` and a **suffix** badge, so you know to name it yourself. The name box is
-editable either way.
+`LT-RDip1 → RT-LDip1`, `BUMP-Ride-LR → BUMP-Ride-RL`, `S8-RT-Dip → S8-LT-Dip`.
+A name with no L/R in it (`CTR-Depot`, `OUT-Base`, `S8-Plow`) gets `-Mirror` and a
+**suffix** badge, so you know to name it yourself. The name box is editable either
+way, and editing it re-resolves everything downstream.
 
-**Load the whole `paths` folder** (button in the header) before mirroring and the
-tool knows what already exists — `LT-Plow → RT-Plow` lights up red *"name already
-loaded"* instead of you overwriting a hand-tuned path with a download.
+Because the library is loaded, `LT-Plow → RT-Plow` lights up red *"name exists"*
+instead of you overwriting a hand-tuned file with a download.
 
 ## Linked waypoints — read this one
 
-28 of the 67 paths have linked waypoints, and a link is what breaks a naive mirror:
+28 of the 66 paths have linked waypoints, and a link is what breaks a naive mirror:
 keep `linkedName: "L Bump 45"` on a mirrored waypoint and PathPlanner snaps it back
 to the original anchor, silently un-mirroring that point.
 
-The **linked waypoints** dropdown:
+The **links** dropdown:
 
-- **swap L/R, unlink the rest** (default) — `L Bump 45 → R Bump 45`. If that anchor
-  already exists in PathPlanner the waypoint snaps to *it* rather than the exact
-  mirror, which is usually what you want on a real field. Links with no L/R
-  counterpart (`Dip 1`, `Outpost`) are dropped.
+- **swap L/R** (default) — `L Bump 45 → R Bump 45`. If that anchor already exists
+  in PathPlanner the waypoint snaps to *it* rather than the exact mirror, which is
+  usually what you want on a real field. Links with no L/R counterpart (`Dip 1`,
+  `Outpost`) are dropped.
 - **unlink all** — safest. Every waypoint becomes a plain anchor at the mirrored spot.
-- **keep as-is** — for when you know what you're doing. Flagged in red.
+- **keep** — for when you know what you're doing. Flagged in red.
 
-Whatever the mode, the page lists exactly what happened to each linked waypoint.
+Whatever the mode, the page lists exactly what happened to each linked waypoint —
+on an auto, aggregated across every path it writes.
 
 ## Reading the preview
 
@@ -74,24 +124,23 @@ Original in grey, mirrored in green, over `field2026.png`. Dashed line down the
 middle is the flip axis. White circle = start, hollow square = end, blue arrows
 are headings (start, every rotation target, end), amber dots are event markers
 placed by evaluating the bezier at their `waypointRelativePos` — the same exact
-placement `pathplanner_visualize.py` uses.
+placement `pathplanner_visualize.py` uses. Numbered pips mark each path's start
+in auto run order.
 
-Below the field, a waypoint table shows `was x, y → now x, y` and the link
+For a path, the waypoint table shows `was x, y → now x, y` and the link
 before/after, plus a heading table. That's the verification pass: the sum of each
 `was y` and `now y` should be the field width.
 
 ## Then
 
-Downloads land in your browser's download folder — move them into
-`src\main\deploy\pathplanner\paths\` and reopen PathPlanner. `folder` is copied
-unchanged, so a mirrored path shows up in the same PathPlanner folder as its
-original; drag it where it belongs.
+Downloads land in your browser's download folder. `.path` files go in
+`src\main\deploy\pathplanner\paths\`, `.auto` files in `autos\`. Reopen
+PathPlanner. `folder` is copied unchanged, so a mirrored path or auto shows up in
+the same PathPlanner folder as its original; drag it where it belongs.
 
-Mirroring a path does **not** create an auto. Build the mirrored auto in
-PathPlanner, then run `tools\audit.bat` on it — mirroring preserves marker order,
-so if the original had clean shot parity the mirror does too, but the auto that
-strings them together is new and unaudited.
-
+Then run `tools\audit.bat` on the new auto. Mirroring preserves marker order, so
+if the original had clean shot parity the mirror does too — but run it anyway,
+because a reused path may carry markers the mirrored side doesn't expect.
 ---
 
 # `pathplanner_map.py`

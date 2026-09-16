@@ -8,25 +8,29 @@ import frc.robot.Actors.Subsystems.Elevator.Elevator;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ExtendLiftCommand extends Command {
-    
+
     // Define Variables
     private final Elevator elevatorLift;
+    private final double dc;
 
     /**
      * Creates and sets up the ExtendLiftCommand
      * 
-     * @param elevatorLift The subsystem to be controlled by the command ({@link ElevatorLift})
+     * @param elevatorLift
+     *            The subsystem to be controlled by the command
+     *            ({@link ElevatorLift})
      */
-    public ExtendLiftCommand(Elevator elevatorLift) {
+    public ExtendLiftCommand(Elevator elevatorLift, double dc) {
         // Assign the variables and add the subsystem as a requirement to the command
         this.elevatorLift = elevatorLift;
+        this.dc = dc;
         addRequirements(this.elevatorLift.liftRequirement());
     }
 
     @Override
     public void initialize() {
         // Call the ElevatorLift subsystem start function
-        elevatorLift.setLift(-ElevatorConstants.maxSpeedPercentage);
+        elevatorLift.setLift(-dc);
     }
 
     @Override

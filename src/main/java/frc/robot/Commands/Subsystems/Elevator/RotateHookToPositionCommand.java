@@ -15,7 +15,9 @@ public class RotateHookToPositionCommand extends Command {
     /**
      * Creates and sets up the RotateHookToPositionCommand
      * 
-     * @param ElevatorHook The subsystem to be controlled by the command ({@link ElevatorHook})
+     * @param ElevatorHook
+     *            The subsystem to be controlled by the command
+     *            ({@link ElevatorHook})
      */
     public RotateHookToPositionCommand(Elevator elevatorHook, double targetAngle) {
         // Assign the variables and add the subsystem as a requirement to the command
@@ -37,9 +39,9 @@ public class RotateHookToPositionCommand extends Command {
         double current = elevatorHook.getCurrentAngle();
 
         if (current < targetAngle) {
-            elevatorHook.setHooks(ElevatorConstants.maxSpeedPercentage);  // rotate outward
+            elevatorHook.setHooks(ElevatorConstants.hooksMaxDC);  // rotate outward
         } else {
-            elevatorHook.setHooks(-ElevatorConstants.maxSpeedPercentage); // rotate inward
+            elevatorHook.setHooks(-ElevatorConstants.hooksMaxDC); // rotate inward
         }
     }
 

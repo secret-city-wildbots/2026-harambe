@@ -39,7 +39,8 @@ public final class Constants {
         public static final int liftMotorID = 48;
         public static final int hookMotorID = 49;
         public static final int CANifierID = 51;
-        public static final double maxSpeedPercentage = 0.35;
+        public static final double hooksMaxDC = 0.1;
+        public static final double liftExtendDC = 0.35;
 
         // Sensor ID / Ports
         public static final int lowerLimitMagneticSensorPort = 0;
@@ -47,14 +48,15 @@ public final class Constants {
         public static final int topLimitMagneticSensorPort = 2;
 
         // Hook Cancoder CANBus IDs
-        public static final int hookMotorCancoderID = 34;
+        public static final int hookMotorCancoderID = 51;
         public static final double hookEncoderOffset = 0.41357421875;
 
         // Hook motor positions
         public static final double hookSafePosition = 0.0;
-        public static final double hookGuideDeployedPosition = 0.1;
-        public static final double hookDeployedPosition = 0.142; // 0.135 needed for continue
-        public static final double hookPosForTopRungClearance = 0.172; // 0.06 dc needed
+        //0 - GuidePos, 1 - 1st ring grab, 2 - 2nd ring grab
+        public static final double hookDeployedPos[] = { 0.11, 0.147, 0.157 };
+        public static final double hookRecockPos = 1.23;
+        public static final double hookPosForTopRungClearance = 0.1705; // 0.06 dc needed ; may be .177 (originally .167)
         public static final double angleTolerance = 2.0;
     }
 
