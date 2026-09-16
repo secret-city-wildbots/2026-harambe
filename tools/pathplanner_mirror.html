@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Path Mirror — FRC 4265</title>
+<style>
+  :root{
+    --bg:#14161a; --panel:#1c1f25; --panel2:#22262e; --line:#2e333c;
+    --fg:#e7e9ee; --dim:#8b93a1; --amber:#ffd166; --green:#4ade80;
+    --grey:#7f8794; --red:#ff6b6b; --blue:#5aa9ff;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif;}
+  h1{font-size:1rem;margin:0;letter-spacing:.02em}
+  h1 span{color:var(--dim);font-weight:400;margin-left:.5rem;font-size:.8rem}
+  header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+    padding:.7rem 1rem;background:var(--panel);border-bottom:1px solid var(--line)}
+  header .grow{flex:1}
+  label.ctl{display:flex;align-items:center;gap:.35rem;color:var(--dim);font-size:.78rem}
+  input[type=number],select,input[type=text]{background:var(--panel2);color:var(--fg);
+    border:1px solid var(--line);border-radius:4px;padding:.25rem .4rem;font:inherit}
+  input[type=number]{width:5.5rem;font-family:var(--mono)}
+  button{background:var(--panel2);color:var(--fg);border:1px solid var(--line);
+    border-radius:4px;padding:.35rem .7rem;font:inherit;cursor:pointer}
+  button:hover{border-color:var(--amber);color:var(--amber)}
+  button:disabled{opacity:.4;cursor:default;border-color:var(--line);color:var(--dim)}
+
+  main{display:grid;grid-template-columns:340px 1fr;gap:0;height:calc(100vh - 53px)}
+  #list{border-right:1px solid var(--line);overflow:auto;background:var(--panel)}
+  #right{overflow:auto;padding:1rem}
+
+  .drop{margin:1rem;padding:1.6rem 1rem;border:1.5px dashed var(--line);border-radius:8px;
+    text-align:center;color:var(--dim);font-size:.82rem}
+  .drop b{color:var(--fg);display:block;margin-bottom:.3rem;font-weight:600}
+  body.dragging .drop{border-color:var(--green);color:var(--green)}
+
+  .row{padding:.55rem .7rem;border-bottom:1px solid var(--line);cursor:pointer}
+  .row:hover{background:var(--panel2)}
+  .row.sel{background:var(--panel2);box-shadow:inset 3px 0 0 var(--amber)}
+  .row .src{font-family:var(--mono);font-size:.78rem;color:var(--dim)}
+  .row .arrow{color:var(--dim);margin:0 .3rem}
+  .row .dst{font-family:var(--mono);font-size:.82rem;color:var(--green)}
+  .row .dst.collide{color:var(--red)}
+  .row .meta{font-size:.7rem;color:var(--dim);margin-top:.15rem}
+  .row .warn{color:var(--amber)}
+  .badge{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;
+    border:1px solid var(--line);border-radius:3px;padding:0 .25rem;color:var(--dim);margin-left:.3rem}
+  .badge.suffix{color:var(--amber);border-color:#5a4a1f}
+
+  #canvasWrap{position:relative;background:#0f1114;border:1px solid var(--line);
+    border-radius:6px;overflow:hidden}
+  canvas{display:block;width:100%;height:auto}
+  .legend{display:flex;gap:1.1rem;flex-wrap:wrap;margin:.6rem 0 1rem;font-size:.75rem;color:var(--dim)}
+  .legend i{display:inline-block;width:14px;height:0;border-top:3px solid;
+    vertical-align:middle;margin-right:.35rem}
+  .toggles{display:flex;gap:1rem;flex-wrap:wrap;margin:.6rem 0;font-size:.78rem;color:var(--dim)}
+  .toggles label{display:flex;align-items:center;gap:.3rem;cursor:pointer}
+
+  .nameEdit{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap}
+  .nameEdit input[type=text]{font-family:var(--mono);width:16rem}
+  .hint{font-size:.75rem;color:var(--dim)}
+  .hint.bad{color:var(--red)}
+
+  h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);
+    margin:1.4rem 0 .5rem;font-weight:600}
+  table{border-collapse:collapse;font-family:var(--mono);font-size:.76rem;width:100%;max-width:640px}
+  th{text-align:left;color:var(--dim);font-weight:500;border-bottom:1px solid var(--line);
+    padding:.25rem .6rem .25rem 0;font-family:system-ui,sans-serif;font-size:.7rem;
+    text-transform:uppercase;letter-spacing:.05em}
+  td{padding:.2rem .6rem .2rem 0;border-bottom:1px solid #23262c}
+  td.was{color:var(--dim)}
+  td.now{color:var(--green)}
+  .note{border-left:2px solid var(--amber);background:#221e12;padding:.5rem .7rem;
+    border-radius:0 4px 4px 0;font-size:.78rem;margin:.4rem 0;max-width:720px}
+  .note.red{border-color:var(--red);background:#241417}
+  .note code{font-family:var(--mono);color:var(--amber)}
+  .empty{color:var(--dim);padding:2rem 0;text-align:center}
+  footer{color:var(--dim);font-size:.75rem;margin-top:2rem;border-top:1px solid var(--line);
+    padding-top:.7rem;max-width:720px}
+  footer code{font-family:var(--mono);color:var(--fg)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Path Mirror <span>flip a .path to the other side of the field</span></h1>
+  <div class="grow"></div>
+  <label class="ctl">field width Y
+    <input type="number" id="fieldY" value="8.052" step="0.001" min="1">m
+  </label>
+  <label class="ctl">linked waypoints
+    <select id="linkMode">
+      <option value="swap">swap L/R, unlink the rest</option>
+      <option value="unlink">unlink all</option>
+      <option value="keep">keep as-is</option>
+    </select>
+  </label>
+  <button id="pickFiles">Load .path files</button>
+  <button id="pickDir">Load paths folder</button>
+  <button id="dlAll" disabled>Download all</button>
+  <button id="clear" disabled>Clear</button>
+  <input type="file" id="fileIn" accept=".path" multiple hidden>
+  <input type="file" id="dirIn" webkitdirectory hidden>
+</header>
+
+<main>
+  <div id="list">
+    <div class="drop" id="drop">
+      <b>Drop .path files here</b>
+      anywhere on the window works — or load the whole
+      <code>pathplanner/paths</code> folder to catch name collisions
+    </div>
+    <div id="rows"></div>
+  </div>
+  <div id="right">
+    <div class="empty" id="emptyMsg">Nothing loaded yet.</div>
+    <div id="detail" hidden>
+      <div class="nameEdit">
+        <span class="hint">saves as</span>
+        <input type="text" id="dstName">
+        <span class="hint">.path</span>
+        <button id="dlOne">Download</button>
+        <span class="hint" id="nameHint"></span>
+      </div>
+      <div id="canvasWrap"><canvas id="cv"></canvas></div>
+      <div class="legend">
+        <span><i style="border-color:var(--grey)"></i>original</span>
+        <span><i style="border-color:var(--green)"></i>mirrored</span>
+        <span><i style="border-color:var(--blue)"></i>heading</span>
+        <span><i style="border-color:var(--amber)"></i>event marker</span>
+        <span><i style="border-color:#4a5160;border-top-style:dashed"></i>field centerline</span>
+      </div>
+      <div class="toggles">
+        <label><input type="checkbox" id="tOrig" checked>original</label>
+        <label><input type="checkbox" id="tMir" checked>mirrored</label>
+        <label><input type="checkbox" id="tCtrl" checked>control handles</label>
+        <label><input type="checkbox" id="tHead" checked>headings</label>
+        <label><input type="checkbox" id="tMark" checked>markers</label>
+      </div>
+      <div id="notes"></div>
+      <div id="tables"></div>
+      <footer>
+        Downloads land in your browser's download folder — move them into
+        <code>src\main\deploy\pathplanner\paths\</code>, then reopen PathPlanner.
+        The <code>folder</code> field is copied unchanged, so a mirrored path shows up
+        in the same PathPlanner folder as its original.
+      </footer>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   MIRROR CORE — no DOM, no globals beyond this block.
+   This is the part that lifts out into WildBoard as a .ts module.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const FIELD_Y_DEFAULT = 8.052;   // 2026 field width, matches pathplanner_visualize.py
+
+/* L/R token pairs, applied in one left-to-right pass so nothing double-swaps.
+   Covers file names (LT-Dip2, 45-Dip-FromLBump) and linked-waypoint names
+   ("L Bump 45", "R Trench Plow End"). */
+const LR_PAIRS = [
+  ["L Trench", "R Trench"],
+  ["L Bump",   "R Bump"],
+  ["L Plow",   "R Plow"],
+  ["L Dip",    "R Dip"],
+  ["LTrench",  "RTrench"],
+  ["LBump",    "RBump"],
+  ["LPlow",    "RPlow"],
+  ["LDip",     "RDip"],
+  ["LT-",      "RT-"],
+  ["LB-",      "RB-"],
+  ["Left",     "Right"],
+];
+
+const LR_MAP = (() => {
+  const m = new Map();
+  for (const [a, b] of LR_PAIRS) { m.set(a, b); m.set(b, a); }
+  return m;
+})();
+
+const LR_RE = new RegExp(
+  [...LR_MAP.keys()]
+    .sort((a, b) => b.length - a.length)
+    .map(s => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&"))
+    .join("|"),
+  "g"
+);
+
+/** Swap every L/R token in a name. Returns {out, hit}. */
+function swapLR(name) {
+  let hit = false;
+  const out = String(name).replace(LR_RE, t => { hit = true; return LR_MAP.get(t); });
+  return { out, hit };
+}
+
+/** Mirrored file name: swap L/R tokens, or fall back to a -Mirror suffix. */
+function mirrorName(name) {
+  const { out, hit } = swapLR(name);
+  return hit ? { name: out, mode: "swap" } : { name: name + "-Mirror", mode: "suffix" };
+}
+
+/* Round at 1e-12 m. Just enough to kill binary-float grit (8.052 - 5.4 would
+   otherwise serialize as 2.6520000000000001) while keeping every digit
+   PathPlanner's own bezier math produces. */
+const r6 = n => Math.round(n * 1e12) / 1e12;
+const norm = d => { const v = ((-d + 180) % 360 + 360) % 360 - 180; return r6(v === -180 ? 180 : v) + 0; };
+
+/**
+ * Mirror a PathPlanner path across the field's long centerline (left <-> right).
+ *   position:  y' = fieldY - y          (x untouched)
+ *   heading:   theta' = -theta          (normalized to (-180, 180])
+ * Velocities, accelerations, constraint zones, marker positions and `reversed`
+ * are all side-agnostic and carried over verbatim.
+ *
+ * @param {object} src   parsed .path JSON (not mutated)
+ * @param {object} opts  { fieldY, linkMode: "swap"|"unlink"|"keep" }
+ * @returns {{ path: object, notes: string[] }}
+ */
+function mirrorPath(src, opts = {}) {
+  const fieldY = opts.fieldY ?? FIELD_Y_DEFAULT;
+  const linkMode = opts.linkMode ?? "swap";
+  const notes = [];
+  const p = JSON.parse(JSON.stringify(src));      // key order preserved
+  const fy = y => r6(fieldY - y);
+  const pt = o => { if (o && typeof o.y === "number") o.y = fy(o.y); return o; };
+
+  for (const [i, w] of (p.waypoints || []).entries()) {
+    pt(w.anchor); pt(w.prevControl); pt(w.nextControl);
+
+    if (w.linkedName) {
+      const orig = w.linkedName;
+      if (linkMode === "keep") {
+        notes.push(`Waypoint ${i} keeps link <code>${orig}</code> — PathPlanner will snap it back to the original anchor and undo the mirror for that point.`);
+      } else if (linkMode === "unlink") {
+        w.linkedName = null;
+        notes.push(`Waypoint ${i} unlinked (was <code>${orig}</code>).`);
+      } else {
+        const { out, hit } = swapLR(orig);
+        if (hit) {
+          w.linkedName = out;
+          notes.push(`Waypoint ${i} relinked <code>${orig}</code> &rarr; <code>${out}</code>. If that anchor already exists in PathPlanner, this waypoint snaps to it instead of the exact mirror.`);
+        } else {
+          w.linkedName = null;
+          notes.push(`Waypoint ${i} unlinked — <code>${orig}</code> has no L/R counterpart to swap to.`);
+        }
+      }
+    }
+  }
+
+  for (const rt of (p.rotationTargets || [])) rt.rotationDegrees = norm(rt.rotationDegrees);
+  if (p.goalEndState) p.goalEndState.rotation = norm(p.goalEndState.rotation);
+  if (p.idealStartingState) p.idealStartingState.rotation = norm(p.idealStartingState.rotation);
+
+  for (const z of (p.pointTowardsZones || [])) {
+    pt(z.fieldPosition);
+    if (typeof z.rotationOffset === "number") z.rotationOffset = norm(z.rotationOffset);
+  }
+
+  return { path: p, notes };
+}
+
+/* geometry helpers — used by the preview, and handy in the dashboard too */
+const bez = (a, b, c, d, t) => {
+  const u = 1 - t;
+  return {
+    x: u*u*u*a.x + 3*u*u*t*b.x + 3*u*t*t*c.x + t*t*t*d.x,
+    y: u*u*u*a.y + 3*u*u*t*b.y + 3*u*t*t*c.y + t*t*t*d.y,
+  };
+};
+
+/** Position at a waypointRelativePos (1.81 = 81% of the way from wp 1 to wp 2). */
+function sampleAt(wps, t) {
+  const n = wps.length;
+  if (n === 0) return { x: 0, y: 0 };
+  if (t <= 0) return { ...wps[0].anchor };
+  if (t >= n - 1) return { ...wps[n - 1].anchor };
+  const s = Math.floor(t), l = t - s;
+  const a = wps[s], b = wps[s + 1];
+  return bez(a.anchor, a.nextControl || a.anchor, b.prevControl || b.anchor, b.anchor, l);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   UI
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const FIELD_X = 17.548;
+const files = [];            // {srcName, src, dstName, mode, mirrored, notes}
+let sel = -1;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+const opts = () => ({
+  fieldY: parseFloat($("fieldY").value) || FIELD_Y_DEFAULT,
+  linkMode: $("linkMode").value,
+});
+
+function recompute() {
+  for (const f of files) {
+    const r = mirrorPath(f.src, opts());
+    f.mirrored = r.path;
+    f.notes = r.notes;
+  }
+  renderList();
+  renderDetail();
+}
+
+function addFile(srcName, text) {
+  let src;
+  try { src = JSON.parse(text); }
+  catch (e) { alert(`${srcName}: not valid JSON — ${e.message}`); return; }
+  if (!Array.isArray(src.waypoints)) { alert(`${srcName}: no "waypoints" array, doesn't look like a .path`); return; }
+
+  const base = srcName.replace(/\.path$/i, "");
+  const mn = mirrorName(base);
+  const r = mirrorPath(src, opts());
+  const existing = files.findIndex(f => f.srcName === base);
+  const rec = { srcName: base, src, dstName: mn.name, mode: mn.mode, mirrored: r.path, notes: r.notes };
+  if (existing >= 0) files[existing] = rec; else files.push(rec);
+}
+
+function collides(f) {
+  return files.some(g => g !== f && g.srcName.toLowerCase() === f.dstName.toLowerCase());
+}
+
+function renderList() {
+  const rows = $("rows");
+  rows.innerHTML = files.map((f, i) => {
+    const warn = f.notes.length;
+    const col = collides(f);
+    const w = f.src.waypoints.length;
+    const rt = (f.src.rotationTargets || []).length;
+    const mk = (f.src.eventMarkers || []).length;
+    return `<div class="row ${i === sel ? "sel" : ""}" data-i="${i}">
+      <div>
+        <span class="src">${esc(f.srcName)}</span><span class="arrow">&rarr;</span>
+        <span class="dst ${col ? "collide" : ""}">${esc(f.dstName)}</span>
+        ${f.mode === "suffix" ? '<span class="badge suffix">suffix</span>' : ""}
+      </div>
+      <div class="meta">${w} wp · ${rt} rot · ${mk} mk${
+        col ? ' · <span style="color:var(--red)">name already loaded</span>' : ""}${
+        warn ? ` · <span class="warn">${warn} link note${warn > 1 ? "s" : ""}</span>` : ""}</div>
+    </div>`;
+  }).join("");
+  rows.querySelectorAll(".row").forEach(el =>
+    el.onclick = () => { sel = +el.dataset.i; renderList(); renderDetail(); });
+
+  $("dlAll").disabled = !files.length;
+  $("clear").disabled = !files.length;
+  $("emptyMsg").hidden = !!files.length;
+  $("detail").hidden = !files.length;
+  if (files.length && sel < 0) sel = 0;
+}
+
+/* ── field preview ── */
+function draw() {
+  const f = files[sel];
+  const cv = $("cv"), ctx = cv.getContext("2d");
+  const W = 1100, H = Math.round(W * (opts().fieldY / FIELD_X));
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.aspectRatio = `${W} / ${H}`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const fy = opts().fieldY;
+  const sc = W / FIELD_X;
+  const X = x => x * sc;
+  const Y = y => H - y * sc;
+
+  if (fieldImg && fieldImg.complete && fieldImg.naturalWidth) {
+    ctx.globalAlpha = .55; ctx.drawImage(fieldImg, 0, 0, W, H); ctx.globalAlpha = 1;
+  } else {
+    ctx.strokeStyle = "#20242b"; ctx.lineWidth = 1;
+    for (let m = 1; m < FIELD_X; m++) { ctx.beginPath(); ctx.moveTo(X(m), 0); ctx.lineTo(X(m), H); ctx.stroke(); }
+    for (let m = 1; m < fy; m++) { ctx.beginPath(); ctx.moveTo(0, Y(m)); ctx.lineTo(W, Y(m)); ctx.stroke(); }
+  }
+
+  // centerline — the axis everything flips about
+  ctx.save();
+  ctx.strokeStyle = "#4a5160"; ctx.lineWidth = 1.5; ctx.setLineDash([7, 6]);
+  ctx.beginPath(); ctx.moveTo(0, Y(fy / 2)); ctx.lineTo(W, Y(fy / 2)); ctx.stroke();
+  ctx.restore();
+
+  const show = { orig: $("tOrig").checked, mir: $("tMir").checked,
+                 ctrl: $("tCtrl").checked, head: $("tHead").checked, mark: $("tMark").checked };
+
+  const drawPath = (p, color, lw, alpha) => {
+    const wps = p.waypoints;
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineJoin = "round";
+    ctx.beginPath();
+    for (let i = 0; i < wps.length - 1; i++) {
+      const a = wps[i], b = wps[i + 1];
+      const p0 = a.anchor, p1 = a.nextControl || a.anchor, p2 = b.prevControl || b.anchor, p3 = b.anchor;
+      if (i === 0) ctx.moveTo(X(p0.x), Y(p0.y));
+      ctx.bezierCurveTo(X(p1.x), Y(p1.y), X(p2.x), Y(p2.y), X(p3.x), Y(p3.y));
+    }
+    ctx.stroke();
+
+    if (show.ctrl) {
+      ctx.globalAlpha = alpha * .5; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+      for (const w of wps) for (const c of [w.prevControl, w.nextControl]) {
+        if (!c) continue;
+        ctx.beginPath(); ctx.moveTo(X(w.anchor.x), Y(w.anchor.y)); ctx.lineTo(X(c.x), Y(c.y)); ctx.stroke();
+        ctx.beginPath(); ctx.arc(X(c.x), Y(c.y), 2.5, 0, 7); ctx.fillStyle = color; ctx.fill();
+      }
+      ctx.setLineDash([]);
+    }
+
+    ctx.globalAlpha = alpha; ctx.fillStyle = color;
+    wps.forEach((w, i) => {
+      const r = (i === 0 || i === wps.length - 1) ? 5.5 : 4;
+      ctx.beginPath(); ctx.arc(X(w.anchor.x), Y(w.anchor.y), r, 0, 7);
+      if (i === 0) { ctx.fillStyle = "#fff"; ctx.fill(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke(); }
+      else if (i === wps.length - 1) { ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = "#0f1114"; ctx.fill(); }
+      else { ctx.fillStyle = color; ctx.fill(); }
+    });
+
+    if (show.head) {
+      const heads = [];
+      if (p.idealStartingState) heads.push([0, p.idealStartingState.rotation]);
+      for (const rt of (p.rotationTargets || [])) heads.push([rt.waypointRelativePos, rt.rotationDegrees]);
+      if (p.goalEndState) heads.push([wps.length - 1, p.goalEndState.rotation]);
+      ctx.strokeStyle = alpha > .6 ? "#5aa9ff" : "#3d5878";
+      ctx.fillStyle = ctx.strokeStyle; ctx.lineWidth = 2;
+      for (const [t, deg] of heads) {
+        const q = sampleAt(wps, t), a = deg * Math.PI / 180, L = 0.62 * sc;
+        const ex = X(q.x) + Math.cos(a) * L, ey = Y(q.y) - Math.sin(a) * L;
+        ctx.beginPath(); ctx.moveTo(X(q.x), Y(q.y)); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(ex - Math.cos(a - .4) * 8, ey + Math.sin(a - .4) * 8);
+        ctx.lineTo(ex - Math.cos(a + .4) * 8, ey + Math.sin(a + .4) * 8);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+
+    if (show.mark) {
+      for (const m of (p.eventMarkers || [])) {
+        const q = sampleAt(wps, m.waypointRelativePos);
+        ctx.beginPath(); ctx.arc(X(q.x), Y(q.y), 3.5, 0, 7);
+        ctx.fillStyle = alpha > .6 ? "#ffd166" : "#7a6530"; ctx.fill();
+      }
+    }
+    ctx.restore();
+  };
+
+  if (show.orig) drawPath(f.src, "#7f8794", 2.5, .55);
+  if (show.mir) drawPath(f.mirrored, "#4ade80", 3, 1);
+}
+
+let fieldImg = null;
+function loadField() {
+  const img = new Image();
+  img.onload = () => { fieldImg = img; if (files.length) draw(); };
+  img.onerror = () => { fieldImg = null; };
+  img.src = "field2026.png";     // sits next to this file in tools/
+}
+
+/* ── detail pane ── */
+function renderDetail() {
+  const f = files[sel];
+  if (!f) return;
+
+  $("dstName").value = f.dstName;
+  const col = collides(f);
+  $("nameHint").textContent = col
+    ? "a loaded path already has this name — it would overwrite it"
+    : (f.mode === "suffix" ? "no L/R token in the name, so a suffix was used" : "");
+  $("nameHint").className = "hint" + (col ? " bad" : "");
+
+  $("notes").innerHTML = f.notes.length
+    ? `<h2>Linked waypoints</h2>` + f.notes.map(n =>
+        `<div class="note${/snap it back/.test(n) ? " red" : ""}">${n}</div>`).join("")
+    : "";
+
+  const wRows = f.src.waypoints.map((w, i) => {
+    const m = f.mirrored.waypoints[i];
+    return `<tr><td>${i}</td><td class="was">${w.anchor.x.toFixed(3)}, ${w.anchor.y.toFixed(3)}</td>
+      <td class="now">${m.anchor.x.toFixed(3)}, ${m.anchor.y.toFixed(3)}</td>
+      <td class="was">${w.linkedName ? esc(w.linkedName) : "—"}</td>
+      <td class="now">${m.linkedName ? esc(m.linkedName) : "—"}</td></tr>`;
+  }).join("");
+
+  const heads = [];
+  if (f.src.idealStartingState) heads.push(["start", f.src.idealStartingState.rotation, f.mirrored.idealStartingState.rotation]);
+  (f.src.rotationTargets || []).forEach((rt, i) =>
+    heads.push([`@${rt.waypointRelativePos.toFixed(2)}`, rt.rotationDegrees, f.mirrored.rotationTargets[i].rotationDegrees]));
+  if (f.src.goalEndState) heads.push(["end", f.src.goalEndState.rotation, f.mirrored.goalEndState.rotation]);
+
+  const zRows = (f.src.pointTowardsZones || []).map((z, i) => {
+    const m = f.mirrored.pointTowardsZones[i];
+    return `<tr><td>${esc(z.name || "zone " + i)}</td>
+      <td class="was">${z.fieldPosition.x.toFixed(3)}, ${z.fieldPosition.y.toFixed(3)} @ ${z.rotationOffset}&deg;</td>
+      <td class="now">${m.fieldPosition.x.toFixed(3)}, ${m.fieldPosition.y.toFixed(3)} @ ${m.rotationOffset}&deg;</td></tr>`;
+  }).join("");
+
+  $("tables").innerHTML = `
+    <h2>Waypoints</h2>
+    <table><thead><tr><th>#</th><th>was x, y</th><th>now x, y</th><th>was link</th><th>now link</th></tr></thead>
+    <tbody>${wRows}</tbody></table>
+    <h2>Headings</h2>
+    <table><thead><tr><th>at</th><th>was</th><th>now</th></tr></thead><tbody>
+    ${heads.map(([w, a, b]) => `<tr><td>${w}</td><td class="was">${a}&deg;</td><td class="now">${b}&deg;</td></tr>`).join("")}
+    </tbody></table>
+    ${zRows ? `<h2>Point-towards zones</h2><table><thead><tr><th>name</th><th>was</th><th>now</th></tr></thead><tbody>${zRows}</tbody></table>` : ""}
+    <h2>Carried over unchanged</h2>
+    <div class="hint">${(f.src.eventMarkers || []).length} event marker(s),
+      ${(f.src.constraintZones || []).length} constraint zone(s), all velocities and
+      accelerations, <code>reversed: ${f.src.reversed}</code>, folder
+      <code>${esc(f.src.folder ?? "null")}</code>.</div>`;
+
+  draw();
+}
+
+/* ── download ── */
+function serialize(p) { return JSON.stringify(p, null, 2); }
+
+function download(f) {
+  const blob = new Blob([serialize(f.mirrored)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = f.dstName + ".path";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ── wiring ── */
+$("pickFiles").onclick = () => $("fileIn").click();
+$("pickDir").onclick = () => $("dirIn").click();
+$("clear").onclick = () => { files.length = 0; sel = -1; renderList(); };
+$("dlOne").onclick = () => download(files[sel]);
+$("dlAll").onclick = async () => {
+  for (const f of files) { download(f); await new Promise(r => setTimeout(r, 250)); }
+};
+
+$("dstName").oninput = e => {
+  files[sel].dstName = e.target.value.replace(/\.path$/i, "");
+  files[sel].mode = "manual";
+  renderList();
+  const col = collides(files[sel]);
+  $("nameHint").textContent = col ? "a loaded path already has this name — it would overwrite it" : "";
+  $("nameHint").className = "hint" + (col ? " bad" : "");
+};
+
+for (const id of ["fieldY", "linkMode"]) $(id).onchange = recompute;
+for (const id of ["tOrig", "tMir", "tCtrl", "tHead", "tMark"]) $(id).onchange = draw;
+
+async function readAll(fileList) {
+  const wanted = [...fileList].filter(f => /\.path$/i.test(f.name));
+  if (!wanted.length) { alert("No .path files in that selection."); return; }
+  for (const file of wanted) addFile(file.name, await file.text());
+  renderList(); renderDetail();
+}
+
+$("fileIn").onchange = e => { readAll(e.target.files); e.target.value = ""; };
+$("dirIn").onchange = e => { readAll(e.target.files); e.target.value = ""; };
+
+document.addEventListener("dragover", e => { e.preventDefault(); document.body.classList.add("dragging"); });
+document.addEventListener("dragleave", e => { if (e.relatedTarget === null) document.body.classList.remove("dragging"); });
+document.addEventListener("drop", e => {
+  e.preventDefault(); document.body.classList.remove("dragging");
+  readAll(e.dataTransfer.files);
+});
+
+window.addEventListener("resize", () => { if (files.length) draw(); });
+loadField();
+renderList();
+</script>
+</body>
+</html>

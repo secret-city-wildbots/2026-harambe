@@ -13,8 +13,12 @@ public class ClimbSequenceL3 extends SequentialCommandGroup {
     /**
      * Creates and sets up the ClimbSequenceL3
      * 
-     * @param elevatorLift The subsystem to be controlled by the command ({@link ElevatorLift})
-     * @param hook The subsystem to be controlled by the command ({@link ElevatorHook})
+     * @param elevatorLift
+     *            The subsystem to be controlled by the command
+     *            ({@link ElevatorLift})
+     * @param hook
+     *            The subsystem to be controlled by the command
+     *            ({@link ElevatorHook})
      */
     public ClimbSequenceL3(Elevator elevator) {
 
@@ -23,8 +27,7 @@ public class ClimbSequenceL3 extends SequentialCommandGroup {
             // 1. Full extend & drop guide
             new ParallelCommandGroup(
                 new ExtendLiftCommand(elevator),
-                new RotateHookToPositionCommand(elevator, ElevatorConstants.hookGuideDeployedPosition)
-            ),
+                new RotateHookToPositionCommand(elevator, ElevatorConstants.hookGuideDeployedPosition)),
 
             // // 2. Allow hooks to extend out fully
             // new ClimbAfterTopLimitSwitch(lift),
@@ -47,8 +50,7 @@ public class ClimbSequenceL3 extends SequentialCommandGroup {
             // 8. Pull down AND rotate hooks safe (parallel)
             new ParallelCommandGroup(
                 new RetractLiftCommand(elevator, true),
-                new RotateHookToPositionCommand(elevator, ElevatorConstants.hookSafePosition)
-            ),
+                new RotateHookToPositionCommand(elevator, ElevatorConstants.hookSafePosition)),
 
             // 9. Rotate hooks out
             new RotateHookToPositionCommand(elevator, ElevatorConstants.hookDeployedPosition),
@@ -65,8 +67,6 @@ public class ClimbSequenceL3 extends SequentialCommandGroup {
             // 13. Pull down to handoff
             new ParallelCommandGroup(
                 new RetractLiftCommand(elevator, true),
-                new RotateHookToPositionCommand(elevator, ElevatorConstants.hookSafePosition))
-        );
+                new RotateHookToPositionCommand(elevator, ElevatorConstants.hookSafePosition)));
     }
-    
 }

@@ -3,6 +3,19 @@ package frc.robot.Actors.Subsystems.Elevator;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class ElevatorSim implements Elevator {
+
+    // Requirement tokens so lift commands and hook commands can run at the same time
+    private final Requirement liftReq = new Requirement("ElevatorLift");
+    private final Requirement hookReq = new Requirement("ElevatorHooks");
+
+    public Subsystem liftRequirement() {
+        return this.liftReq;
+    }
+
+    public Subsystem hookRequirement() {
+        return this.hookReq;
+    }
+
     public ElevatorSim() {
 
     }

@@ -20,7 +20,7 @@ public class ExtendLiftCommand extends Command {
     public ExtendLiftCommand(Elevator elevatorLift) {
         // Assign the variables and add the subsystem as a requirement to the command
         this.elevatorLift = elevatorLift;
-        addRequirements(this.elevatorLift);
+        addRequirements(this.elevatorLift.liftRequirement());
     }
 
     @Override
