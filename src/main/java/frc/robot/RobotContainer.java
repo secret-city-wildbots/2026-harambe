@@ -16,6 +16,7 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -134,7 +135,10 @@ public class RobotContainer {
                 shooter, indexer, transfer));
 
         joystick.a().whileTrue(new AimAtHeadingAssist(drivetrain, () -> {
-                return ShotPredictor.hubPosition.minus(drivetrain.getPose().getTranslation()).getAngle().plus(new Rotation2d(Math.PI/2));
+                return ShotPredictor.getAdjustedHub(ChassisSpeeds.fromRobotRelativeSpeeds(
+                drivetrain.getState().Speeds,
+                drivetrain.getState().Pose.getRotation()
+            ), drivetrain.getPose().getTranslation().getDistance(ShotPredictor.hubPosition)).minus(drivetrain.getPose().getTranslation()).getAngle().plus(new Rotation2d(Math.PI/2));
         }, () -> {
                 return (-joystick.getLeftY() * MaxSpeed * 0.5);
         }, () -> {
