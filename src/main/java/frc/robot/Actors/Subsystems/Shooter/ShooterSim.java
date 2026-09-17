@@ -38,7 +38,7 @@ public class ShooterSim implements Shooter {
                             drivetrain.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                             drivetrain.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(-Math.PI/2)),
                             Units.Meters.of(0.4), // initial height of the ball, in meters
-                            Units.MetersPerSecond.of(ShotPredictor.getShotVel(drivetrain.getSimulatedDriveTrainPose().getTranslation())), // initial velocity, in m/s
+                            Units.MetersPerSecond.of(ShotPredictor.getShotVel(drivetrain.getSimulatedDriveTrainPose().getTranslation(), drivetrain.getDriveTrainSimulatedChassisSpeedsFieldRelative())), // initial velocity, in m/s
                             Units.Degrees.of(62)) // shooter angle
                             .withProjectileTrajectoryDisplayCallBack(
                                     (poses) -> DogLog.log("Simulation/successfulShotsTrajectory",

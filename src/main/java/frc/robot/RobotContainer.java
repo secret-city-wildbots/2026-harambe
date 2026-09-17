@@ -18,6 +18,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -145,14 +146,27 @@ public class RobotContainer {
     private void configureBindings() {
 
         // Descend from Auto L1 + Retract Lift down
-        joystick.y().whileTrue(new ExtendLiftCommand(elevator, .35));
-        joystick.a().whileTrue(new RetractLiftCommand(elevator, false, .35));
+        //joystick.y().whileTrue(new ExtendLiftCommand(elevator, .35));
+        //joystick.a().whileTrue(new RetractLiftCommand(elevator, false, .35));
         joystick.x().whileTrue(new ClimbSequenceL3(elevator));
         joystick.b().toggleOnTrue(new ClimbSequenceL1(elevator));
 
         joystick.pov(180).whileTrue(new RotateHookToPositionCommand(elevator, 0.1));
 
         //joystick.pov(90).whileTrue(new AutoAlignToClimb());
+
+        joystick.a().whileTrue(
+            new AimAtHeadingAssist(drivetrain,
+                () -> drivetrain.getPose().getTranslation().minus(ShotPredictor.getAdjHubSimple(drivetrain)).getAngle(),
+                () -> -joystick.getLeftY() * MaxSpeed,
+                () -> -joystick.getLeftX() * MaxSpeed));
+
+        ;
+
+        ShotPredictor.getAdjustedHub(ChassisSpeeds.fromRobotRelativeSpeeds(
+            drivetrain.getState().Speeds,
+            drivetrain.getState().Pose.getRotation()),
+            drivetrain.getPose().getTranslation().getDistance(ShotPredictor.hubPosition));
 
         joystick.leftBumper().toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
         joystick.leftTrigger(0.4).whileTrue(new Shoot(shooter, indexer, transfer));

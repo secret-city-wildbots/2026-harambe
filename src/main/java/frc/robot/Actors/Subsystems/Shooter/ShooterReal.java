@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.*;
 import frc.robot.Utils.MotorType;
 import frc.robot.Utils.RotationDir;
@@ -34,7 +35,10 @@ public class ShooterReal implements Shooter {
     }
 
     public void startShooting() {
-        this.leadMotor.vel(80);
+        this.leadMotor.vel(ShotPredictor.getShotRPS(drivetrain.getPose().getTranslation(), ChassisSpeeds.fromRobotRelativeSpeeds(
+                drivetrain.getState().Speeds,
+                drivetrain.getState().Pose.getRotation()
+            )));
     }
 
     public void stop() {
