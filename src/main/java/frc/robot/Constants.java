@@ -31,7 +31,7 @@ public final class Constants {
 
         // Intake Ranges
         public static final double minRotations = 0.0;
-        public static final double maxRotations = 30.0;
+        public static final double maxRotations = 37.0;
     }
 
     public static class ElevatorConstants {
@@ -77,7 +77,6 @@ public final class Constants {
 
     public static class VisionConstants {
         // Limelight Names
-        public static final String[] limelightNames = { "limelight-front", "limelight-back", "limelight-left",
-            "limelight-right" };
+        public static final String[] limelightNames = { "limelight-right", "limelight-back" };
     }
 }

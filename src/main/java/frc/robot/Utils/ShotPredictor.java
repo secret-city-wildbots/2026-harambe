@@ -20,7 +20,7 @@ public class ShotPredictor {
 
     public static double getShotRPS(Translation2d pose, ChassisSpeeds robotVel) {
         double dist = pose.getDistance(ShotPredictor.getAdjustedHub(robotVel, pose.getDistance(hubPosition)));
-        return 60.0;
+        return 60.0; //TODO: insert equation
     }
 
     public static Translation2d getAdjustedHub(ChassisSpeeds robotVel, double dist) {

@@ -25,12 +25,14 @@ import edu.wpi.first.wpilibj.RobotBase;
  * the conflicts that fall out of replaying those markers against a model of
  * the command scheduler.
  *
- * <p>This is the Java twin of {@code tools/pathplanner_audit.py}. The two
+ * <p>
+ * This is the Java twin of {@code tools/pathplanner_audit.py}. The two
  * share no code, so the {@link #TRIGGERS} table below must be kept in sync
  * with both {@code RobotContainer}'s EventTrigger bindings and the Python
  * tool's own table.
  *
- * <p>Output is written as JSON to the WildBoard dynamic directory, which the
+ * <p>
+ * Output is written as JSON to the WildBoard dynamic directory, which the
  * dashboard's HTTP server already serves at {@code /dynamic/}.
  */
 public final class PathPlannerAnalysis {
@@ -44,52 +46,58 @@ public final class PathPlannerAnalysis {
     /**
      * Mirror of the EventTrigger bindings in RobotContainer.
      *
-     * <p><b>VERIFY THIS BEFORE TRUSTING THE ANALYSIS IN THIS REPO.</b> This
+     * <p>
+     * <b>VERIFY THIS BEFORE TRUSTING THE ANALYSIS IN THIS REPO.</b> This
      * table was carried over from 2026-Robot. As of the port, this repo binds
      * no EventTriggers at all and none of the commands named below exist here,
      * so it is a template, not a description of this robot.
      *
-     * <p>When you add triggers to {@code RobotContainer}, make this table match
+     * <p>
+     * When you add triggers to {@code RobotContainer}, make this table match
      * them: the schedule kind ({@code onTrue} / {@code toggleOnTrue}), the
      * command's {@code addRequirements(...)} subsystems, and whether it has an
      * {@code isFinished()}. Those last two are what make the cancellation and
      * shot-parity analysis correct — a wrong entry produces confidently wrong
      * findings. Keep {@code tools/pathplanner_audit.py}'s TRIGGERS in sync too.
      */
-    private record Trigger(String kind, String cmd, Set<String> reqs, boolean forever) {}
+    private record Trigger(String kind, String cmd, Set<String> reqs, boolean forever) {
+    }
 
     private static final Map<String, Trigger> TRIGGERS = Map.of(
-        "Intake",        new Trigger("onTrue", "AutoIntakeExtend",
-                                     Set.of("intake", "intakeExtension"), false),
+        "Intake", new Trigger("onTrue", "AutoIntakeExtend",
+            Set.of("intake", "intakeExtension"), false),
         "IntakeRetract", new Trigger("onTrue", "AutoIntakeRetract",
-                                     Set.of("intake", "intakeExtension"), false),
-        "StopIntake",    new Trigger("onTrue", "AutoIntakeStop",
-                                     Set.of("intake"), false),
-        "Shoot",         new Trigger("onTrue", "AutoStartIndexCommand",
-                                     Set.of("transfer", "indexer"), false),
-        "ShootStop",     new Trigger("onTrue", "AutoStopIndexCommand",
-                                     Set.of("transfer", "indexer"), false),
-        "AimAndShoot",   new Trigger("toggleOnTrue", "AimAndShootCommand",
-                                     Set.of("shooter", "transfer", "indexer"), true));
+            Set.of("intake", "intakeExtension"), false),
+        "StopIntake", new Trigger("onTrue", "AutoIntakeStop",
+            Set.of("intake"), false),
+        "Shoot", new Trigger("onTrue", "AutoStartIndexCommand",
+            Set.of("transfer", "indexer"), false),
+        "ShootStop", new Trigger("onTrue", "AutoStopIndexCommand",
+            Set.of("transfer", "indexer"), false),
+        "AimAndShoot", new Trigger("toggleOnTrue", "AimAndShootCommand",
+            Set.of("shooter", "transfer", "indexer"), true));
 
     private static final String[][] ZONES = {
-        {"LT-", "Left Trench"}, {"RT-", "Right Trench"}, {"LB-", "Left Bump"},
-        {"RB-", "Right Bump"}, {"OUT-", "Outpost"}, {"CTR-", "Center / Mid"},
-        {"DEP-", "Depot"}, {"S8-", "Shoot 8"}, {"45-", "45° start"},
-        {"BUMP-", "Bump traverse"}, {"ZZ-", "Test / dev"}};
+        { "LT-", "Left Trench" }, { "RT-", "Right Trench" }, { "LB-", "Left Bump" },
+        { "RB-", "Right Bump" }, { "OUT-", "Outpost" }, { "CTR-", "Center / Mid" },
+        { "DEP-", "Depot" }, { "S8-", "Shoot 8" }, { "45-", "45° start" },
+        { "BUMP-", "Bump traverse" }, { "ZZ-", "Test / dev" } };
 
-    private PathPlannerAnalysis() {}
+    private PathPlannerAnalysis() {
+    }
 
     private static String zoneOf(String name) {
         for (String[] z : ZONES) {
-            if (name.startsWith(z[0])) return z[1];
+            if (name.startsWith(z[0]))
+                return z[1];
         }
         return "Unprefixed";
     }
 
     public static List<String> zoneLabels() {
         List<String> out = new ArrayList<>();
-        for (String[] z : ZONES) out.add(z[1]);
+        for (String[] z : ZONES)
+            out.add(z[1]);
         out.add("Unprefixed");
         return out;
     }
@@ -99,12 +107,13 @@ public final class PathPlannerAnalysis {
     private static Map<String, JsonNode> loadDir(File dir, String ext) {
         Map<String, JsonNode> out = new TreeMap<>();
         File[] files = dir.listFiles((d, n) -> n.endsWith(ext));
-        if (files == null) return out;
+        if (files == null)
+            return out;
         Arrays.sort(files);
         for (File f : files) {
             try {
                 out.put(f.getName().substring(0, f.getName().length() - ext.length()),
-                        MAPPER.readTree(f));
+                    MAPPER.readTree(f));
             } catch (IOException e) {
                 System.err.println("[AutoTools] could not read " + f + ": " + e.getMessage());
             }
@@ -114,7 +123,8 @@ public final class PathPlannerAnalysis {
 
     /** Ordered path names and auto-level NamedCommand nodes, depth first. */
     private static void walkAuto(JsonNode node, List<String> paths, List<String> named) {
-        if (node == null || !node.isObject()) return;
+        if (node == null || !node.isObject())
+            return;
         String type = node.path("type").asText("");
         JsonNode data = node.path("data");
         if (type.equals("path") && data.hasNonNull("pathName")) {
@@ -123,19 +133,23 @@ public final class PathPlannerAnalysis {
         if (type.equals("named") && data.hasNonNull("name")) {
             named.add(data.get("name").asText());
         }
-        for (JsonNode child : data.path("commands")) walkAuto(child, paths, named);
-        if (data.hasNonNull("command")) walkAuto(data.get("command"), paths, named);
+        for (JsonNode child : data.path("commands"))
+            walkAuto(child, paths, named);
+        if (data.hasNonNull("command"))
+            walkAuto(data.get("command"), paths, named);
     }
 
-    private record Marker(double pos, String name, boolean embedded) {}
+    private record Marker(double pos, String name, boolean embedded) {
+    }
 
     private static List<Marker> markersOf(JsonNode path) {
         List<Marker> out = new ArrayList<>();
         for (JsonNode m : path.path("eventMarkers")) {
             String name = m.path("name").asText("");
-            if (name.isEmpty()) continue;
+            if (name.isEmpty())
+                continue;
             out.add(new Marker(m.path("waypointRelativePos").asDouble(0.0), name,
-                               m.hasNonNull("command")));
+                m.hasNonNull("command")));
         }
         out.sort((a, b) -> Double.compare(a.pos, b.pos));
         return out;
@@ -155,8 +169,8 @@ public final class PathPlannerAnalysis {
 
         if (paths.isEmpty() || autos.isEmpty()) {
             System.err.println("[AutoTools] WARNING: read " + paths.size() + " paths and "
-                    + autos.size() + " autos from " + pp.getAbsolutePath()
-                    + " — if that is unexpected, check that paths/ and autos/ still exist there");
+                + autos.size() + " autos from " + pp.getAbsolutePath()
+                + " — if that is unexpected, check that paths/ and autos/ still exist there");
         }
 
         Map<String, List<String>> pathUsers = new HashMap<>();
@@ -201,7 +215,7 @@ public final class PathPlannerAnalysis {
 
             for (String n : named) {
                 issues.add(issue("err", "auto-level NamedCommand '" + n
-                        + "': NamedCommands.registerCommand is never called, so this auto fails to load"));
+                    + "': NamedCommands.registerCommand is never called, so this auto fails to load"));
             }
 
             // --- replay the markers -------------------------------------
@@ -234,9 +248,9 @@ public final class PathPlannerAnalysis {
                         if (openShot != null) {
                             shoot.add(span(openShot, g, shotN, false));
                             issues.add(issue("err", "[" + where + "] '" + n
-                                    + "' requires transfer+indexer and CANCELS shot #" + shotN
-                                    + " — the toggle flips off with no marker, inverting"
-                                    + " AimAndShoot parity for the rest of the auto"));
+                                + "' requires transfer+indexer and CANCELS shot #" + shotN
+                                + " — the toggle flips off with no marker, inverting"
+                                + " AimAndShoot parity for the rest of the auto"));
                             openShot = null;
                         }
                     }
@@ -257,7 +271,8 @@ public final class PathPlannerAnalysis {
                         }
                         intakeDown = false;
                     }
-                    default -> { }
+                    default -> {
+                    }
                 }
             }
             if (openIntake != null) {
@@ -267,12 +282,15 @@ public final class PathPlannerAnalysis {
             if (openShot != null) {
                 shoot.add(span(openShot, total, shotN, true));
                 issues.add(issue("warn", "ends with shot #" + shotN
-                        + " still running (odd AimAndShoot count) — shooter carries into teleop"));
+                    + " still running (odd AimAndShoot count) — shooter carries into teleop"));
             }
 
             int errs = 0, warns = 0;
             for (Map<String, Object> i : issues) {
-                if ("err".equals(i.get("lv"))) errs++; else warns++;
+                if ("err".equals(i.get("lv")))
+                    errs++;
+                else
+                    warns++;
             }
 
             Map<String, Object> a = new LinkedHashMap<>();
@@ -329,15 +347,15 @@ public final class PathPlannerAnalysis {
             List<double[]> rot = new ArrayList<>();
             int span = spanOf(pj);
             if (pj.path("idealStartingState").hasNonNull("rotation")) {
-                rot.add(new double[]{0, pj.path("idealStartingState").path("rotation").asDouble()});
+                rot.add(new double[] { 0, pj.path("idealStartingState").path("rotation").asDouble() });
             }
             for (JsonNode t : pj.path("rotationTargets")) {
-                rot.add(new double[]{
+                rot.add(new double[] {
                     Math.max(0, Math.min(t.path("waypointRelativePos").asDouble(), span)),
-                    t.path("rotationDegrees").asDouble()});
+                    t.path("rotationDegrees").asDouble() });
             }
             if (pj.path("goalEndState").hasNonNull("rotation")) {
-                rot.add(new double[]{span, pj.path("goalEndState").path("rotation").asDouble()});
+                rot.add(new double[] { span, pj.path("goalEndState").path("rotation").asDouble() });
             }
             rot.sort((x, y) -> Double.compare(x[0], y[0]));
 
@@ -380,7 +398,8 @@ public final class PathPlannerAnalysis {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("a", a);
         m.put("b", b);
-        if (n > 0) m.put("n", n);
+        if (n > 0)
+            m.put("n", n);
         m.put("open", open);
         return m;
     }
@@ -424,9 +443,10 @@ public final class PathPlannerAnalysis {
     public static long folderStamp() {
         File pp = new File(Filesystem.getDeployDirectory(), "pathplanner");
         long h = 1125899906842597L;
-        for (String sub : new String[]{"paths", "autos"}) {
+        for (String sub : new String[] { "paths", "autos" }) {
             File[] files = new File(pp, sub).listFiles();
-            if (files == null) continue;
+            if (files == null)
+                continue;
             Arrays.sort(files);
             for (File f : files) {
                 h = 31 * h + f.getName().hashCode();
@@ -439,8 +459,8 @@ public final class PathPlannerAnalysis {
     /** Where the WildBoard HTTP server serves /dynamic/ from. */
     public static File dynamicDir() {
         return RobotBase.isSimulation()
-                ? new File(Filesystem.getOperatingDirectory(), "sim/home/frontend-public/dynamic")
-                : new File("/home/lvuser/WildBoard/frontend-public/dynamic");
+            ? new File(Filesystem.getOperatingDirectory(), "sim/home/frontend-public/dynamic")
+            : new File("/home/lvuser/WildBoard/frontend-public/dynamic");
     }
 
     /** What {@link #writeJson()} found. */
@@ -466,7 +486,8 @@ public final class PathPlannerAnalysis {
             for (Map.Entry<String, Object> e : autos.entrySet()) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> a = (Map<String, Object>) e.getValue();
-                if (!Boolean.TRUE.equals(a.get("loadable"))) broken.add(e.getKey());
+                if (!Boolean.TRUE.equals(a.get("loadable")))
+                    broken.add(e.getKey());
                 warnCounts.put(e.getKey(), (int) num(a.get("warns")));
             }
 
@@ -475,8 +496,8 @@ public final class PathPlannerAnalysis {
             File out = new File(dir, "autoanalysis.json");
             Files.writeString(out.toPath(), MAPPER.writeValueAsString(data));
             System.out.println("[AutoTools] wrote " + out.getAbsolutePath()
-                    + "  (" + ((Map<?, ?>) data.get("paths")).size() + " paths, "
-                    + autos.size() + " autos, " + broken.size() + " unloadable)");
+                + "  (" + ((Map<?, ?>) data.get("paths")).size() + " paths, "
+                + autos.size() + " autos, " + broken.size() + " unloadable)");
         } catch (Exception e) {
             System.err.println("[AutoTools] analysis failed: " + e.getMessage());
             e.printStackTrace();

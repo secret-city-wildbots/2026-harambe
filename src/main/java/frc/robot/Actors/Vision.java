@@ -18,19 +18,21 @@ import frc.robot.Constants.VisionConstants;
 
 public class Vision extends SubsystemBase {
 
-    public record FusedVisionResult(Pose2d pose, double tiemstamp) {}
+    public record FusedVisionResult(Pose2d pose, double tiemstamp) {
+    }
 
     // This is a scored pose record to help compare the camera readings to determine the best position
     private record ScoredPose(
         frc.robot.Utils.LimelightHelpers.PoseEstimate pose,
-        double lowestDist
-    ) {}
+        double lowestDist) {
+    }
 
     // This is a scored pose record to help compare the camera readings to determine the best position
     private record ScoredPose1(
         frc.robot.Utils.LimelightHelpers.PoseEstimate pose,
         double avgAmbiguity,
-        double avgDistance) {}
+        double avgDistance) {
+    }
 
     // Used to define a rectangular vision zone on field 
     // Since coordinates are relative to blue-origin whether were on red or blue side
@@ -41,8 +43,8 @@ public class Vision extends SubsystemBase {
         double yMin,
         double yMax,
         int[] blueTags,
-        int[] redTags
-    ) {}
+        int[] redTags) {
+    }
 
     // These are suppliers needing to be fed when instantiated. These will help to align the cameras indiviually with each
     // heading and rotation speeds in more real time
@@ -52,21 +54,22 @@ public class Vision extends SubsystemBase {
     private final Supplier<Rotation2d> rotation2dSupplier;
 
     /*
-    TODO: Add all Zones
-    Limelight Zoning disabling all other tags other then the ones listed in that zone 
-    */
+     * TODO: Add all Zones
+     * Limelight Zoning disabling all other tags other then the ones listed in that
+     * zone
+     */
     private static final VisionZone[] StructureZones = new VisionZone[] {
         // // Right Trench Zone:
-        new VisionZone(2.5, 7.0, 0.0, 1.25, new int[] {17, 28}, new int[] {12, 1}),
+        new VisionZone(2.5, 7.0, 0.0, 1.25, new int[] { 17, 28 }, new int[] { 12, 1 }),
 
         // // Left Trench Zone:
-        new VisionZone(3.0, 6.0, 6.75, 8.0, new int[] {22, 23}, new int[] {7, 6}),
+        new VisionZone(3.0, 6.0, 6.75, 8.0, new int[] { 22, 23 }, new int[] { 7, 6 }),
 
         // //Climb Zone:
         // new VisionZone(0.0, 2.0, 2.5, 5.0, new int[] {31, 32}, new int[] {15, 16}),
 
         //Outpost Zone: 
-        new VisionZone(0.0, 1.2, 0.0, 1.05, new int[] {29, 30}, new int[] {14, 13})
+        new VisionZone(0.0, 1.2, 0.0, 1.05, new int[] { 29, 30 }, new int[] { 14, 13 })
     };
 
     /*
@@ -76,8 +79,7 @@ public class Vision extends SubsystemBase {
         DoubleSupplier headingSupplier,
         DoubleSupplier omegaRpsSupplier,
         Supplier<Pose2d> poseSupplier,
-        Supplier<Rotation2d> rotation2dSupplier
-    ) {
+        Supplier<Rotation2d> rotation2dSupplier) {
         this.headingSupplier = headingSupplier;
         this.omegaRpsSupplier = omegaRpsSupplier;
         this.poseSupplier = poseSupplier;
@@ -97,13 +99,17 @@ public class Vision extends SubsystemBase {
         // Loop through all of the poses to determine the best one
         for (var pose : poses) {
             // If the pose is null skip this instance
-            if (pose == null) continue;
+            if (pose == null)
+                continue;
             // If the pose is not a MegaTag2 skip this instance
-            if (!pose.isMegaTag2) continue;
+            if (!pose.isMegaTag2)
+                continue;
             // If the pose has 0 tag counts skip this instance
-            if (pose.tagCount == 0) continue;
+            if (pose.tagCount == 0)
+                continue;
             // If we are spinning faster than 720 deg / sec skip this instance
-            if (Math.abs(omegaRpsSupplier.getAsDouble()) > 720) continue;
+            if (Math.abs(omegaRpsSupplier.getAsDouble()) > 720)
+                continue;
 
             // Score the pose estimate
             var scored = score(pose);
@@ -116,8 +122,7 @@ public class Vision extends SubsystemBase {
 
             // Prefer:
             // 1) closer tags
-            if (
-                scored.lowestDist < best.lowestDist
+            if (scored.lowestDist < best.lowestDist
                 && scored.lowestDist < 2) {
                 // Set the best to the currently better scored camera
                 best = scored;
@@ -146,21 +151,24 @@ public class Vision extends SubsystemBase {
 
         // Loop through all of the poses to determine the best one
         for (var pose : poses) {
-            if (pose.tagCount == 0) continue;
+            if (pose.tagCount == 0)
+                continue;
 
             // Weight = 1 / variance = 1 / (k * distance)²
             double dist = pose.avgTagDist;
             double weight = 1.0 / (dist * dist);
 
             // Scale down if only 1 tag
-            if (pose.tagCount == 1) weight *= 0.5;
+            if (pose.tagCount == 1)
+                weight *= 0.5;
 
             sumX += pose.pose.getX() * weight;
             sumY += pose.pose.getY() * weight;
             sumWeight += weight;
         }
 
-        if (sumWeight == 0) return null; // No valid estimates
+        if (sumWeight == 0)
+            return null; // No valid estimates
 
         Pose2d fusedPose = new Pose2d(
             sumX / sumWeight,
@@ -190,7 +198,7 @@ public class Vision extends SubsystemBase {
                 LimelightHelpers.SetRobotOrientation(limelightID, this.headingSupplier.getAsDouble(), 0, 0, 0, 0, 0);
                 // Get the pose of the camera
                 poses[index] = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightID);
-            } catch(Error err) {
+            } catch (Error err) {
                 poses[index] = null;
                 System.out.println(err);
             }
@@ -199,37 +207,40 @@ public class Vision extends SubsystemBase {
         return poses;
     }
 
-    /*public LimelightHelpers.PoseEstimate[] getTurretPoses() {
-        LimelightHelpers.PoseEstimate[] poses = getPoses();
-
-        int[] hubIDs = new int[] {
-            2,3,4,5,8,9,10,11,18,19,20,21,24,25,26
-        };
-
-        for (LimelightHelpers.PoseEstimate pose: poses) {
-            LimelightHelpers.RawFiducial[] rawFs = pose.rawFiducials;
-
-            for (LimelightHelpers.RawFiducial rawF: rawFs) {
-                boolean good = false;
-                for (int id: hubIDs) {
-                    if (rawF.id == id) {
-                        good = true;
-                    }
-                }
-                //TODO finish that
-            }
-        }
-    }*/
+    /*
+     * public LimelightHelpers.PoseEstimate[] getTurretPoses() {
+     * LimelightHelpers.PoseEstimate[] poses = getPoses();
+     * 
+     * int[] hubIDs = new int[] {
+     * 2,3,4,5,8,9,10,11,18,19,20,21,24,25,26
+     * };
+     * 
+     * for (LimelightHelpers.PoseEstimate pose: poses) {
+     * LimelightHelpers.RawFiducial[] rawFs = pose.rawFiducials;
+     * 
+     * for (LimelightHelpers.RawFiducial rawF: rawFs) {
+     * boolean good = false;
+     * for (int id: hubIDs) {
+     * if (rawF.id == id) {
+     * good = true;
+     * }
+     * }
+     * //TODO finish that
+     * }
+     * }
+     * }
+     */
 
     public double getStdDev(LimelightHelpers.PoseEstimate pose) {
-        if (pose.tagCount == 0) return 99999.9;
+        if (pose.tagCount == 0)
+            return 99999.9;
         var scored = score(pose);
 
         // Weight = 1 / variance = 1 / (k * distance)²
         double dist = scored.lowestDist;
         double weight = dist * 0.25;
 
-        weight = Math.pow(2, weight-1.0);
+        weight = Math.pow(2, weight - 1.0);
 
         return weight;
     }
@@ -328,32 +339,12 @@ public class Vision extends SubsystemBase {
     // Getting values in mt1 for configuring pigeon to mt1 yaw
 
     /*
-     * Get the Pose of the Front LimeLight mt1
-     */
-    public LimelightHelpers.PoseEstimate getLimelightFrontPosemt1() {
-        // access limelight-front
-        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-front");
-        // return mt1
-        return mt1;
-    }
-
-    /*
      * Get the Pose of the Back LimeLight mt1
      */
     public LimelightHelpers.PoseEstimate getLimelightBackPosemt1() {
         // access limelight-back
         LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-back");
         // return mt2
-        return mt1;
-    }
-
-    /*
-     * Get the Pose of the Left LimeLight mt1
-     */
-    public LimelightHelpers.PoseEstimate getLimelightLeftPosemt1() {
-        // access limelight-left
-        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-        // return mt1
         return mt1;
     }
 
@@ -368,8 +359,10 @@ public class Vision extends SubsystemBase {
     }
 
     /*
-     * Takes in a LimelightHelpers.PoseEstimate and returns a scored value based on the information. We average the ambiguity and distance
-     * values and return the scored pose with mt2, average ambiguity and average distance.
+     * Takes in a LimelightHelpers.PoseEstimate and returns a scored value based on
+     * the information. We average the ambiguity and distance
+     * values and return the scored pose with mt2, average ambiguity and average
+     * distance.
      */
     private ScoredPose score(LimelightHelpers.PoseEstimate mt2) {
         // Initialize the ambiguity and distance
@@ -377,7 +370,8 @@ public class Vision extends SubsystemBase {
 
         // Loop through all of the raw fiducial data and add them all up
         for (var rawF : mt2.rawFiducials) {
-            if (rawF.distToRobot < lowestDist) lowestDist = rawF.distToRobot;
+            if (rawF.distToRobot < lowestDist)
+                lowestDist = rawF.distToRobot;
         }
 
         // Return a new scored pose
@@ -388,7 +382,8 @@ public class Vision extends SubsystemBase {
      * Returns true if the robot is currently on the red alliance.
      */
     private boolean isRedAlliance() {
-        return DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+        return DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
     }
 
     /*
@@ -419,18 +414,18 @@ public class Vision extends SubsystemBase {
     private int[] getAllowedTagsForCurrentZone() {
         Pose2d currentPose = poseSupplier.get();
         boolean redAlliance = isRedAlliance();
-        
+
         for (VisionZone zone : StructureZones) {
             if (isPoseInZone(currentPose, zone)) {
                 return redAlliance ? zone.redTags() : zone.blueTags();
             }
         }
-        
+
         // Returns all april tags
         //return new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
-        
+
         // Returns All Hub april Tags
-        return new int[] {25, 26}; //?
+        return new int[] { 25, 26 }; //?
 
     }
 
@@ -441,12 +436,13 @@ public class Vision extends SubsystemBase {
      */
     private void updateTagFilters() {
         int[] allowedTags = getAllowedTagsForCurrentZone();
-        
+
         for (String limelightName : VisionConstants.limelightNames) {
             LimelightHelpers.SetFiducialIDFiltersOverride(limelightName, allowedTags);
         }
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+    }
 }

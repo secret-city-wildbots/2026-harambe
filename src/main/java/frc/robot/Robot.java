@@ -12,9 +12,12 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Actors.Vision;
 import frc.robot.Utils.LimelightHelpers;
 import frc.robot.Utils.simulation.FixedArena2026Rebuilt;
 import frc.robot.Utils.simulation.FuelBumpSim;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.util.Units;
 
 import org.ironmaple.simulation.SimulatedArena;
 
@@ -25,11 +28,13 @@ public class Robot extends TimedRobot {
 
     private final boolean kUseLimelight = false;
 
+    private final Vision vision;
+
     private final FuelBumpSim fuelBumpSim = new FuelBumpSim();
 
-    public static boolean test = true;
+    public static boolean test = false;
 
-    public static boolean dummyMode = true;
+    public static boolean dummyMode = false;
 
     public Robot() {
         if (RobotBase.isSimulation()) {
@@ -37,6 +42,18 @@ public class Robot extends TimedRobot {
             SimulatedArena.getInstance().resetFieldForAuto();
         }
         m_robotContainer = new RobotContainer();
+
+        m_robotContainer.drivetrain.getPigeon2().reset();
+
+        // Setup vision with the suppliers from the drivetrain (heading and rotation
+        // (rps))
+        // This allows each limelight to be as accurate as possible when being setup
+        vision = new Vision(
+            () -> m_robotContainer.drivetrain.getState().Pose.getRotation().getDegrees(),
+            () -> Units.radiansToRotations(m_robotContainer.drivetrain.getState().Speeds.omegaRadiansPerSecond),
+            () -> m_robotContainer.drivetrain.getPose(),
+            () -> m_robotContainer.drivetrain.getPigeon2().getRotation2d());
+
     }
 
     @Override
@@ -78,6 +95,27 @@ public class Robot extends TimedRobot {
         m_robotContainer.dashboard.update();
 
         m_robotContainer.elevator.periodic();
+
+        LimelightHelpers.PoseEstimate bestPose = vision.getBestPose();
+        //Vision.FusedVisionResult fusedPose = vision.fuseFourLimelights();
+
+        // If bestPose is not null, add vision measurement to the drivetrain
+        // TODO: need to tune 0.7,0.7 values
+        /*
+         * LimelightHelpers.PoseEstimate[] poses = vision.getPoses();
+         * for (LimelightHelpers.PoseEstimate pose: poses) {
+         * m_robotContainer.drivetrain.addVisionMeasurement(pose.pose,
+         * pose.timestampSeconds,
+         * VecBuilder.fill(vision.getStdDev(pose),vision.getStdDev(pose),9999999));
+         * }
+         */
+        if (bestPose != null) {
+            // TODO: Do we want to just only add or reset the whole pose?
+            m_robotContainer.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds,
+                VecBuilder.fill(0.7, 0.7, 9999999));
+            //m_robotContainer.drivetrain.addVisionMeasurement(fusedPose.pose(), fusedPose.tiemstamp(), VecBuilder.fill(0.7,0.7,9999999));
+            //m_robotContainer.drivetrain.resetPose(bestPose.pose);
+        }
     }
 
     @Override
@@ -86,6 +124,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
+        LimelightHelpers.PoseEstimate LLRightPose = vision.getLimelightRightPosemt1();
+
+        // If the pose is not null and it sees an april tag
+        if (LLRightPose != null && LLRightPose.tagCount > 0) {
+            // Reset the robots rotation and pose directly
+            m_robotContainer.drivetrain.resetRotation(LLRightPose.pose.getRotation());
+            m_robotContainer.drivetrain.resetPose(LLRightPose.pose);
+        }
     }
 
     @Override

@@ -146,12 +146,13 @@ public class RobotContainer {
     private void configureBindings() {
 
         // Descend from Auto L1 + Retract Lift down
-        //joystick.y().whileTrue(new ExtendLiftCommand(elevator, .35));
-        //joystick.a().whileTrue(new RetractLiftCommand(elevator, false, .35));
-        joystick.x().whileTrue(new ClimbSequenceL3(elevator));
+
+        // joystick.y().whileTrue(new ExtendLiftCommand(elevator, .35));
+        // joystick.a().whileTrue(new RetractLiftCommand(elevator, false, .5));
+        // joystick.x().whileTrue(new ClimbSequenceL3(elevator));
         joystick.b().toggleOnTrue(new ClimbSequenceL1(elevator));
 
-        joystick.pov(180).whileTrue(new RotateHookToPositionCommand(elevator, 0.1));
+        //joystick.pov(180).whileTrue(new RotateHookToPositionCommand(elevator, 0.1));
 
         //joystick.pov(90).whileTrue(new AutoAlignToClimb());
 
