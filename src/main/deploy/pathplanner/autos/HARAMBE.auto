@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RB-Outpost-Side"
+            "pathName": "Fwd-Out-LT"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "OUT-Side-RTrench"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RT-Base"
+            "pathName": "EndLT-Bump-Shoot"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Simple",
+  "folder": null,
   "choreoAuto": false
 }

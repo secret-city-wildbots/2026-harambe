@@ -130,7 +130,7 @@ public class RobotContainer {
         }
 
         new EventTrigger("Intake").toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
-        new EventTrigger("Shoot").toggleOnTrue(new Shoot(shooter, indexer, transfer));
+        new EventTrigger("AimAndShoot").toggleOnTrue(new Shoot(shooter, indexer, transfer));
         new EventTrigger("ClimbL1").toggleOnTrue(new ClimbSequenceL1(elevator));
 
         configureBindings();
@@ -253,5 +253,6 @@ public class RobotContainer {
             return Commands.none();
         }
         return armedAuto;
+        //return new PathPlannerAuto("RT-2Dip"); //Swap current code for this line if dashboard no workie
     }
 }
