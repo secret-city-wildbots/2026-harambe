@@ -20,27 +20,27 @@ public class AimAtHeadingAssist extends SequentialCommandGroup {
     private final Supplier<Rotation2d> target;
     private ProfiledPIDController pid;
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
     public AimAtHeadingAssist(CommandSwerveDrivetrain drivetrain, Supplier<Rotation2d> target, Supplier<Double> velx,
-            Supplier<Double> vely) {
+        Supplier<Double> vely) {
         // Assign the variables and add the subsystem as a requirement to the command
         this.drivetrain = drivetrain;
         this.target = target;
         addRequirements(drivetrain);
 
         this.pid = new ProfiledPIDController(
-                0.4, 0.0, 0.02, new TrapezoidProfile.Constraints(360, 720));
+            0.4, 0.0, 0.02, new TrapezoidProfile.Constraints(30, 20));
         this.pid.enableContinuousInput(0, 360);
 
         addCommands(this.drivetrain.applyRequest(
-                () -> {
-                    DogLog.forceNt.log("targetRot", this.target.get().getDegrees());
-                    DogLog.forceNt.log("currentRot", drivetrain.getPigeon2().getYaw().getValueAsDouble()%360);
-                    return drive
-                            .withRotationalRate(this.pid.calculate(drivetrain.getPigeon2().getYaw().getValueAsDouble(),
-                                    this.target.get().getDegrees()))
-                            .withVelocityX(velx.get()).withVelocityY(vely.get());
-                }));
+            () -> {
+                DogLog.forceNt.log("targetRot", this.target.get().getDegrees());
+                DogLog.forceNt.log("currentRot", drivetrain.getPigeon2().getYaw().getValueAsDouble() % 360);
+                return drive
+                    .withRotationalRate(this.pid.calculate(drivetrain.getPigeon2().getYaw().getValueAsDouble(),
+                        this.target.get().getDegrees()) * 0.3)
+                    .withVelocityX(velx.get()).withVelocityY(vely.get());
+            }));
     }
 }

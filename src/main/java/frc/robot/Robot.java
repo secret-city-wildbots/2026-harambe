@@ -68,6 +68,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        m_robotContainer.intake.periodic();
         CommandScheduler.getInstance().run();
 
         m_robotContainer.shooter.periodic();
@@ -124,13 +125,17 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        LimelightHelpers.PoseEstimate LLRightPose = vision.getLimelightRightPosemt1();
+        //System.out.println(LimelightHelpers.getHeartbeat("limelight-right"));
+        LimelightHelpers.PoseEstimate LLRightPose = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
 
         // If the pose is not null and it sees an april tag
         if (LLRightPose != null && LLRightPose.tagCount > 0) {
             // Reset the robots rotation and pose directly
             m_robotContainer.drivetrain.resetRotation(LLRightPose.pose.getRotation());
             m_robotContainer.drivetrain.resetPose(LLRightPose.pose);
+            System.out.println("RE-ZEROED IMU");
+        } else {
+            System.out.println("t" + LimelightHelpers.getHeartbeat("limelight-right"));
         }
     }
 

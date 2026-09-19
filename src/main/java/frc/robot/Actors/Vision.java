@@ -297,31 +297,11 @@ public class Vision extends SubsystemBase {
     }
 
     /*
-     * Get the Pose of the Front LimeLight
-     */
-    public LimelightHelpers.PoseEstimate getLimelightFrontPose() {
-        // access limelight-front
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-front");
-        // return mt2
-        return mt2;
-    }
-
-    /*
      * Get the Pose of the Back LimeLight
      */
     public LimelightHelpers.PoseEstimate getLimelightBackPose() {
         // access limelight-back
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-back");
-        // return mt2
-        return mt2;
-    }
-
-    /*
-     * Get the Pose of the Left LimeLight
-     */
-    public LimelightHelpers.PoseEstimate getLimelightLeftPose() {
-        // access limelight-left
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
         // return mt2
         return mt2;
     }
@@ -421,11 +401,12 @@ public class Vision extends SubsystemBase {
             }
         }
 
-        // Returns all april tags
-        //return new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
+        // Returns all april tags if not inside any zone
+        return new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+            26, 27, 28, 29, 30, 31, 32 };
 
         // Returns All Hub april Tags
-        return new int[] { 25, 26 }; //?
+        //return new int[] { 25, 26 }; //?
 
     }
 

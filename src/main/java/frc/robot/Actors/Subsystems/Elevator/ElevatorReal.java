@@ -95,7 +95,7 @@ public class ElevatorReal implements Elevator {
         percent = MathUtil.clamp(percent, -1.0, 1.0);
 
         // Check to make sure the hooks are safe to extend out
-        if (percent > 0.0 && getCurrentAngle() >= ElevatorConstants.hookDeployedPos[1]) {
+        if (percent > 0.0 && getCurrentAngle() >= ElevatorConstants.hookDeployedPos[2]) {
             // if it is not safe, dont allow the motor to move
             motorHooks.dc(0.0);
             return;

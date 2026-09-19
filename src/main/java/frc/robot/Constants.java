@@ -30,7 +30,7 @@ public final class Constants {
         public static final double extensionGearRatio = 81.0;
 
         // Intake Ranges
-        public static final double minRotations = 0.0;
+        public static final double minRotations = 5.0;
         public static final double maxRotations = 37.0;
     }
 

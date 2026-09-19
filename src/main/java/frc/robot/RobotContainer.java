@@ -63,17 +63,17 @@ import frc.robot.Utils.ShotPredictor;
 import frc.robot.Utils.JoystickScaler;
 
 public class RobotContainer {
-    public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * 0.1; // kSpeedAt12Volts desired
-                                                                                             // top
-                                                                                             // speed
+    public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
+                                                                                       // top
+                                                                                       // speed
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
                                                                                            // second max angular
                                                                                            // velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     public static SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1)
-        .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+        .withDeadband(MaxSpeed)
+        .withRotationalDeadband(MaxAngularRate) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -84,7 +84,7 @@ public class RobotContainer {
 
     private final CommandXboxController joystick = new CommandXboxController(0);
 
-    private final Intake intake;
+    public final Intake intake;
 
     public final Shooter shooter;
 
@@ -114,7 +114,7 @@ public class RobotContainer {
             shooter = new ShooterDummy();
             transfer = new TransferDummy();
             indexer = new IndexerDummy();
-            elevator = new ElevatorReal(); // TODO: Change Back!
+            elevator = new ElevatorDummy();
         } else if (RobotBase.isReal()) {
             intake = new IntakeReal();
             shooter = new ShooterReal(drivetrain);
@@ -158,7 +158,8 @@ public class RobotContainer {
 
         joystick.a().whileTrue(
             new AimAtHeadingAssist(drivetrain,
-                () -> drivetrain.getPose().getTranslation().minus(ShotPredictor.getAdjHubSimple(drivetrain)).getAngle(),
+                () -> ShotPredictor.getAdjHubSimple(drivetrain).minus(drivetrain.getPose().getTranslation()).getAngle()
+                    .plus(new Rotation2d(Math.PI / 2)),
                 () -> -joystick.getLeftY() * MaxSpeed,
                 () -> -joystick.getLeftX() * MaxSpeed));
 
