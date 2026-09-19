@@ -18,7 +18,7 @@ package frc.robot;
  */
 public final class Constants {
     public static class RobotConstants {
-        public static final double driveCurLim = 35.0;
+        public static final double driveCurLim = 40.0;
     }
 
     public static class IntakeConstants {

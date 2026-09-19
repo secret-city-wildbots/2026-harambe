@@ -16,7 +16,7 @@ public class IntakeReal implements Intake {
         this.extensionMotor = new Motor(IntakeConstants.extensionMotorID, MotorType.TFX);
 
         this.extensionMotor.applyConfig();
-        this.extensionMotor.motionMagic(3, 0, 0, 0, 0, 100, 140);
+        this.extensionMotor.motionMagic(3, 0, 0, 0, 0, 120, 180);
 
         this.intakeMotor.motorConfig.direction = RotationDir.Clockwise;
         this.intakeMotor.motorConfig.peakReverseDC = 0.0;

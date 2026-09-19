@@ -18,7 +18,7 @@ import frc.robot.Actors.Subsystems.CommandSwerveDrivetrain;
 public class AimAtHeadingAssist extends SequentialCommandGroup {
     private final CommandSwerveDrivetrain drivetrain;
     private final Supplier<Rotation2d> target;
-    private ProfiledPIDController pid;
+    public ProfiledPIDController pid;
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
@@ -30,7 +30,7 @@ public class AimAtHeadingAssist extends SequentialCommandGroup {
         addRequirements(drivetrain);
 
         this.pid = new ProfiledPIDController(
-            0.4, 0.0, 0.02, new TrapezoidProfile.Constraints(30, 20));
+            1, 0.0, 0.05, new TrapezoidProfile.Constraints(120, 120)); //p:2 d:0.15
         this.pid.enableContinuousInput(0, 360);
 
         addCommands(this.drivetrain.applyRequest(
@@ -42,5 +42,9 @@ public class AimAtHeadingAssist extends SequentialCommandGroup {
                         this.target.get().getDegrees()) * 0.3)
                     .withVelocityX(velx.get()).withVelocityY(vely.get());
             }));
+    }
+
+    public void updateRot() {
+        this.pid.reset(drivetrain.getPigeon2().getYaw().getValueAsDouble());
     }
 }
