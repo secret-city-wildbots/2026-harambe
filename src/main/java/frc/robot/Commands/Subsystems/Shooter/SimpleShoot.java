@@ -10,14 +10,14 @@ import frc.robot.Actors.Subsystems.Indexer.Indexer;
 import frc.robot.Actors.Subsystems.Shooter.Shooter;
 import frc.robot.Actors.Subsystems.Transfer.Transfer;
 
-public class Shoot extends ParallelCommandGroup {
-    public Shoot(Shooter shooter, Indexer indexer, Transfer transfer) {
+public class SimpleShoot extends ParallelCommandGroup {
+    public SimpleShoot(Shooter shooter, Indexer indexer, Transfer transfer, double vel) {
 
         addCommands(
 
             Commands.runEnd(
                 () -> {
-                    shooter.startShooting();
+                    shooter.shootOverride(vel);
                     transfer.startShooting();
                 },
                 () -> {

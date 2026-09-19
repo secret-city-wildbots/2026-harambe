@@ -5,6 +5,7 @@ import frc.robot.Robot;
 import frc.robot.Actors.Motor;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Utils.MotorType;
+import frc.robot.Utils.RotationDir;
 
 public class IntakeReal implements Intake {
     private final Motor intakeMotor;
@@ -15,10 +16,14 @@ public class IntakeReal implements Intake {
         this.extensionMotor = new Motor(IntakeConstants.extensionMotorID, MotorType.TFX);
 
         this.extensionMotor.applyConfig();
-        this.extensionMotor.motionMagic(2, 0, 0, 0, 0, 60, 60);
+        this.extensionMotor.motionMagic(3, 0, 0, 0, 0, 100, 140);
 
-        this.intakeMotor.configTFX.Slot0.kV = 0.14 * 12;
-        this.intakeMotor.pid(0.5, 0, 0);
+        this.intakeMotor.motorConfig.direction = RotationDir.Clockwise;
+        this.intakeMotor.motorConfig.peakReverseDC = 0.0;
+        this.intakeMotor.motorConfig.brake = false;
+        this.intakeMotor.applyConfig();
+        this.intakeMotor.slot0TFX.kV = 0.13;
+        this.intakeMotor.pid(0.05, 0, 0);
     }
 
     public void startIntaking() {

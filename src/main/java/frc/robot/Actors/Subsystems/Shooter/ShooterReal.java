@@ -26,8 +26,8 @@ public class ShooterReal implements Shooter {
         this.leadMotor.motorConfig.peakReverseDC = 0.0;
         this.leadMotor.motorConfig.brake = false;
         this.leadMotor.applyConfig();
-        this.leadMotor.slot0TFX.kV = 0.12;
-        this.leadMotor.pid(0.03, 0.0, 0.0); // Setup the Shooter PID
+        this.leadMotor.slot0TFX.kV = 0.13;
+        this.leadMotor.pid(0.1, 0.0, 0.0); // Setup the Shooter PID
 
         this.drivetrain = drivetrain;
 
@@ -35,10 +35,14 @@ public class ShooterReal implements Shooter {
     }
 
     public void startShooting() {
-        this.leadMotor.vel(ShotPredictor.getShotRPS(drivetrain.getPose().getTranslation(), ChassisSpeeds.fromRobotRelativeSpeeds(
+        this.leadMotor.vel(ShotPredictor.getShotRPS(drivetrain.getPose().getTranslation(),
+            ChassisSpeeds.fromRobotRelativeSpeeds(
                 drivetrain.getState().Speeds,
-                drivetrain.getState().Pose.getRotation()
-            )));
+                drivetrain.getState().Pose.getRotation())));
+    }
+
+    public void shootOverride(double vel) {
+        this.leadMotor.vel(vel);
     }
 
     public void stop() {

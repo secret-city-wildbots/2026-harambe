@@ -13,4 +13,8 @@ public class ShooterDummy implements Shooter {
 
     public void periodic() {
     }
+
+    public void shootOverride(double vel) {
+
+    }
 }

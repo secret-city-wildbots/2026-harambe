@@ -16,7 +16,6 @@ public class ClimbSequenceL1 extends SequentialCommandGroup {
      *            ({@link ElevatorLift})
      */
     public ClimbSequenceL1(Elevator elevatorLift) {
-
         addCommands(
 
             // 1. Full extend

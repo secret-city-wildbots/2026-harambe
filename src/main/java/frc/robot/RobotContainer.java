@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
@@ -59,6 +60,7 @@ import frc.robot.Commands.Subsystems.Elevator.ExtendLiftCommand;
 import frc.robot.Commands.Subsystems.Elevator.RetractLiftCommand;
 import frc.robot.Commands.Subsystems.Elevator.RotateHookToPositionCommand;
 import frc.robot.Commands.Subsystems.Shooter.Shoot;
+import frc.robot.Commands.Subsystems.Shooter.SimpleShoot;
 import frc.robot.Utils.ShotPredictor;
 import frc.robot.Utils.JoystickScaler;
 
@@ -97,6 +99,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final Dashboard dashboard;
+
+    public boolean speedDown = false;
 
     // public final Intake intake;
 
@@ -150,20 +154,16 @@ public class RobotContainer {
         // joystick.y().whileTrue(new ExtendLiftCommand(elevator, .35));
         // joystick.a().whileTrue(new RetractLiftCommand(elevator, false, .5));
         // joystick.x().whileTrue(new ClimbSequenceL3(elevator));
-        joystick.b().toggleOnTrue(new ClimbSequenceL1(elevator));
+        //joystick.b().toggleOnTrue(new ClimbSequenceL1(elevator));
+        joystick.x().whileTrue(new ExtendLiftCommand(elevator, .35));
+        joystick.b().whileTrue(new RetractLiftCommand(elevator, true, .35));
+        joystick.y().onTrue(Commands.runOnce(() -> {
+            speedDown = !speedDown;
+        }));
 
         //joystick.pov(180).whileTrue(new RotateHookToPositionCommand(elevator, 0.1));
 
         //joystick.pov(90).whileTrue(new AutoAlignToClimb());
-
-        joystick.a().whileTrue(
-            new AimAtHeadingAssist(drivetrain,
-                () -> ShotPredictor.getAdjHubSimple(drivetrain).minus(drivetrain.getPose().getTranslation()).getAngle()
-                    .plus(new Rotation2d(Math.PI / 2)),
-                () -> -joystick.getLeftY() * MaxSpeed,
-                () -> -joystick.getLeftX() * MaxSpeed));
-
-        ;
 
         ShotPredictor.getAdjustedHub(ChassisSpeeds.fromRobotRelativeSpeeds(
             drivetrain.getState().Speeds,
@@ -185,14 +185,16 @@ public class RobotContainer {
             },
             shooter, indexer, transfer));
 
-        joystick.rightBumper().whileTrue(new AimAtHeadingAssist(drivetrain, () -> {
-            return ShotPredictor.hubPosition.minus(drivetrain.getPose().getTranslation()).getAngle()
+        joystick.a().whileTrue(new AimAtHeadingAssist(drivetrain, () -> {
+            return ShotPredictor.getAdjHubSimple(drivetrain).minus(drivetrain.getPose().getTranslation()).getAngle()
                 .plus(new Rotation2d(Math.PI / 2));
         }, () -> {
             return (-joystick.getLeftY() * MaxSpeed * 0.5);
         }, () -> {
             return (-joystick.getLeftX() * MaxSpeed * 0.5);
         }));
+
+        joystick.rightBumper().whileTrue(new SimpleShoot(shooter, indexer, transfer, 55));
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -201,10 +203,10 @@ public class RobotContainer {
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(
                     () -> drive.withVelocityX(
-                        -joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        -joystick.getLeftY() * MaxSpeed * (speedDown ? 0.2 : 1)) // Drive forward with negative Y (forward)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed * (speedDown ? 0.2 : 1)) // Drive left with negative X (left)
                         .withRotationalRate(-joystick.getRightX()
-                            * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                            * MaxAngularRate * (speedDown ? 0.3 : 1)) // Drive counterclockwise with negative X (left)
                 ));
         } else {
             drivetrain.setDefaultCommand(

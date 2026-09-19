@@ -135,7 +135,7 @@ public class Robot extends TimedRobot {
             m_robotContainer.drivetrain.resetPose(LLRightPose.pose);
             System.out.println("RE-ZEROED IMU");
         } else {
-            System.out.println("t" + LimelightHelpers.getHeartbeat("limelight-right"));
+            //System.out.println("t" + LimelightHelpers.getHeartbeat("limelight-right"));
         }
     }
 
