@@ -11,6 +11,7 @@ import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.pathfinding.Pathfinder;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.path.PathConstraints;
@@ -134,15 +135,23 @@ public class RobotContainer {
         }
 
         new EventTrigger("Intake").toggleOnTrue(Commands.runEnd(intake::startIntaking, intake::stop, intake));
-        new EventTrigger("Shoot").toggleOnTrue(new Shoot(shooter, indexer, transfer));
+        new EventTrigger("AimAndShoot").toggleOnTrue(new Shoot(shooter, indexer, transfer));
         new EventTrigger("ClimbL1").toggleOnTrue(new ClimbSequenceL1(elevator));
 
         configureBindings();
 
         drivetrain.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
-        dashboard = new Dashboard(drivetrain, shooter, indexer, transfer, intake, null);
+        dashboard = new Dashboard(drivetrain, shooter, indexer, transfer, intake,
+            cmd -> armedAuto = cmd);
     }
+
+    /**
+     * Auto to run when nothing has been armed from the dashboard. Set this to a
+     * .auto filename (no extension, e.g. "RT-2Dip") to pick an auto from code;
+     * leave it "" to require arming in the dashboard's Autos tab.
+     */
+    private static final String DEFAULT_AUTO = "guchi";
 
     /** Auto armed from the dashboard's Autos tab, or null if none. */
     private Command armedAuto = null;
@@ -248,13 +257,22 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    public Command getAutonomousCommand() {
+    public Command getAutonomousCommand() { //Yes jasper, its 2 am and i want to go to bed.. don't judge :sob:e 
         /* Run the auto armed in the dashboard's "Autos" tab */
-        if (armedAuto == null) {
-            DriverStation.reportWarning(
-                "No auto armed — pick one in the dashboard's Autos tab", false);
-            return Commands.none();
+        if (armedAuto != null) {
+            return armedAuto;
         }
-        return armedAuto;
+
+        /* Nothing armed — fall back to the auto hardcoded in DEFAULT_AUTO */
+        if (!DEFAULT_AUTO.isEmpty()) {
+            DriverStation.reportWarning(
+                "No auto armed — running DEFAULT_AUTO \"" + DEFAULT_AUTO + "\"", false);
+            return new PathPlannerAuto(DEFAULT_AUTO);
+        }
+
+        DriverStation.reportWarning(
+            "No auto armed — pick one in the dashboard's Autos tab", false);
+        return Commands.none();
+        //return new PathPlannerAuto("HARAMBE"); //Swap current code for this line if dashboard no workie
     }
 }

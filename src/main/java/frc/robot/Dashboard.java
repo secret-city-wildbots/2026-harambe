@@ -149,7 +149,11 @@ public class Dashboard {
         // building the command here is safe.
         AutoTools tools = new AutoTools();
         tools.onArm((String name) -> {
-            autoChosen.accept(new PathPlannerAuto(name));
+            // A null consumer means nobody wants the command — still let the
+            // chooser show what was armed rather than throwing on the robot thread.
+            if (autoChosen != null) {
+                autoChosen.accept(new PathPlannerAuto(name));
+            }
             WBautoChooser.setArmed(name, tools.getWarnCount(name) > 0);
         });
         WBautoTools = tools;
