@@ -139,7 +139,7 @@ public class RobotContainer {
         drivetrain.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
         dashboard = new Dashboard(drivetrain, shooter, indexer, transfer, intake,
-                cmd -> armedAuto = cmd);
+            cmd -> armedAuto = cmd);
     }
 
     /**
@@ -147,7 +147,7 @@ public class RobotContainer {
      * .auto filename (no extension, e.g. "RT-2Dip") to pick an auto from code;
      * leave it "" to require arming in the dashboard's Autos tab.
      */
-    private static final String DEFAULT_AUTO = "HARAMBE";
+    private static final String DEFAULT_AUTO = "guchi";
 
     /** Auto armed from the dashboard's Autos tab, or null if none. */
     private Command armedAuto = null;
@@ -268,7 +268,7 @@ public class RobotContainer {
         }
 
         DriverStation.reportWarning(
-            "No auto armed — pick one in the dashboard's Autos tab", false); 
+            "No auto armed — pick one in the dashboard's Autos tab", false);
         return Commands.none();
         //return new PathPlannerAuto("HARAMBE"); //Swap current code for this line if dashboard no workie
     }
