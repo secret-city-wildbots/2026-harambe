@@ -1,0 +1,116 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.3,
+        "y": 6.9
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.201755555555557,
+        "y": 7.531988888888888
+      },
+      "isLocked": false,
+      "linkedName": "R45 End"
+    },
+    {
+      "anchor": {
+        "x": 3.6745333333333328,
+        "y": 7.380822222222222
+      },
+      "prevControl": {
+        "x": 4.75482214254574,
+        "y": 7.428307444605186
+      },
+      "nextControl": {
+        "x": 2.757455555555554,
+        "y": 7.340511111111111
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.039633333333333,
+        "y": 4.679977777777778
+      },
+      "prevControl": {
+        "x": 3.039633333333333,
+        "y": 7.330433333333333
+      },
+      "nextControl": {
+        "x": 3.039633333333333,
+        "y": 3.8381062554765837
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.6287444444444446,
+        "y": 3.9039888888888887
+      },
+      "prevControl": {
+        "x": 2.172944444444444,
+        "y": 3.8737555555555554
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5052631578947359,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.152631578947367,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 2.3986710963455096,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SimpleShoot",
+      "waypointRelativePos": 3.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "HARAMBE",
+  "idealStartingState": {
+    "velocity": 3.0,
+    "rotation": 135.0
+  },
+  "useDefaultConstraints": true
+}
