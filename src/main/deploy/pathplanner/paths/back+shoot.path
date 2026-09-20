@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 3.5159570661896247,
-        "y": 4.0593381037567084
+        "y": 4.06
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.266601073345259,
-        "y": 4.0593381037567084
+        "y": 4.06
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.5851341681574236,
-        "y": 4.0593381037567084
+        "x": 1.585,
+        "y": 4.06
       },
       "prevControl": {
-        "x": 2.7371377459749553,
-        "y": 4.07556350626118
+        "x": 2.7371178355493093,
+        "y": 4.06
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Harambe"
     }
   ],
   "rotationTargets": [],

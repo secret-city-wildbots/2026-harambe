@@ -16,26 +16,26 @@
     },
     {
       "anchor": {
-        "x": 2.717144444439406,
-        "y": 5.193944444444444
+        "x": 1.585,
+        "y": 4.06
       },
       "prevControl": {
-        "x": 3.855933333328294,
-        "y": 5.8691555555555555
+        "x": 2.621863636363636,
+        "y": 5.982988636363636
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Harambe"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.47719298245614017,
-      "rotationDegrees": -36.67754048414405
+      "waypointRelativePos": 0.36880290205562205,
+      "rotationDegrees": -45.0
     },
     {
-      "waypointRelativePos": 0.8245614035087796,
-      "rotationDegrees": -36.68
+      "waypointRelativePos": 0.6118500604594931,
+      "rotationDegrees": -45.0
     }
   ],
   "constraintZones": [],
@@ -58,7 +58,7 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": -128.453709216049
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "HARAMBE",
