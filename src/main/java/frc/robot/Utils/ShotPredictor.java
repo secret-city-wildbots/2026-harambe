@@ -24,6 +24,7 @@ public class ShotPredictor {
     }
 
     public static Translation2d getAdjustedHub(ChassisSpeeds robotVel, double dist) {
+        ShotPredictor.hubX = (DriverStation.getAlliance().get() == Alliance.Blue) ? (4.63) : (11.9);
         return hubPosition.minus(
             new Translation2d(robotVel.vxMetersPerSecond, robotVel.vyMetersPerSecond).times(getAirtime(dist)));
     }

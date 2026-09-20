@@ -16,73 +16,25 @@
     },
     {
       "anchor": {
-        "x": 3.116346381969158,
-        "y": 5.288446026097272
-      },
-      "prevControl": {
-        "x": 3.8910083036773426,
-        "y": 5.955516014234877
-      },
-      "nextControl": {
-        "x": 2.8130379535851593,
-        "y": 5.027263768322162
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.653701067615659,
-        "y": 4.06
-      },
-      "prevControl": {
-        "x": 2.9036902930412296,
-        "y": 4.062321028031573
-      },
-      "nextControl": {
-        "x": 2.403711842190088,
-        "y": 4.057678971968426
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
         "x": 1.585,
         "y": 4.06
       },
       "prevControl": {
-        "x": 2.040427046263346,
-        "y": 4.018861209964412
+        "x": 2.621863636363636,
+        "y": 5.982988636363636
       },
-      "nextControl": null,
       "isLocked": false,
       "linkedName": "Harambe"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.47719298245614017,
-      "rotationDegrees": -35.0
+      "waypointRelativePos": 0.36880290205562205,
+      "rotationDegrees": -45.0
     },
     {
-      "waypointRelativePos": 0.8245614035087796,
-      "rotationDegrees": -35.0
-    }
-  ],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.8357705286838972,
-      "maxWaypointRelativePos": 3.0,
-      "constraints": {
-        "maxVelocity": 0.75,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 360.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
+      "waypointRelativePos": 0.6118500604594931,
+      "rotationDegrees": -45.0
     }
   ],
   "pointTowardsZones": [],
