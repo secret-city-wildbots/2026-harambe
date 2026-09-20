@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.942033333333333,
-        "y": 5.728066666666666
+        "x": 5.870699881376039,
+        "y": 5.406797153024911
       },
       "isLocked": false,
       "linkedName": null
@@ -23,7 +23,6 @@
         "x": 2.621863636363636,
         "y": 5.982988636363636
       },
-      "nextControl": null,
       "isLocked": false,
       "linkedName": "Harambe"
     }
@@ -38,12 +37,11 @@
       "rotationDegrees": -45.0
     }
   ],
-  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "AimAndShoot",
-      "waypointRelativePos": 1.0,
+      "name": "SimpleShoot",
+      "waypointRelativePos": 3.0,
       "endWaypointRelativePos": null,
       "command": null
     }
